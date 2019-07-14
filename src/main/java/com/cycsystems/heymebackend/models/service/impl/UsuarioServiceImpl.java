@@ -1,0 +1,48 @@
+package com.cycsystems.heymebackend.models.service.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.cycsystems.heymebackend.models.dao.IUsuarioDao;
+import com.cycsystems.heymebackend.models.entity.Usuario;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
+
+@Service
+public class UsuarioServiceImpl implements IUsuarioService {
+
+	@Autowired
+	IUsuarioDao usuarioRepository;
+	
+	@Override
+	public Usuario save(Usuario entity) {
+		return this.usuarioRepository.save(entity);
+	}
+
+	@Override
+	public Usuario findById(Integer id) {
+		return this.usuarioRepository.findById(id).get();
+	}
+
+	@Override
+	public boolean existsById(Integer id) {
+		return this.usuarioRepository.existsById(id);
+	}
+
+	@Override
+	public List<Usuario> findAll() {
+		return (List<Usuario>) this.usuarioRepository.findAll();
+	}
+
+	@Override
+	public long count() {
+		return this.usuarioRepository.count();
+	}
+
+	@Override
+	public Usuario findByUsername(String username) {
+		return this.usuarioRepository.findByUsername(username);
+	}
+
+}
