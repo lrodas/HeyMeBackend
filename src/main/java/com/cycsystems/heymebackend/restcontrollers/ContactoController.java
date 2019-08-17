@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,11 +20,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.cycsystems.heymebackend.common.Pais;
+import com.cycsystems.heymebackend.common.Provincia;
+import com.cycsystems.heymebackend.common.Region;
 import com.cycsystems.heymebackend.input.ContactoRequest;
 import com.cycsystems.heymebackend.models.entity.Contacto;
-import com.cycsystems.heymebackend.models.entity.Region;
 import com.cycsystems.heymebackend.models.service.IContactoService;
-import com.cycsystems.heymebackend.models.service.IRegionService;
+import com.cycsystems.heymebackend.models.service.IProvinciaService;
 import com.cycsystems.heymebackend.output.ContactoResponse;
 import com.cycsystems.heymebackend.util.Constants;
 
@@ -34,11 +36,12 @@ public class ContactoController {
 	private Logger LOG = LogManager.getLogger(ContactoController.class);
 	
 	@Autowired
-	private IRegionService regionService;
+	private IProvinciaService provinciaService;
 	
 	@Autowired
 	private IContactoService contactoService;
 	
+	@Async
 	@PostMapping("/findAll")
 	public ListenableFuture<ResponseEntity<?>> obtenerTodos() {
 		
@@ -56,6 +59,43 @@ public class ContactoController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
+	@PostMapping("/findById")
+	public ListenableFuture<ResponseEntity<?>> buscarContactoPorId(@RequestBody ContactoRequest input) {
+		
+		LOG.info("METHOD: buscarcontactoPorId() --PARAMS: " + input);
+		ContactoResponse output = new ContactoResponse();
+		
+		if (input.getContacto() == null) {
+			output.setCodigo("0058");
+			output.setDescripcion("Es necesario enviar los datos del contacto");
+			output.setIndicador("ERROR");
+		} else if (input.getContacto().getIdContacto() == null || input.getContacto().getIdContacto() <= 0) {
+			output.setCodigo("0059");
+			output.setDescripcion("Es necesario enviar el id del contacto");
+			output.setIndicador("ERROR");
+		} else {
+			Contacto contacto = this.contactoService.findById(input.getContacto().getIdContacto());
+			
+			if (contacto == null) {
+				output.setCodigo("0060");
+				output.setDescripcion("El usuario con el id: " + input.getContacto().getIdContacto() + " no existe");
+				output.setIndicador("ERROR");
+			} else {
+				
+				
+				
+				output.setCodigo("0000");
+				output.setDescripcion("Contactos obtenidos exitosamente");
+				output.setIndicador("SUCCESS");
+				output.setContacto(this.mapContact(contacto));
+			}
+		}
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	@Async
 	@PostMapping("/findByStatus")
 	public ListenableFuture<ResponseEntity<?>> obtenerContactoPorEstado(@RequestBody ContactoRequest input) {
 		
@@ -84,6 +124,7 @@ public class ContactoController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
 	@PostMapping("/findByCreationDate")
 	public ListenableFuture<ResponseEntity<?>> obtenerContactoPorFecha(@RequestBody ContactoRequest input) {
 		
@@ -141,6 +182,7 @@ public class ContactoController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
 	@PostMapping("/findByName")
 	public ListenableFuture<ResponseEntity<?>> obtenerContactoPorNombre(@RequestBody ContactoRequest input) {
 		
@@ -163,6 +205,7 @@ public class ContactoController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
 	@PostMapping("/save")
 	public ListenableFuture<ResponseEntity<?>> guardarContacto(@RequestBody ContactoRequest input) {
 		
@@ -181,8 +224,8 @@ public class ContactoController {
 			output.setCodigo("0025");
 			output.setDescripcion("La direccion del contacto es obligatorio");
 			output.setIndicador("ERROR");
-		} else if (input.getContacto().getRegion() == null || input.getContacto().getRegion().getIdRegion() == null ||
-				input.getContacto().getRegion().getIdRegion() <= 0) {
+		} else if (input.getContacto().getProvincia() == null || input.getContacto().getProvincia().getIdProvincia() == null ||
+				input.getContacto().getProvincia().getIdProvincia() <= 0) {
 			output.setCodigo("0026");
 			output.setDescripcion("La region a la que pertence el contacto es obligatoria");
 			output.setIndicador("ERROR");
@@ -192,9 +235,9 @@ public class ContactoController {
 			output.setIndicador("ERROR");
 		} else {
 			
-			Region region = this.regionService.findById(input.getContacto().getRegion().getIdRegion());
+			com.cycsystems.heymebackend.models.entity.Provincia provincia = this.provinciaService.findById(input.getContacto().getProvincia().getIdProvincia());
 			
-			if (region == null) {
+			if (provincia == null) {
 				output.setCodigo("0028");
 				output.setDescripcion("La region enviada no existe, por favor verifique");
 				output.setIndicador("ERROR");
@@ -206,14 +249,15 @@ public class ContactoController {
 				contacto.setDireccion(input.getContacto().getDireccion());
 				contacto.setEmail(input.getContacto().getEmail());
 				contacto.setTelefono(input.getContacto().getTelefono());
-				contacto.setEstado(true);
-				contacto.setRegion(region);
+				contacto.setEstado(input.getContacto().getEstado());
+				contacto.setProvincia(provincia);
 				
-				this.contactoService.save(contacto);
+				contacto = this.contactoService.save(contacto);
 				
 				output.setCodigo("0000");
 				output.setDescripcion("El contacto fue guardado exitosamente");
 				output.setIndicador("SUCCESS");
+				output.setContacto(this.mapContact(contacto));
 			}			
 		}
 		
@@ -233,24 +277,43 @@ public class ContactoController {
 			modelo.setDireccion(contacto.getDireccion());
 			modelo.setEmail(contacto.getEmail());
 			modelo.setEstado(contacto.getEstado());
-			
-			com.cycsystems.heymebackend.common.Region region = new com.cycsystems.heymebackend.common.Region();
-			region.setIdRegion(contacto.getRegion().getIdRegion());
-			region.setNombre(contacto.getRegion().getNombre());
-			
-			Pais pais = new Pais();
-			pais.setIdPais(contacto.getRegion().getPais().getIdPais());
-			pais.setNombre(contacto.getRegion().getPais().getNombre());
-			
-			region.setPais(pais);
-			
-			modelo.setRegion(region);
+			modelo.setProvincia(new Provincia(
+					contacto.getProvincia().getIdProvincia(),
+					contacto.getProvincia().getNombre(),
+					new Region(
+							contacto.getProvincia().getRegion().getIdRegion(),
+							contacto.getProvincia().getRegion().getNombre(),
+							new Pais(
+									contacto.getProvincia().getRegion().getPais().getIdPais(),
+									contacto.getProvincia().getRegion().getPais().getNombre()))));
 			modelo.setTelefono(contacto.getTelefono());
 			
 			modelos.add(modelo);
-			
 		}
 		
 		return modelos;
+	}
+	
+	private com.cycsystems.heymebackend.common.Contacto mapContact(Contacto contacto) {
+		
+		com.cycsystems.heymebackend.common.Contacto modelo = new com.cycsystems.heymebackend.common.Contacto();
+		modelo.setIdContacto(contacto.getIdContacto());
+		modelo.setNombre(contacto.getNombre());
+		modelo.setApellido(contacto.getApellido());
+		modelo.setDireccion(contacto.getDireccion());
+		modelo.setEmail(contacto.getEmail());
+		modelo.setEstado(contacto.getEstado());
+		modelo.setTelefono(contacto.getTelefono());
+		modelo.setProvincia(new Provincia(
+				contacto.getProvincia().getIdProvincia(),
+				contacto.getProvincia().getNombre(),
+				new Region(
+						contacto.getProvincia().getRegion().getIdRegion(),
+						contacto.getProvincia().getRegion().getNombre(),
+						new Pais(
+								contacto.getProvincia().getRegion().getPais().getIdPais(),
+								contacto.getProvincia().getRegion().getPais().getNombre()))));
+		
+		return modelo;
 	}
 }

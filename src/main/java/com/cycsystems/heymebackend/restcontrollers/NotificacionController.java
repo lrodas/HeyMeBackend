@@ -23,6 +23,7 @@ import com.cycsystems.heymebackend.common.Canal;
 import com.cycsystems.heymebackend.common.EstadoNotificacion;
 import com.cycsystems.heymebackend.common.Genero;
 import com.cycsystems.heymebackend.common.Pais;
+import com.cycsystems.heymebackend.common.Provincia;
 import com.cycsystems.heymebackend.common.Region;
 import com.cycsystems.heymebackend.common.Role;
 import com.cycsystems.heymebackend.input.NotificacionRequest;
@@ -236,16 +237,17 @@ public class NotificacionController {
 			contacto.setDireccion(notificacion.getDestinatario().getDireccion());
 			contacto.setEmail(notificacion.getDestinatario().getEmail());
 			contacto.setEstado(notificacion.getDestinatario().getEstado());
-			
-			Region region = new Region();
-			region.setIdRegion(notificacion.getDestinatario().getRegion().getIdRegion());
-			region.setNombre(notificacion.getDestinatario().getRegion().getNombre());
-			region.setPais(
-					new Pais(
-							notificacion.getDestinatario().getRegion().getPais().getIdPais(),
-							notificacion.getDestinatario().getRegion().getPais().getNombre()));
-			contacto.setRegion(region);
 			contacto.setTelefono(notificacion.getDestinatario().getTelefono());
+			
+			contacto.setProvincia(new Provincia(
+					notificacion.getDestinatario().getProvincia().getIdProvincia(),
+					notificacion.getDestinatario().getProvincia().getNombre(),
+					new Region(
+							notificacion.getDestinatario().getProvincia().getRegion().getIdRegion(),
+							notificacion.getDestinatario().getProvincia().getRegion().getNombre(),
+							new Pais(
+									notificacion.getDestinatario().getProvincia().getRegion().getPais().getIdPais(),
+									notificacion.getDestinatario().getProvincia().getRegion().getPais().getNombre()))));
 			
 			modelo.setDestinatario(contacto);
 			modelo.setEstado(

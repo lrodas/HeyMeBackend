@@ -35,8 +35,8 @@ public class Contacto implements Serializable {
 	private String email;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="idRegion")
-	private Region region;
+	@JoinColumn(name="idProvincia")
+	private Provincia provincia;
 	
 	@Column(name="direccion", nullable=false)
 	private String direccion;
@@ -51,17 +51,18 @@ public class Contacto implements Serializable {
 	private void prePersist() {
 		this.fechaCreacion = new Date();
 	}
-	
-	public Contacto(Integer idContacto, String nombre, String apellido, String telefono, String email, Region region,
-			String direccion, Boolean estado) {
+
+	public Contacto(Integer idContacto, String nombre, String apellido, String telefono, String email,
+			Provincia provincia, String direccion, Boolean estado, Date fechaCreacion) {
 		this.idContacto = idContacto;
 		this.nombre = nombre;
 		this.apellido = apellido;
 		this.telefono = telefono;
 		this.email = email;
-		this.region = region;
+		this.provincia = provincia;
 		this.direccion = direccion;
 		this.estado = estado;
+		this.fechaCreacion = fechaCreacion;
 	}
 
 	public Contacto(Integer idContacto) {
@@ -111,12 +112,12 @@ public class Contacto implements Serializable {
 		this.email = email;
 	}
 
-	public Region getRegion() {
-		return region;
+	public Provincia getProvincia() {
+		return provincia;
 	}
 
-	public void setRegion(Region region) {
-		this.region = region;
+	public void setProvincia(Provincia provincia) {
+		this.provincia = provincia;
 	}
 
 	public String getDireccion() {
@@ -146,8 +147,8 @@ public class Contacto implements Serializable {
 	@Override
 	public String toString() {
 		return "Contacto [idContacto=" + idContacto + ", nombre=" + nombre + ", apellido=" + apellido + ", telefono="
-				+ telefono + ", email=" + email + ", region=" + region + ", direccion=" + direccion + ", estado="
-				+ estado + "]";
+				+ telefono + ", email=" + email + ", provincia=" + provincia + ", direccion=" + direccion + ", estado="
+				+ estado + ", fechaCreacion=" + fechaCreacion + "]";
 	}
 
 	private static final long serialVersionUID = 1L;

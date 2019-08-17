@@ -7,7 +7,7 @@ public class Contacto {
 	private String apellido;
 	private String telefono;
 	private String email;
-	private Region region;
+	private Provincia provincia;
 	private String direccion;
 	private Boolean estado;
 
@@ -58,12 +58,12 @@ public class Contacto {
 		this.email = email;
 	}
 
-	public Region getRegion() {
-		return region;
+	public Provincia getProvincia() {
+		return provincia;
 	}
 
-	public void setRegion(Region region) {
-		this.region = region;
+	public void setProvincia(Provincia provincia) {
+		this.provincia = provincia;
 	}
 
 	public String getDireccion() {
@@ -81,11 +81,11 @@ public class Contacto {
 	public void setEstado(Boolean estado) {
 		this.estado = estado;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Contacto [idContacto=" + idContacto + ", nombre=" + nombre + ", apellido=" + apellido + ", telefono="
-				+ telefono + ", email=" + email + ", region=" + region + ", direccion=" + direccion + ", estado="
+				+ telefono + ", email=" + email + ", provincia=" + provincia + ", direccion=" + direccion + ", estado="
 				+ estado + "]";
 	}
 }

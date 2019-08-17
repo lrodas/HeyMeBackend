@@ -3,7 +3,6 @@ package com.cycsystems.heymebackend.common;
 public class Usuario {
 
 	private Integer idUsuario;
-
 	private String nombres;
 	private String apellidos;
 	private String direccion;

@@ -6,6 +6,16 @@ public class Region {
 	private String nombre;
 	private Pais pais;
 
+	public Region(Integer idRegion, String nombre, Pais pais) {
+		this.idRegion = idRegion;
+		this.nombre = nombre;
+		this.pais = pais;
+	}
+
+	public Region() {
+		super();
+	}
+
 	public Integer getIdRegion() {
 		return idRegion;
 	}

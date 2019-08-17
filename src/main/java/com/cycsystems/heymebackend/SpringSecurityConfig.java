@@ -1,6 +1,9 @@
 package com.cycsystems.heymebackend;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -9,6 +12,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.cycsystems.heymebackend.auth.filter.JWTAuthenticationFilter;
 import com.cycsystems.heymebackend.auth.filter.JWTAuthorizationFilter;
@@ -39,14 +45,31 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
 
 		http.authorizeRequests()
 		.antMatchers(HttpMethod.GET, "/api/" + Constants.VERSION + "/image/**").permitAll()
+		.antMatchers(HttpMethod.POST, "/api/" + Constants.VERSION + "/image/**").permitAll()
 		.anyRequest().authenticated()		
 		.and()
 		.addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtService))
 		.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtService))
 		.csrf().disable()
-		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+		.and()
+		.cors().configurationSource(corsConfigurationSource())
+		.and()
+		.httpBasic();
 
 	}
+	
+	@Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Host","Accept", "Origin", "X-Frame-Options", "X-Requested-With", "Authorization", "content-type", "x-auth-token"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
 	@Autowired
 	public void configurerGlobal(AuthenticationManagerBuilder build) throws Exception

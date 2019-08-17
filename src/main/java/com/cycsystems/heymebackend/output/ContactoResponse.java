@@ -9,6 +9,7 @@ import com.cycsystems.heymebackend.common.Contacto;
 public class ContactoResponse extends BaseOutput {
 
 	private List<Contacto> contactos;
+	private Contacto contacto;
 
 	public List<Contacto> getContactos() {
 		if (this.contactos == null) {
@@ -21,8 +22,16 @@ public class ContactoResponse extends BaseOutput {
 		this.contactos = contactos;
 	}
 
+	public Contacto getContacto() {
+		return contacto;
+	}
+
+	public void setContacto(Contacto contacto) {
+		this.contacto = contacto;
+	}
+
 	@Override
 	public String toString() {
-		return "ContactoResponse [contactos=" + contactos + ", toString()=" + super.toString() + "]";
+		return "ContactoResponse [contactos=" + contactos + ", contacto=" + contacto + "]";
 	}
 }

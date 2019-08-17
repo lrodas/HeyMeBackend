@@ -76,6 +76,7 @@ public class ImagenController {
 					output.setCodigo("0000");
 					output.setDescripcion("La imagen del usuario fue actualizada exitosamente");
 					output.setIndicador("SUCCESS");
+					output.setImg(nombreArchivo);
 				}
 			} else {
 				output.setCodigo("0017");

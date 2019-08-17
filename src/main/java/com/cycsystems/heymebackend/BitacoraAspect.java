@@ -40,23 +40,25 @@ public class BitacoraAspect {
 		LOG.info(p.getTarget().getClass().getSimpleName() + ", " + metodo + " START");
 		Object[] signatureArgs = p.getArgs();
 		
-		try {
-			
-			if (signatureArgs[0] != null) {
+		if (!metodo.equalsIgnoreCase("obtenerImagen")) {
+			try {
 				
-				Bitacora bitacora = new Bitacora();
-				bitacora.setMetodo(metodo);
-				bitacora.setTipoOperacion(new TipoOperacion(Constants.REQUEST_IN));
-				bitacora.setJson(objectMapper.writeValueAsString(signatureArgs[0]));
-				BaseInput base = (BaseInput) signatureArgs[0];
-				bitacora.setPagina(base.getPagina());
-				bitacora.setError("");
-				
-				this.bitacoraService.save(bitacora);
-				LOG.info("Request object: " + objectMapper.writeValueAsString(signatureArgs[0]));
+				if (signatureArgs[0] != null) {
+					
+					Bitacora bitacora = new Bitacora();
+					bitacora.setMetodo(metodo);
+					bitacora.setTipoOperacion(new TipoOperacion(Constants.REQUEST_IN));
+					bitacora.setJson(objectMapper.writeValueAsString(signatureArgs[0]));
+					BaseInput base = (BaseInput) signatureArgs[0];
+					bitacora.setPagina(base.getPagina());
+					bitacora.setError("");
+					
+					this.bitacoraService.save(bitacora);
+					LOG.info("Request object: " + objectMapper.writeValueAsString(signatureArgs[0]));
+				}
+			} catch (Exception e) {
+				LOG.info("Error en enpointBefore(): " + e);
 			}
-		} catch (Exception e) {
-			LOG.info("Error en enpointBefore(): " + e);
 		}
 	}
 	
@@ -66,20 +68,25 @@ public class BitacoraAspect {
 		ListenableFuture<ResponseEntity<?>> value = (ListenableFuture<ResponseEntity<?>>) returnValue;
 		value.addCallback(result -> {
 			String metodo = p.getSignature().getName();
-			try {
-				Object[] signatureArgs = p.getArgs();
-				if (signatureArgs[0] != null) {
-					Bitacora bitacora = new Bitacora();
-					bitacora.setMetodo(metodo);
-					bitacora.setJson(objectMapper.writer().writeValueAsString(result.getBody()));
-					bitacora.setTipoOperacion(new TipoOperacion(Constants.REPLAY_OUT));
-					bitacora.setPagina("");
-					bitacora.setError("");
-					this.bitacoraService.save(bitacora);
-					LOG.info("Response object: " + bitacora.getJson());
+			
+			LOG.info("metodo: " + metodo);
+			
+			if (!metodo.equalsIgnoreCase("obtenerImagen")) {
+				try {
+					Object[] signatureArgs = p.getArgs();
+					if (signatureArgs[0] != null) {
+						Bitacora bitacora = new Bitacora();
+						bitacora.setMetodo(metodo);
+						bitacora.setJson(objectMapper.writer().writeValueAsString(result.getBody()));
+						bitacora.setTipoOperacion(new TipoOperacion(Constants.REPLAY_OUT));
+						bitacora.setPagina("");
+						bitacora.setError("");
+						this.bitacoraService.save(bitacora);
+						LOG.info("Response object: " + bitacora.getJson());
+					}
+				} catch (Exception e) {
+					LOG.error("Error en endpointAfterReturning", e);
 				}
-			} catch (Exception e) {
-				LOG.error("Error en endpointAfterReturning", e);
 			}
 			LOG.info(p.getTarget().getClass().getSimpleName() + " " + metodo + " END");
 		}, error -> {
