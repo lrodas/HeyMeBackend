@@ -9,6 +9,15 @@ import com.cycsystems.heymebackend.common.PlantillaNotificacion;
 public class PlantillaNotificacionResponse extends BaseOutput {
 
 	private List<PlantillaNotificacion> plantillas;
+	private PlantillaNotificacion plantilla;
+
+	public PlantillaNotificacion getPlantilla() {
+		return plantilla;
+	}
+
+	public void setPlantilla(PlantillaNotificacion plantilla) {
+		this.plantilla = plantilla;
+	}
 
 	public List<PlantillaNotificacion> getPlantillas() {
 		if (this.plantillas == null) {
@@ -23,6 +32,6 @@ public class PlantillaNotificacionResponse extends BaseOutput {
 
 	@Override
 	public String toString() {
-		return "PlantillaNotificacionResponse [plantillas=" + plantillas + ", toString()=" + super.toString() + "]";
+		return "PlantillaNotificacionResponse [plantillas=" + plantillas + ", plantilla=" + plantilla + "]";
 	}
 }

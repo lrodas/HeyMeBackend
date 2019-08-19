@@ -28,6 +28,47 @@ public class PlantillaNotificacionController {
 	@Autowired
 	private IPlantillaNotificacionService service;
 	
+	@PostMapping("/findById")
+	public ListenableFuture<ResponseEntity<?>> obtenerPlantillaPorId(
+			@RequestBody PlantillaNotificacionRequest input) {
+		
+		LOG.info("METHOD: obtenerPlantillaPorId() --PARAMS: PlantillaNotificacionRequest: " + input);
+		
+		PlantillaNotificacionResponse output = new PlantillaNotificacionResponse();
+		
+		if (input.getPlantilla().getIdPlantillaNotificacion() == null || input.getPlantilla().getIdPlantillaNotificacion() <= 0) {
+			output.setCodigo("0058");
+			output.setDescripcion("Debe enviar la plantilla");
+			output.setIndicador("ERROR");
+		} else {
+			
+			PlantillaNotificacion plantilla = this.service.findById(input.getPlantilla().getIdPlantillaNotificacion());
+			
+			if (plantilla == null) {
+				
+				output.setCodigo("0059");
+				output.setDescripcion("No se encuentra la plantilla con el identificador enviado");
+				output.setIndicador("SUCCESS");
+				
+			} else {
+				
+				output.setCodigo("0000");
+				output.setDescripcion("Plantilla obtenida exitosamente");
+				output.setIndicador("SUCCESS");
+				
+				com.cycsystems.heymebackend.common.PlantillaNotificacion modelo = new com.cycsystems.heymebackend.common.PlantillaNotificacion();
+				modelo.setIdPlantillaNotificacion(plantilla.getIdPlantillaNotificacion());
+				modelo.setPlantilla(plantilla.getPlantilla());
+				modelo.setTitulo(plantilla.getTitulo());
+				modelo.setEstado(plantilla.getEstado());
+				output.setPlantilla(modelo);
+			}
+		}
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+		
+	}
+	
 	@PostMapping("/findByStatus")
 	public ListenableFuture<ResponseEntity<?>> obtenerPlantillasPorEstado(
 			@RequestBody PlantillaNotificacionRequest input) {
@@ -171,11 +212,18 @@ public class PlantillaNotificacionController {
 			plantilla.setPlantilla(input.getPlantilla().getPlantilla());
 			plantilla.setEstado(input.getPlantilla().getEstado());
 			
-			this.service.save(plantilla);
+			plantilla = this.service.save(plantilla);
 			
 			output.setCodigo("0000");
 			output.setDescripcion("Plantilla guardada exitosamente");
 			output.setIndicador("SUCCESS");
+			
+			com.cycsystems.heymebackend.common.PlantillaNotificacion modelo = new com.cycsystems.heymebackend.common.PlantillaNotificacion();
+			modelo.setIdPlantillaNotificacion(plantilla.getIdPlantillaNotificacion());
+			modelo.setTitulo(plantilla.getTitulo());
+			modelo.setPlantilla(plantilla.getPlantilla());
+			modelo.setEstado(plantilla.getEstado());
+			output.setPlantilla(modelo);
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
