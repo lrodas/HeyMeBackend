@@ -61,4 +61,9 @@ public class NotificacionServiceImpl implements INotificacionService {
 		return this.repository.findByFechaEnvioLessThanAndEstado_idEstadoNotificacion(fecha, idEstadoNotificacion);
 	}
 
+	@Override
+	public List<Notificacion> findByStatus(Integer status) {
+		return this.repository.findByEstado_idEstadoNotificacionEquals(status);
+	}
+
 }

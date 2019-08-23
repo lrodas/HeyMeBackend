@@ -24,4 +24,6 @@ public interface INotificacionService {
 	public abstract List<Notificacion> findByDate(Date fechaInicio, Date fechaFin, Integer estado);
 	
 	public abstract List<Notificacion> findbySendingDate(Date fecha, Integer idEstadoNotificacion);
+	
+	public abstract List<Notificacion> findByStatus(Integer status);
 }

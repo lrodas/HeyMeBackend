@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -54,6 +55,7 @@ public class NotificacionController {
 	@Value("${estado.notificacion.programada}")
 	private Integer ESTADO_NOTIFICACION_PROGRAMADA;
 	
+	@Async
 	@PostMapping("/findByDate")
 	public ListenableFuture<ResponseEntity<?>> obtenerNotificacionPorFecha(
 			@RequestBody NotificacionRequest input) {
@@ -109,6 +111,7 @@ public class NotificacionController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
 	@PostMapping("/findByTitle")
 	public ListenableFuture<ResponseEntity<?>> obtenerNotificacionPorTitulo(
 			@RequestBody NotificacionRequest input) {
@@ -132,6 +135,7 @@ public class NotificacionController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
 	@PostMapping("/findByUser")
 	public ListenableFuture<ResponseEntity<?>> obtenerNotificacionesPorUsuario(
 			@RequestBody NotificacionRequest input) {
@@ -157,6 +161,30 @@ public class NotificacionController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
+	@PostMapping("/findByStatus")
+	public ListenableFuture<ResponseEntity<?>> obtenerNotificacionesPorEstado(@RequestBody NotificacionRequest input) {
+		
+		LOG.info("METHOD: obtenerNotificacionesPorEstado() --PARAMS: notificacionRequest: " + input);
+		NotificacionResponse output = new NotificacionResponse();
+		
+		if (input.getNotificacion().getEstado() == null || input.getNotificacion().getEstado().getIdEstadoNotificacion() <= 0) {
+			output.setCodigo("0060");
+			output.setDescripcion("Debe enviar el estado de la notificacion");
+			output.setIndicador("ERROR");
+		}
+		
+		List<Notificacion> notificaciones = this.notificacionService.findByStatus(input.getNotificacion().getEstado().getIdEstadoNotificacion());
+		
+		output.setCodigo("0000");
+		output.setDescripcion("Notificaciones obtenidas exitosamente");
+		output.setIndicador("SUCCESS");
+		output.setNotificaciones(this.mapparLista(notificaciones));
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	@Async
 	@PostMapping("/save")
 	public ListenableFuture<ResponseEntity<?>> guardarNotificacion(
 			@RequestBody NotificacionRequest input) {
