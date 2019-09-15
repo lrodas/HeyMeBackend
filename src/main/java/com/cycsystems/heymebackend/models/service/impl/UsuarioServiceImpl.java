@@ -1,5 +1,6 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,16 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	@Override
 	public Usuario findByUsername(String username) {
 		return this.usuarioRepository.findByUsername(username);
+	}
+
+	@Override
+	public List<Usuario> findByStartDate(Date fechaInicio, Date fechaFin) {
+		return this.usuarioRepository.findByFechaAltaBetween(fechaInicio, fechaFin);
+	}
+
+	@Override
+	public List<Usuario> findByName(String nombres) {
+		return this.usuarioRepository.findByNombresLikeIgnoreCaseOrApellidosLikeIgnoreCase("%" + nombres + "%","%" + nombres + "%");
 	}
 
 }

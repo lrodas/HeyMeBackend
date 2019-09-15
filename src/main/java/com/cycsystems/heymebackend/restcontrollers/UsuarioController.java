@@ -1,10 +1,18 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -41,6 +49,59 @@ public class UsuarioController {
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
 	
+	@Async
+	@PostMapping("/changeStatus")
+	public ListenableFuture<ResponseEntity<?>> cambiarEstado(@RequestBody UsuarioRequest input) {
+		
+		LOG.info("METHOD: cambiarEstado() --PARAMS: input: " + input);
+		UsuarioResponse output = new UsuarioResponse();
+		
+		
+		if (input.getDatos() == null) {
+			
+			output.setCodigo("0061");
+			output.setDescripcion("Debe enviar los datos de la notificacion");
+			output.setIndicador("ERROR");
+		} else if (input.getDatos().getIdUsuario() == null || input.getDatos().getIdUsuario() <= 0) {
+			
+			output.setCodigo("0062");
+			output.setDescripcion("Debe enviar el id del usuario a cambiar el estado");
+			output.setIndicador("ERROR");
+		} else if (input.getDatos().getEnabled() == null) {
+			
+			output.setCodigo("0063");
+			output.setDescripcion("Debe enviar el nuevo estado del usuario");
+			output.setIndicador("ERROR");
+		} else {
+			Usuario usuario = this.usuarioService.findById(input.getDatos().getIdUsuario());
+			usuario.setEnabled(input.getDatos().getEnabled());
+						
+			output.setCodigo("0000");
+			output.setDescripcion("Usuarios obtenidos exitosamente");
+			output.setIndicador("SUCCESS");
+			output.setUsuario(this.mapUsuario(this.usuarioService.save(usuario)));
+		}
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	@Async
+	@PostMapping("/retrieveUsers")
+	public ListenableFuture<ResponseEntity<?>> obtenerUsuarios(@RequestBody UsuarioRequest input) {
+		
+		LOG.info("METHOD: obtenerUsuario() --PARAMS: input: " + input);
+		UsuarioResponse output = new UsuarioResponse();
+		
+		List<Usuario> usuarios = this.usuarioService.findAll();
+		
+		for (Usuario usuario: usuarios) {
+			output.getUsuarios().add(this.mapUsuario(usuario));
+		}
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	@Async
 	@PostMapping("/retrieveUserByUserName")
 	public ListenableFuture<ResponseEntity<?>> obtenerUsuarioPorCorreo(@RequestBody UsuarioRequest input) {
 	
@@ -67,6 +128,93 @@ public class UsuarioController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
+	@PostMapping("/retrieveUsersByName")
+	public ListenableFuture<ResponseEntity<?>> obtenerUsuariosPorNombres(@RequestBody UsuarioRequest input) {
+		
+		LOG.info("METHOD: otenerUsuariosPorNombres() --PARAMS: usuarioRequest: " + input);
+		UsuarioResponse output = new UsuarioResponse();
+		
+		if (input.getDatos() == null ||
+				input.getDatos().getNombres() == null || input.getDatos().getNombres().isEmpty()) {
+			output.setCodigo("0001");
+			output.setDescripcion("El nombre del usuario es obligatorio");
+			output.setIndicador("ERROR");
+		} else {
+			
+			List<Usuario> usuarios = this.usuarioService.findByName(input.getDatos().getNombres());
+			List<com.cycsystems.heymebackend.common.Usuario> modelos = new ArrayList<>();
+			
+			for (Usuario usuario: usuarios) {
+				modelos.add(this.mapUsuario(usuario));
+			}
+			
+			output.setUsuarios(modelos);
+			output.setCodigo("0000");
+			output.setDescripcion("Usuarios obtenidos exitosamente");
+			output.setIndicador("SUCCESS");
+			
+		}
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	@Async
+	@PostMapping("/retrieveUsersByDate")
+	public ListenableFuture<ResponseEntity<?>> obtenerUsuariosPorFechas(@RequestBody UsuarioRequest input) {
+		
+		LOG.info("METHOD: obtenerUsuariosPorFechas() --PARAMS: UsuarioRequest: " + input);
+		UsuarioResponse output = new UsuarioResponse();
+		Date fechaInicio = null;
+		Date fechaFin = null;
+		
+		if (input.getFechaFin() == null || input.getFechaInicio() == null) {
+			output.setCodigo("0063");
+			output.setDescripcion("Debes enviar una fecha de inicio y una fecha de fin");
+			output.setIndicador("ERROR");
+		} else {
+			
+			Calendar calendar = Calendar.getInstance();
+		    calendar.set(Calendar.HOUR_OF_DAY, 0);
+		    calendar.set(Calendar.MINUTE, 0);
+		    calendar.set(Calendar.SECOND, 0);
+		    calendar.set(Calendar.MILLISECOND, 0);
+		    
+		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getYear(),
+		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getMonthValue() - 1,
+		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getDayOfMonth() + 1);
+		    
+		    fechaInicio = calendar.getTime();
+		    
+		    calendar.set(Calendar.HOUR_OF_DAY, 23);
+		    calendar.set(Calendar.MINUTE, 59);
+		    calendar.set(Calendar.SECOND, 59);
+		    calendar.set(Calendar.MILLISECOND, 0);
+		    
+		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getYear(),
+		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getMonthValue() - 1,
+		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
+		    
+		    fechaFin = calendar.getTime();
+			
+			List<Usuario> usuarios = this.usuarioService.findByStartDate(fechaInicio, fechaFin);
+			List<com.cycsystems.heymebackend.common.Usuario> modelos = new ArrayList<>();
+			
+			for (Usuario usuario: usuarios) {
+				modelos.add(this.mapUsuario(usuario));
+			}
+			
+			output.setUsuarios(modelos);
+			output.setCodigo("0000");
+			output.setDescripcion("Usuarios obtenidos exitosamente");
+			output.setIndicador("SUCCESS");
+			
+		}
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	@Async
 	@PostMapping("/resetPassword")
 	public ListenableFuture<ResponseEntity<?>> restablecerContasena(@RequestBody UsuarioRequest input) {
 		
@@ -85,6 +233,7 @@ public class UsuarioController {
 		return new AsyncResult<>(ResponseEntity.ok("")); 
 	}
 	
+	@Async
 	@PostMapping("/save")
 	public ListenableFuture<ResponseEntity<?>> guardarUsuario(@RequestBody UsuarioRequest input) {
 		
@@ -144,14 +293,15 @@ public class UsuarioController {
 			response.getUsuario().setPassword(":-)");
 			
 			response.setCodigo("0000");
-			response.setDescripcion("Usuario guardado exitosamente");
-			response.setIndicador("EXITO");
+			response.setDescripcion("Usuarios obtenidos exitosamente");
+			response.setIndicador("SUCCESS");
 			
 		}
 				
 		return new AsyncResult<>(ResponseEntity.ok(response));
 	}
 	
+	@Async
 	@PostMapping("/update")
 	public ListenableFuture<ResponseEntity<?>> actualizarUsuario(@RequestBody UsuarioRequest input) {
 		
@@ -189,13 +339,14 @@ public class UsuarioController {
 			
 			response.setCodigo("0000");
 			response.setDescripcion("Usuario guardado exitosamente");
-			response.setIndicador("EXITO");
+			response.setIndicador("SUCCESS");
 			
 		}
 				
 		return new AsyncResult<>(ResponseEntity.ok(response));
 	}
 	
+	@Async
 	@PostMapping("/changePassword")
 	public AsyncResult<ResponseEntity<?>> cambiarContrasena(@RequestBody CambioContrasenaRequest request) {
 		

@@ -39,9 +39,9 @@ import com.cycsystems.heymebackend.util.Constants;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/notification")
-public class NotificacionController {
+public class NotificationController {
 	
-	private Logger LOG = LogManager.getLogger(NotificacionController.class);
+	private Logger LOG = LogManager.getLogger(NotificationController.class);
 	
 	@Autowired
 	private INotificacionService notificacionService;
@@ -102,7 +102,14 @@ public class NotificacionController {
 		    
 		    fechaFin = calendar.getTime();
 			
-			List<Notificacion> notificaciones = this.notificacionService.findByDate(fechaInicio, fechaFin, input.getNotificacion().getEstado().getIdEstadoNotificacion());
+			List<Notificacion> notificaciones = this.notificacionService.findByDate(fechaInicio, fechaFin);
+			
+			for (int x = 0; x < notificaciones.size(); x++) {
+				if (notificaciones.get(x).getEstado().getIdEstadoNotificacion() == 1) {
+					notificaciones.remove(x);
+				}
+			}
+			
 			output.setNotificaciones(this.mapparLista(notificaciones));
 			output.setCodigo("0000");
 			output.setDescripcion("Notificaciones obtenidas exitosamente");
@@ -147,6 +154,11 @@ public class NotificacionController {
 		if (input.getNombreUsuario() == null || input.getNombreUsuario().isEmpty()) {
 			output.setCodigo("0033");
 			output.setDescripcion("Se debe enviar el usuario para la busqueda");
+			output.setIndicador("ERROR");
+		} else if (input.getNotificacion() == null ||
+				input.getNotificacion().getEstado() == null || input.getNotificacion().getEstado().getIdEstadoNotificacion() <= 0) {
+			output.setCodigo("0060");
+			output.setDescripcion("Debe enviar el estado de la notificacion");
 			output.setIndicador("ERROR");
 		} else {
 			
@@ -240,6 +252,7 @@ public class NotificacionController {
 				output.setCodigo("0000");
 				output.setDescripcion("Notificacion guardada exitosamente");
 				output.setIndicador("SUCCESS");
+				output.setNotificacion(mapModelo(notificacion));
 			} else {
 				output.setCodigo("0022");
 				output.setDescripcion("El contacto enviado no existe");
@@ -315,6 +328,67 @@ public class NotificacionController {
 		}
 		
 		return output;
+	}
+	
+	private com.cycsystems.heymebackend.common.Notificacion mapModelo(Notificacion notificacion) {
+		com.cycsystems.heymebackend.common.Notificacion modelo = new com.cycsystems.heymebackend.common.Notificacion();
+		
+		modelo.setTitulo(notificacion.getTitulo());
+		com.cycsystems.heymebackend.common.Contacto contacto = new com.cycsystems.heymebackend.common.Contacto();
+		contacto.setIdContacto(notificacion.getDestinatario().getIdContacto());
+		contacto.setNombre(notificacion.getDestinatario().getNombre());
+		contacto.setApellido(notificacion.getDestinatario().getApellido());
+		contacto.setDireccion(notificacion.getDestinatario().getDireccion());
+		contacto.setEmail(notificacion.getDestinatario().getEmail());
+		contacto.setEstado(notificacion.getDestinatario().getEstado());
+		contacto.setTelefono(notificacion.getDestinatario().getTelefono());
+		
+		contacto.setProvincia(new Provincia(
+				notificacion.getDestinatario().getProvincia().getIdProvincia(),
+				notificacion.getDestinatario().getProvincia().getNombre(),
+				new Region(
+						notificacion.getDestinatario().getProvincia().getRegion().getIdRegion(),
+						notificacion.getDestinatario().getProvincia().getRegion().getNombre(),
+						new Pais(
+								notificacion.getDestinatario().getProvincia().getRegion().getPais().getIdPais(),
+								notificacion.getDestinatario().getProvincia().getRegion().getPais().getNombre()))));
+		
+		modelo.setDestinatario(contacto);
+		modelo.setEstado(
+				new EstadoNotificacion(
+						notificacion.getEstado().getIdEstadoNotificacion(), 
+						notificacion.getEstado().getDescripcion()));
+		modelo.setFechaEnvio(notificacion.getFechaEnvio());
+		modelo.setFechaProgramacion(notificacion.getFechaProgramacion());
+		modelo.setIdNotificaciones(notificacion.getIdNotificaciones());
+		modelo.setNotificacion(notificacion.getNotificacion());
+		
+		com.cycsystems.heymebackend.common.Usuario usuario = new com.cycsystems.heymebackend.common.Usuario();
+		usuario.setIdUsuario(notificacion.getUsuario().getIdUsuario());
+		usuario.setNombres(notificacion.getUsuario().getNombres());
+		usuario.setApellidos(notificacion.getUsuario().getApellidos());
+		usuario.setDireccion(notificacion.getUsuario().getDireccion());
+		usuario.setEnabled(notificacion.getUsuario().getEnabled());
+		usuario.setGenero(
+				new Genero(
+						notificacion.getUsuario().getGenero().getIdGenero(),
+						notificacion.getUsuario().getGenero().getDescripcion()));
+		usuario.setImg(notificacion.getUsuario().getImg());
+		usuario.setRole(
+				new Role(
+						notificacion.getUsuario().getRole().getIdRole(),
+						notificacion.getUsuario().getRole().getNombre(),
+						notificacion.getUsuario().getRole().getDescripcion(),
+						notificacion.getUsuario().getRole().getEstado()));
+		usuario.setTelefono(notificacion.getUsuario().getTelefono());
+		modelo.setUsuario(usuario);
+		
+		Canal canal = new Canal();
+		canal.setIdCanal(notificacion.getCanal().getIdCanal());
+		canal.setNombre(notificacion.getCanal().getNombre());
+		modelo.setCanal(canal);
+		
+		return modelo;
 	}
 
 }

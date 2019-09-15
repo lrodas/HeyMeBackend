@@ -1,11 +1,26 @@
 package com.cycsystems.heymebackend.output;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.cycsystems.heymebackend.common.BaseOutput;
 import com.cycsystems.heymebackend.common.Usuario;
 
 public class UsuarioResponse extends BaseOutput {
 
 	private Usuario usuario;
+	private List<Usuario> usuarios;
+
+	public List<Usuario> getUsuarios() {
+		if (this.usuarios == null) {
+			this.usuarios = new ArrayList<>();
+		}
+		return usuarios;
+	}
+
+	public void setUsuarios(List<Usuario> usuarios) {
+		this.usuarios = usuarios;
+	}
 
 	public Usuario getUsuario() {
 		return usuario;
@@ -17,6 +32,6 @@ public class UsuarioResponse extends BaseOutput {
 
 	@Override
 	public String toString() {
-		return "UsuarioResponse [usuario=" + usuario + ", toString()=" + super.toString() + "]";
+		return "UsuarioResponse [usuario=" + usuario + ", usuarios=" + usuarios + "]";
 	}
 }

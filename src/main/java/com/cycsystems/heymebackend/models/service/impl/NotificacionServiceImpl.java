@@ -52,8 +52,8 @@ public class NotificacionServiceImpl implements INotificacionService {
 	}
 
 	@Override
-	public List<Notificacion> findByDate(Date fechaInicio, Date fechaFin, Integer estado) {
-		return this.repository.findByFechaProgramacionBetweenAndEstado_idEstadoNotificacion(fechaInicio, fechaFin, estado);
+	public List<Notificacion> findByDate(Date fechaInicio, Date fechaFin) {
+		return this.repository.findByFechaProgramacionBetween(fechaInicio, fechaFin);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.cycsystems.heymebackend.models.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -49,6 +51,13 @@ public class Usuario implements Serializable {
 	private Genero genero;
 	
 	private Boolean enabled;
+	
+	private Date fechaAlta;
+	
+	@PrePersist
+	private void prePersist() {
+		this.fechaAlta = new Date();
+	}
 
 	public Usuario(Integer idUsuario, String nombres, String apellidos, String direccion, String telefono, Role role,
 			String username, String password, String img, Genero genero, Boolean enabled) {
@@ -158,6 +167,10 @@ public class Usuario implements Serializable {
 
 	public void setEnabled(Boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public Date getFechaAlta() {
+		return fechaAlta;
 	}
 
 	@Override

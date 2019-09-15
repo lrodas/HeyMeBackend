@@ -1,11 +1,31 @@
 package com.cycsystems.heymebackend.input;
 
+import java.util.Date;
+
 import com.cycsystems.heymebackend.common.BaseInput;
 import com.cycsystems.heymebackend.common.Usuario;
 
 public class UsuarioRequest extends BaseInput {
 
 	private Usuario datos;
+	private Date fechaInicio;
+	private Date fechaFin;
+
+	public Date getFechaInicio() {
+		return fechaInicio;
+	}
+
+	public void setFechaInicio(Date fechaInicio) {
+		this.fechaInicio = fechaInicio;
+	}
+
+	public Date getFechaFin() {
+		return fechaFin;
+	}
+
+	public void setFechaFin(Date fechaFin) {
+		this.fechaFin = fechaFin;
+	}
 
 	public Usuario getDatos() {
 		return datos;
@@ -17,6 +37,7 @@ public class UsuarioRequest extends BaseInput {
 
 	@Override
 	public String toString() {
-		return "UsuarioRequest [datos=" + datos + ", toString()=" + super.toString() + "]";
+		return "UsuarioRequest [datos=" + datos + ", fechaInicio=" + fechaInicio + ", fechaFin=" + fechaFin
+				+ ", toString()=" + super.toString() + "]";
 	}
 }

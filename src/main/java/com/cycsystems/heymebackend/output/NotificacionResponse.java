@@ -9,6 +9,15 @@ import com.cycsystems.heymebackend.common.Notificacion;
 public class NotificacionResponse extends BaseOutput {
 
 	private List<Notificacion> notificaciones;
+	private Notificacion notificacion;
+
+	public Notificacion getNotificacion() {
+		return notificacion;
+	}
+
+	public void setNotificacion(Notificacion notificacion) {
+		this.notificacion = notificacion;
+	}
 
 	public List<Notificacion> getNotificaciones() {
 		if (this.notificaciones == null) {
@@ -23,6 +32,6 @@ public class NotificacionResponse extends BaseOutput {
 
 	@Override
 	public String toString() {
-		return "NotificacionResponse [notificaciones=" + notificaciones + ", toString()=" + super.toString() + "]";
+		return "NotificacionResponse [notificaciones=" + notificaciones + ", notificacion=" + notificacion + "]";
 	}
 }
