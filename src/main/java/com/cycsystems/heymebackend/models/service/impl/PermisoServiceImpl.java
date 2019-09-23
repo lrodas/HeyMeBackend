@@ -50,4 +50,9 @@ public class PermisoServiceImpl implements IPermisoService {
 		return this.permisoRepository.findByPuesto_DescripcionLikeIgnoreCase("%" + role + "%");
 	}
 
+	@Override
+	public List<Permiso> findByRole(Integer role) {
+		return this.permisoRepository.findByPuesto_IdRole(role);
+	}
+
 }

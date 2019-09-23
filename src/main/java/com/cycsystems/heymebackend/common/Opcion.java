@@ -9,6 +9,18 @@ public class Opcion {
 	private boolean evento;
 	private String icono;
 
+	public Opcion(Integer idOpcion, String descripcion, String orden, String url, boolean evento, String icono) {
+		this.idOpcion = idOpcion;
+		this.descripcion = descripcion;
+		this.orden = orden;
+		this.url = url;
+		this.evento = evento;
+		this.icono = icono;
+	}
+
+	public Opcion() {
+	}
+
 	public Integer getIdOpcion() {
 		return idOpcion;
 	}

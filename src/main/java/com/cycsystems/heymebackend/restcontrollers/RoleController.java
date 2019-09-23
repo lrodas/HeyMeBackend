@@ -1,11 +1,13 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cycsystems.heymebackend.common.Opcion;
 import com.cycsystems.heymebackend.input.RoleRequest;
+import com.cycsystems.heymebackend.models.entity.Permiso;
 import com.cycsystems.heymebackend.models.entity.Role;
 import com.cycsystems.heymebackend.models.service.IRoleService;
 import com.cycsystems.heymebackend.output.RoleResponse;
@@ -28,6 +32,7 @@ public class RoleController {
 	@Autowired
 	private IRoleService roleService;
 	
+	@Async
 	@PostMapping("/save")
 	public ListenableFuture<ResponseEntity<?>> guardarRole(@RequestBody RoleRequest input) {
 		
@@ -53,17 +58,21 @@ public class RoleController {
 			role.setNombre(input.getRole().getNombre());
 			role.setDescripcion(input.getRole().getDescripcion());
 			role.setEstado(input.getRole().getEstado());
+			role.setPermisos(this.mapPermisos(input.getRole().getPermisos()));
 			
-			this.roleService.save(role);
+			
+			role = this.roleService.save(role);
 			
 			output.setCodigo("0000");
 			output.setDescripcion("Role guardado exitosamente");
 			output.setIndicador("SUCCESS");
+			output.setRole(this.mapRole(role));
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
 	@PostMapping("/findAll")
 	public ListenableFuture<ResponseEntity<?>> obtenerTodos() {
 		
@@ -73,14 +82,7 @@ public class RoleController {
 		RoleResponse output = new RoleResponse();
 		
 		for (Role role: roles) {
-			com.cycsystems.heymebackend.common.Role model = new com.cycsystems.heymebackend.common.Role();
-			
-			model.setIdRole(role.getIdRole());
-			model.setNombre(role.getNombre());
-			model.setDescripcion(role.getDescripcion());
-			model.setEstado(role.getEstado());
-			
-			output.getRoles().add(model);
+			output.getRoles().add(this.mapRole(role));
 		}
 		
 		output.setCodigo("0000");
@@ -90,6 +92,7 @@ public class RoleController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
+	@Async
 	@PostMapping("/findByStatus")
 	public ListenableFuture<ResponseEntity<?>> obtenerRolesPorEstado(@RequestBody RoleRequest input) {
 		
@@ -105,13 +108,7 @@ public class RoleController {
 			List<Role> roles = this.roleService.findByStatus(input.getRole().getEstado());
 			
 			for (Role role: roles) {
-				com.cycsystems.heymebackend.common.Role modelo = new com.cycsystems.heymebackend.common.Role();
-				
-				modelo.setIdRole(role.getIdRole());
-				modelo.setNombre(role.getNombre());
-				modelo.setDescripcion(role.getDescripcion());
-				modelo.setEstado(role.getEstado());
-				output.getRoles().add(modelo);
+				output.getRoles().add(this.mapRole(role));
 			}
 			
 			output.setCodigo("0000");
@@ -121,28 +118,23 @@ public class RoleController {
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
-	@PostMapping("/findByTitle")
-	public ListenableFuture<ResponseEntity<?>> obtenerRolesPorTitulo(@RequestBody RoleRequest input) {
+	@Async
+	@PostMapping("/findByName")
+	public ListenableFuture<ResponseEntity<?>> obtenerRolesPorNombre(@RequestBody RoleRequest input) {
 		
-		LOG.info("METHOD: obtenerRolesPorTitulo() --PARAMS RoleRequest: " + input);
+		LOG.info("METHOD: obtenerRolesPorNombre() --PARAMS RoleRequest: " + input);
 		RoleResponse output = new RoleResponse();
 		
 		if (input.getRole().getDescripcion() == null || input.getRole().getDescripcion().isEmpty()) {
 			output.setCodigo("0049");
-			output.setDescripcion("Es necesario enviar el titulo del role");
+			output.setDescripcion("Es necesario enviar el nombre del role");
 			output.setIndicador("ERROR");
 		} else {
 			
-			List<Role> roles = this.roleService.findByTitle(input.getRole().getDescripcion());
+			List<Role> roles = this.roleService.findByNombreLike(input.getRole().getDescripcion());
 			
 			for (Role role: roles) {
-				com.cycsystems.heymebackend.common.Role modelo = new com.cycsystems.heymebackend.common.Role();
-				
-				modelo.setIdRole(role.getIdRole());
-				modelo.setNombre(role.getNombre());
-				modelo.setDescripcion(role.getDescripcion());
-				modelo.setEstado(role.getEstado());
-				output.getRoles().add(modelo);
+				output.getRoles().add(this.mapRole(role));
 			}
 			
 			output.setCodigo("0000");
@@ -150,5 +142,85 @@ public class RoleController {
 			output.setIndicador("SUCCESS");
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	@Async
+	@PostMapping("/findById")
+	public ListenableFuture<ResponseEntity<?>> obtenerRolePorId(@RequestBody RoleRequest input) {
+		
+		LOG.info("METHOD: obtenerRolePorId() --PARAMS: roleRequest: " + input);
+		RoleResponse output = new RoleResponse();
+		
+		if (input.getRole().getIdRole() == null || input.getRole().getIdRole() <= 0) {
+			output.setCodigo("0065");
+			output.setDescripcion("Es necesario enviar el id del role");
+			output.setIndicador("ERROR");
+		} else {
+			
+			Role role = this.roleService.findById(input.getRole().getIdRole());
+			
+			output.setRole(this.mapRole(role));
+			
+			output.setCodigo("0000");
+			output.setDescripcion("Role obtenido exitosamente");
+			output.setIndicador("SUCCESS");
+		}
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	private com.cycsystems.heymebackend.common.Role mapRole(Role role) {
+		
+		com.cycsystems.heymebackend.common.Role modelo = new com.cycsystems.heymebackend.common.Role();
+		modelo.setIdRole(role.getIdRole());
+		modelo.setNombre(role.getNombre());
+		modelo.setDescripcion(role.getDescripcion());
+		modelo.setEstado(role.getEstado());
+		
+		for (Permiso permiso: role.getPermisos()) {
+			com.cycsystems.heymebackend.common.Permiso permisoModelo = new com.cycsystems.heymebackend.common.Permiso();
+			permisoModelo.setAlta(permiso.isAlta());
+			permisoModelo.setBaja(permiso.isBaja());
+			permisoModelo.setCambio(permiso.isCambio());
+			permisoModelo.setImprimir(permiso.isImprimir());
+			permisoModelo.setIdPermiso(permiso.getIdPermiso());
+			
+			Opcion opcion = new Opcion();
+			opcion.setIdOpcion(permiso.getOpcion().getIdOpcion());
+			opcion.setDescripcion(permiso.getOpcion().getDescripcion());
+			opcion.setEvento(permiso.getOpcion().isEvento());
+			opcion.setIcono(permiso.getOpcion().getIcono());
+			opcion.setOrden(permiso.getOpcion().getOrden());
+			opcion.setUrl(permiso.getOpcion().getUrl());
+			
+			permisoModelo.setOpcion(opcion);
+			modelo.getPermisos().add(permisoModelo);
+			
+		}
+		
+		return modelo;
+	}
+	
+	private List<Permiso> mapPermisos(List<com.cycsystems.heymebackend.common.Permiso> modelos ) {
+		List<Permiso> permisos = new ArrayList<>();
+		for (com.cycsystems.heymebackend.common.Permiso modelo: modelos) {
+			
+			Permiso permiso = new Permiso();
+			permiso.setAlta(modelo.isAlta());
+			permiso.setBaja(modelo.isBaja());
+			permiso.setCambio(modelo.isCambio());
+			permiso.setImprimir(modelo.isImprimir());
+			permiso.setIdPermiso(modelo.getIdPermiso());
+			
+			com.cycsystems.heymebackend.models.entity.Opcion opcion = new com.cycsystems.heymebackend.models.entity.Opcion();
+			opcion.setIdOpcion(modelo.getOpcion().getIdOpcion());
+			opcion.setDescripcion(modelo.getOpcion().getDescripcion());
+			opcion.setIcono(modelo.getOpcion().getIcono());
+			opcion.setOrden(modelo.getOpcion().getOrden());
+			opcion.setUrl(modelo.getOpcion().getUrl());
+			permiso.setOpcion(opcion);
+			
+			permisos.add(permiso);
+		}
+		return permisos;
 	}
 }

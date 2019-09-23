@@ -13,4 +13,6 @@ public interface IRoleDao extends JpaRepository<Role, Integer> {
 	public abstract List<Role> findByEstadoEquals(Boolean estado);
 	
 	public abstract List<Role> findByDescripcionEquals(String titulo);
+	
+	public abstract List<Role> findByDescripcionLikeIgnoreCase(String nombre);
 }

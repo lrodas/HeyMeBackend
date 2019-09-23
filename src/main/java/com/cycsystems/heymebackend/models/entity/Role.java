@@ -1,20 +1,22 @@
 package com.cycsystems.heymebackend.models.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 @Entity
 @Table(name="role")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Role implements Serializable {
 
 	@Id
@@ -31,6 +33,9 @@ public class Role implements Serializable {
 	
 	@Column(name="estado")
 	private Boolean estado;
+	
+	@OneToMany(mappedBy = "puesto", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	private List<Permiso> permisos;
 
 	public Role(Integer idRole, @NotEmpty String descripcion, @NotEmpty String nombre, Boolean estado) {
 		this.idRole = idRole;
@@ -78,10 +83,21 @@ public class Role implements Serializable {
 		this.estado = estado;
 	}
 
+	public List<Permiso> getPermisos() {
+		if (this.permisos == null) {
+			this.permisos = new ArrayList<>();
+		}
+		return permisos;
+	}
+
+	public void setPermisos(List<Permiso> permisos) {
+		this.permisos = permisos;
+	}
+
 	@Override
 	public String toString() {
-		return "Puesto [idRole=" + idRole + ", descripcion=" + descripcion + ", nombre=" + nombre + ", estado=" + estado
-				+ "]";
+		return "Role [idRole=" + idRole + ", descripcion=" + descripcion + ", nombre=" + nombre + ", estado=" + estado
+				+ ", permisos=" + permisos + "]";
 	}
 
 	/**

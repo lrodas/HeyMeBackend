@@ -9,6 +9,15 @@ import com.cycsystems.heymebackend.common.Role;
 public class RoleResponse extends BaseOutput {
 
 	public List<Role> roles;
+	public Role role;
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
 
 	public List<Role> getRoles() {
 		if (this.roles == null) {
@@ -23,6 +32,6 @@ public class RoleResponse extends BaseOutput {
 
 	@Override
 	public String toString() {
-		return "RoleResponse [roles=" + roles + ", toString()=" + super.toString() + "]";
+		return "RoleResponse [roles=" + roles + ", role=" + role + "]";
 	}
 }

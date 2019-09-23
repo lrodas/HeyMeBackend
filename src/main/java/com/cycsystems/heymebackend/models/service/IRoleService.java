@@ -18,4 +18,6 @@ public interface IRoleService {
 	public List<Role> findByStatus(Boolean status);
 	
 	public List<Role> findByTitle(String title);
+	
+	public List<Role> findByNombreLike(String nombre);
 }

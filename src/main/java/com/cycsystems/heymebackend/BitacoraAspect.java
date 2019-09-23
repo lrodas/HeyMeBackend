@@ -67,13 +67,11 @@ public class BitacoraAspect {
 	public void endpointAfterReturning(JoinPoint p, Object returnValue) {
 		ListenableFuture<ResponseEntity<?>> value = (ListenableFuture<ResponseEntity<?>>) returnValue;
 		value.addCallback(result -> {
-			String metodo = p.getSignature().getName();
-			
-			LOG.info("metodo: " + metodo);
-			
+			String metodo = p.getSignature().getName();			
 			if (!metodo.equalsIgnoreCase("obtenerImagen")) {
 				try {
 					Object[] signatureArgs = p.getArgs();
+					LOG.info("signature: " + signatureArgs);
 					if (signatureArgs[0] != null) {
 						Bitacora bitacora = new Bitacora();
 						bitacora.setMetodo(metodo);

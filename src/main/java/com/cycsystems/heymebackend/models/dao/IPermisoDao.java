@@ -11,4 +11,6 @@ import com.cycsystems.heymebackend.models.entity.Permiso;
 public interface IPermisoDao extends JpaRepository<Permiso, Integer> {
 
 	public abstract List<Permiso> findByPuesto_DescripcionLikeIgnoreCase(String descripcion);
+	
+	public abstract List<Permiso> findByPuesto_IdRole(Integer idRole);
 }

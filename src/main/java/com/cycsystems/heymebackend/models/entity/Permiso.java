@@ -1,6 +1,7 @@
 package com.cycsystems.heymebackend.models.entity;
 
-import javax.persistence.CascadeType;
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -9,21 +10,23 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 @Entity
 @Table(name="permiso")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-public class Permiso {
+public class Permiso implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer idPermiso;
 	
-	@ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Opcion opcion;
 	
-	@ManyToOne(fetch=FetchType.LAZY, cascade=CascadeType.MERGE)
+	@ManyToOne(fetch=FetchType.LAZY)
 	private Role puesto;
 	
 	private boolean alta;
@@ -103,7 +106,7 @@ public class Permiso {
 
 	@Override
 	public String toString() {
-		return "Permiso [idPermiso=" + idPermiso + ", opcion=" + opcion + ", puesto=" + puesto + ", alta=" + alta
+		return "Permiso [idPermiso=" + idPermiso + ", opcion=" + opcion + ", alta=" + alta
 				+ ", baja=" + baja + ", cambio=" + cambio + ", imprimir=" + imprimir + "]";
 	}
 }

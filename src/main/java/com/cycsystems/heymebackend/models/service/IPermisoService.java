@@ -19,4 +19,6 @@ public interface IPermisoService {
 	public long count();
 	
 	public List<Permiso> findByRole(String role);
+	
+	public List<Permiso> findByRole(Integer role);
 }
