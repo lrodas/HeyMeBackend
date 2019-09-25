@@ -9,6 +9,15 @@ public class PermisoRequest extends BaseInput {
 
 	private List<Permiso> permisos;
 	private String role;
+	private Integer idRole;
+
+	public Integer getIdRole() {
+		return idRole;
+	}
+
+	public void setIdRole(Integer idRole) {
+		this.idRole = idRole;
+	}
 
 	public List<Permiso> getPermisos() {
 		return permisos;
@@ -28,6 +37,6 @@ public class PermisoRequest extends BaseInput {
 
 	@Override
 	public String toString() {
-		return "PermisoRequest [permisos=" + permisos + ", role=" + role + ", toString()=" + super.toString() + "]";
+		return "PermisoRequest [permisos=" + permisos + ", role=" + role + ", idRole=" + idRole + "]";
 	}
 }

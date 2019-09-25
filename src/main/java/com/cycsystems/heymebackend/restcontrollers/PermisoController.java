@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,30 @@ public class PermisoController {
 	
 	@Autowired
 	private IPermisoService permisoService;
+	
+	@Async
+	@PostMapping("/retrievePermissionsByRole")
+	public ListenableFuture<ResponseEntity<?>> obtenerPermisosPorId(@RequestBody PermisoRequest input) {
+		
+		LOG.info("METHOD: obtenerPermisosPorId() --permisoRequest: " + input);
+		PermisoResponse output = new PermisoResponse();
+		
+		if (input.getIdRole() == null || input.getIdRole() <= 0) {
+			output.setCodigo("0065");
+			output.setDescripcion("Es necesario enviar el id del role");
+			output.setIndicador("ERROR");
+		} else {
+			
+			List<com.cycsystems.heymebackend.models.entity.Permiso> permisos = this.permisoService.findByRole(input.getIdRole());
+			
+			output.setCodigo("0000");
+			output.setDescripcion("Permisos obtenidos exitosamente");
+			output.setIndicador("SUCCESS");
+			output.setPermisos(this.mapPermisoEntity(permisos));
+		}
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
 	
 	@PostMapping("/save")
 	public ListenableFuture<ResponseEntity<?>> guardarPermisos(@RequestBody PermisoRequest input) {
@@ -118,15 +143,28 @@ public class PermisoController {
 			
 			
 			List<com.cycsystems.heymebackend.models.entity.Permiso> permisos = this.permisoService.findByRole(input.getRole());
-			List<Permiso> modelos = new ArrayList<>();
 			
-			for(com.cycsystems.heymebackend.models.entity.Permiso permiso: permisos) {
+			output.setCodigo("0000");
+			output.setDescripcion("Permisos obtenidos exitosamente");
+			output.setIndicador("SUCCESS");
+			output.setPermisos(this.mapPermisoEntity(permisos));
+		}
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	private List<Permiso> mapPermisoEntity(List<com.cycsystems.heymebackend.models.entity.Permiso> permisos) {
+		List<Permiso> modelos = new ArrayList<>();
+		
+		for(com.cycsystems.heymebackend.models.entity.Permiso permiso: permisos) {
+			if (permiso.isAlta() || permiso.isBaja() || permiso.isCambio() || permiso.isImprimir()) {				
 				Permiso modelo = new Permiso();
 				
 				modelo.setAlta(permiso.isAlta());
 				modelo.setBaja(permiso.isBaja());
 				modelo.setCambio(permiso.isCambio());
 				modelo.setImprimir(permiso.isImprimir());
+				modelo.setIdPermiso(permiso.getIdPermiso());
 				
 				com.cycsystems.heymebackend.common.Opcion opcion = new com.cycsystems.heymebackend.common.Opcion();
 				opcion.setIdOpcion(permiso.getOpcion().getIdOpcion());
@@ -146,13 +184,8 @@ public class PermisoController {
 				
 				modelos.add(modelo);				
 			}
-			
-			output.setCodigo("0000");
-			output.setDescripcion("Permisos obtenidos exitosamente");
-			output.setIndicador("SUCCESS");
-			output.setPermisos(modelos);
 		}
 		
-		return new AsyncResult<>(ResponseEntity.ok(output));
+		return modelos;
 	}
 }
