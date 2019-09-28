@@ -52,7 +52,7 @@ public class NotificacionServiceImpl implements INotificacionService {
 	}
 
 	@Override
-	public List<Notificacion> findByDate(Date fechaInicio, Date fechaFin) {
+	public List<Notificacion> findByProgrammingDate(Date fechaInicio, Date fechaFin) {
 		return this.repository.findByFechaProgramacionBetween(fechaInicio, fechaFin);
 	}
 
@@ -64,6 +64,16 @@ public class NotificacionServiceImpl implements INotificacionService {
 	@Override
 	public List<Notificacion> findByStatus(Integer status) {
 		return this.repository.findByEstado_idEstadoNotificacionEquals(status);
+	}
+
+	@Override
+	public List<Notificacion> findByUser(String usuario) {
+		return this.repository.findByUsuario_NombresLikeIgnoreCaseOrUsuario_ApellidosLikeIgnoreCase("%" + usuario + "%", "%" + usuario + "%");
+	}
+
+	@Override
+	public List<Notificacion> findByShippingDate(Date fechaInicio, Date fechaFin) {
+		return this.repository.findByFechaEnvioBetween(fechaInicio, fechaFin);
 	}
 
 }

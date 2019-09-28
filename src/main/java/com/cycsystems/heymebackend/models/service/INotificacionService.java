@@ -19,9 +19,13 @@ public interface INotificacionService {
 	
 	public List<Notificacion> findByUser(String usuario, Integer estado);
 	
+	public abstract List<Notificacion> findByUser(String usuario);
+	
 	public abstract List<Notificacion> findByTitle(String title, Integer estado);
 	
-	public abstract List<Notificacion> findByDate(Date fechaInicio, Date fechaFin);
+	public abstract List<Notificacion> findByProgrammingDate(Date fechaInicio, Date fechaFin);
+	
+	public abstract List<Notificacion> findByShippingDate(Date fechaInicio, Date fechaFin);
 	
 	public abstract List<Notificacion> findbySendingDate(Date fecha, Integer idEstadoNotificacion);
 	

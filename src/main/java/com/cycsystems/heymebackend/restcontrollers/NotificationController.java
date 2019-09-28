@@ -56,11 +56,11 @@ public class NotificationController {
 	private Integer ESTADO_NOTIFICACION_PROGRAMADA;
 	
 	@Async
-	@PostMapping("/findByDate")
-	public ListenableFuture<ResponseEntity<?>> obtenerNotificacionPorFecha(
+	@PostMapping("/findByProgrammingDate")
+	public ListenableFuture<ResponseEntity<?>> obtenerNotificacionPorFechaProgramacion(
 			@RequestBody NotificacionRequest input) {
 		
-		LOG.info("METHOD: obtenerNotificacionPorFecha() --PARAMS: notificacionRequest: " + input);
+		LOG.info("METHOD: obtenerNotificacionPorFechaProgramacion() --PARAMS: notificacionRequest: " + input);
 		NotificacionResponse output = new NotificacionResponse();
 		Date fechaInicio = null;
 		Date fechaFin = null;
@@ -102,7 +102,70 @@ public class NotificationController {
 		    
 		    fechaFin = calendar.getTime();
 			
-			List<Notificacion> notificaciones = this.notificacionService.findByDate(fechaInicio, fechaFin);
+			List<Notificacion> notificaciones = this.notificacionService.findByProgrammingDate(fechaInicio, fechaFin);
+			
+			for (int x = 0; x < notificaciones.size(); x++) {
+				if (notificaciones.get(x).getEstado().getIdEstadoNotificacion() == 1) {
+					notificaciones.remove(x);
+				}
+			}
+			
+			output.setNotificaciones(this.mapparLista(notificaciones));
+			output.setCodigo("0000");
+			output.setDescripcion("Notificaciones obtenidas exitosamente");
+			output.setIndicador("SUCCESS");			
+		}
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	@Async
+	@PostMapping("/findByShippingDate")
+	public ListenableFuture<ResponseEntity<?>> obtenerNotificacionPorFechaShipping(
+			@RequestBody NotificacionRequest input) {
+		
+		LOG.info("METHOD: obtenerNotificacionPorFechaShipping() --PARAMS: notificacionRequest: " + input);
+		NotificacionResponse output = new NotificacionResponse();
+		Date fechaInicio = null;
+		Date fechaFin = null;
+		
+		if (input.getFechaInicio() == null) {
+			output.setCodigo("0035");
+			output.setDescripcion("Se debe enviar las fechas para consultar las notificaciones");
+			output.setIndicador("ERROR");
+		} else if (input.getFechaFin() == null) {
+			output.setCodigo("0036");
+			output.setDescripcion("Se debe enviar las fechas para consultar las notificaciones");
+			output.setIndicador("ERROR");
+		} else if (input.getFechaInicio().after(input.getFechaFin())) {
+			output.setCodigo("0037");
+			output.setDescripcion("La fecha inical debe ser menor a lafinal");
+			output.setIndicador("ERROR");
+		} else {
+			
+			Calendar calendar = Calendar.getInstance();
+		    calendar.set(Calendar.HOUR_OF_DAY, 0);
+		    calendar.set(Calendar.MINUTE, 0);
+		    calendar.set(Calendar.SECOND, 0);
+		    calendar.set(Calendar.MILLISECOND, 0);
+		    
+		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getYear(),
+		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getMonthValue() - 1,
+		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getDayOfMonth() + 1);
+		    
+		    fechaInicio = calendar.getTime();
+		    
+		    calendar.set(Calendar.HOUR_OF_DAY, 23);
+		    calendar.set(Calendar.MINUTE, 59);
+		    calendar.set(Calendar.SECOND, 59);
+		    calendar.set(Calendar.MILLISECOND, 0);
+		    
+		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getYear(),
+		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getMonthValue() - 1,
+		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
+		    
+		    fechaFin = calendar.getTime();
+			
+			List<Notificacion> notificaciones = this.notificacionService.findByShippingDate(fechaInicio, fechaFin);
 			
 			for (int x = 0; x < notificaciones.size(); x++) {
 				if (notificaciones.get(x).getEstado().getIdEstadoNotificacion() == 1) {
@@ -156,13 +219,19 @@ public class NotificationController {
 			output.setDescripcion("Se debe enviar el usuario para la busqueda");
 			output.setIndicador("ERROR");
 		} else if (input.getNotificacion() == null ||
-				input.getNotificacion().getEstado() == null || input.getNotificacion().getEstado().getIdEstadoNotificacion() <= 0) {
+				input.getNotificacion().getEstado() == null || input.getNotificacion().getEstado().getIdEstadoNotificacion() < 0) {
 			output.setCodigo("0060");
 			output.setDescripcion("Debe enviar el estado de la notificacion");
 			output.setIndicador("ERROR");
 		} else {
 			
-			List<Notificacion> notificaciones = this.notificacionService.findByUser(input.getNombreUsuario(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
+			List<Notificacion> notificaciones = new ArrayList<>();
+			
+			if (input.getNotificacion().getEstado().getIdEstadoNotificacion() == 0) {
+				notificaciones = this.notificacionService.findByUser(input.getNombreUsuario());
+			} else {				
+				notificaciones = this.notificacionService.findByUser(input.getNombreUsuario(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
+			}
 			
 			output.setNotificaciones(this.mapparLista(notificaciones));			
 			output.setCodigo("0000");

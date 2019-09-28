@@ -20,4 +20,8 @@ public interface INotificacionDao extends JpaRepository<Notificacion, Long> {
 	public abstract List<Notificacion> findByFechaEnvioLessThanAndEstado_idEstadoNotificacion(Date fecha, Integer idEstadoNotificacion);
 	
 	public abstract List<Notificacion> findByEstado_idEstadoNotificacionEquals(Integer estado);
+	
+	public abstract List<Notificacion> findByUsuario_NombresLikeIgnoreCaseOrUsuario_ApellidosLikeIgnoreCase(String nombre, String apellido);
+	
+	public abstract List<Notificacion> findByFechaEnvioBetween(Date fechaInicio, Date fechaFin);
 }

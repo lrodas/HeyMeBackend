@@ -95,7 +95,7 @@ public class ReportNotificationController {
 		    
 		    Date fechaFin = calendar.getTime();
 			
-			notificaciones = this.notificacionService.findByDate(fechaInicio, fechaFin);
+			notificaciones = this.notificacionService.findByProgrammingDate(fechaInicio, fechaFin);
 
 		}
 		
@@ -171,7 +171,7 @@ public class ReportNotificationController {
 		    
 		    Date fechaFin = calendar.getTime();
 			
-			notificaciones = this.notificacionService.findByDate(fechaInicio, fechaFin);
+			notificaciones = this.notificacionService.findByProgrammingDate(fechaInicio, fechaFin);
 
 		}
 		
