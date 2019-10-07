@@ -11,4 +11,9 @@ public class Constants {
 	public static final Integer REQUEST_IN = 1;
 	public static final Integer REPLAY_OUT = 2;
 	public static final Integer ERROR_OUT = 3;
+	public static final Integer NOTIFICACION_TIPO_BUSQUEDA_ESTADO = 1;
+	public static final Integer NOTIFICACION_TIPO_BUSQUEDA_TITULO = 2;
+	public static final Integer NOTIFICACION_TIPO_BUSQUEDA_USUARIO = 3;
+	public static final Integer NOTIFICACION_TIPO_BUSQUEDA_FECHA_PROGRAMACION = 4;
+	public static final Integer NOTIFICACION_TIPO_BUSQUEDA_FECHA_ENVIO = 5;
 }

@@ -294,17 +294,22 @@ public class NotificationController {
 			output.setIndicador("ERROR");
 		} else {
 			
-			Contacto contacto = this.contactoService.findById(input.getNotificacion().getDestinatario().getIdContacto());
+			List<Contacto> contactos = new ArrayList<>();
+			for (com.cycsystems.heymebackend.common.Contacto model: input.getNotificacion().getDestinatarios()) {
+				Contacto contacto = this.contactoService.findById(model.getIdContacto());
+				contactos.add(contacto);
+			}
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 			
-			if (contacto != null) {
+			if (!contactos.isEmpty()) {
 				Notificacion notificacion = new Notificacion();
 				
 				notificacion.setIdNotificaciones(input.getNotificacion().getIdNotificaciones());
 				notificacion.setTitulo(input.getNotificacion().getTitulo());
 				notificacion.setNotificacion(input.getNotificacion().getNotificacion());
 				notificacion.setFechaEnvio(input.getNotificacion().getFechaEnvio());
-				notificacion.setDestinatario(contacto);
+				
+				notificacion.setDestinatarios(contactos);
 				notificacion.setEstado(
 						new com.cycsystems.heymebackend.models.entity.EstadoNotificacion(
 								input.getNotificacion().getEstado().getIdEstadoNotificacion(),
@@ -340,26 +345,8 @@ public class NotificationController {
 			com.cycsystems.heymebackend.common.Notificacion modelo = new com.cycsystems.heymebackend.common.Notificacion();
 			
 			modelo.setTitulo(notificacion.getTitulo());
-			com.cycsystems.heymebackend.common.Contacto contacto = new com.cycsystems.heymebackend.common.Contacto();
-			contacto.setIdContacto(notificacion.getDestinatario().getIdContacto());
-			contacto.setNombre(notificacion.getDestinatario().getNombre());
-			contacto.setApellido(notificacion.getDestinatario().getApellido());
-			contacto.setDireccion(notificacion.getDestinatario().getDireccion());
-			contacto.setEmail(notificacion.getDestinatario().getEmail());
-			contacto.setEstado(notificacion.getDestinatario().getEstado());
-			contacto.setTelefono(notificacion.getDestinatario().getTelefono());
 			
-			contacto.setProvincia(new Provincia(
-					notificacion.getDestinatario().getProvincia().getIdProvincia(),
-					notificacion.getDestinatario().getProvincia().getNombre(),
-					new Region(
-							notificacion.getDestinatario().getProvincia().getRegion().getIdRegion(),
-							notificacion.getDestinatario().getProvincia().getRegion().getNombre(),
-							new Pais(
-									notificacion.getDestinatario().getProvincia().getRegion().getPais().getIdPais(),
-									notificacion.getDestinatario().getProvincia().getRegion().getPais().getNombre()))));
-			
-			modelo.setDestinatario(contacto);
+			modelo.setDestinatarios(this.mapearModeloContacto(notificacion.getDestinatarios()));
 			modelo.setEstado(
 					new EstadoNotificacion(
 							notificacion.getEstado().getIdEstadoNotificacion(), 
@@ -403,26 +390,7 @@ public class NotificationController {
 		com.cycsystems.heymebackend.common.Notificacion modelo = new com.cycsystems.heymebackend.common.Notificacion();
 		
 		modelo.setTitulo(notificacion.getTitulo());
-		com.cycsystems.heymebackend.common.Contacto contacto = new com.cycsystems.heymebackend.common.Contacto();
-		contacto.setIdContacto(notificacion.getDestinatario().getIdContacto());
-		contacto.setNombre(notificacion.getDestinatario().getNombre());
-		contacto.setApellido(notificacion.getDestinatario().getApellido());
-		contacto.setDireccion(notificacion.getDestinatario().getDireccion());
-		contacto.setEmail(notificacion.getDestinatario().getEmail());
-		contacto.setEstado(notificacion.getDestinatario().getEstado());
-		contacto.setTelefono(notificacion.getDestinatario().getTelefono());
-		
-		contacto.setProvincia(new Provincia(
-				notificacion.getDestinatario().getProvincia().getIdProvincia(),
-				notificacion.getDestinatario().getProvincia().getNombre(),
-				new Region(
-						notificacion.getDestinatario().getProvincia().getRegion().getIdRegion(),
-						notificacion.getDestinatario().getProvincia().getRegion().getNombre(),
-						new Pais(
-								notificacion.getDestinatario().getProvincia().getRegion().getPais().getIdPais(),
-								notificacion.getDestinatario().getProvincia().getRegion().getPais().getNombre()))));
-		
-		modelo.setDestinatario(contacto);
+		modelo.setDestinatarios(this.mapearModeloContacto(notificacion.getDestinatarios()));
 		modelo.setEstado(
 				new EstadoNotificacion(
 						notificacion.getEstado().getIdEstadoNotificacion(), 
@@ -458,6 +426,36 @@ public class NotificationController {
 		modelo.setCanal(canal);
 		
 		return modelo;
+	}
+	
+	private List<com.cycsystems.heymebackend.common.Contacto> mapearModeloContacto(List<Contacto> contactos) {
+		
+		LOG.info("METHOD: mapearModeloContacto() --PARAMS: " + contactos);
+		List<com.cycsystems.heymebackend.common.Contacto> modelos = new ArrayList<>();
+		
+		for (Contacto contacto: contactos) {
+			com.cycsystems.heymebackend.common.Contacto modelo = new com.cycsystems.heymebackend.common.Contacto();
+			modelo.setIdContacto(contacto.getIdContacto());
+			modelo.setNombre(contacto.getNombre());
+			modelo.setApellido(contacto.getApellido());
+			modelo.setDireccion(contacto.getDireccion());
+			modelo.setEmail(contacto.getEmail());
+			modelo.setEstado(contacto.getEstado());
+			modelo.setTelefono(contacto.getTelefono());
+			
+			modelo.setProvincia(new Provincia(
+					contacto.getProvincia().getIdProvincia(),
+					contacto.getProvincia().getNombre(),
+					new Region(
+							contacto.getProvincia().getRegion().getIdRegion(),
+							contacto.getProvincia().getRegion().getNombre(),
+							new Pais(
+									contacto.getProvincia().getRegion().getPais().getIdPais(),
+									contacto.getProvincia().getRegion().getPais().getNombre()))));
+			modelos.add(modelo);
+			
+		}
+		return modelos;
 	}
 
 }

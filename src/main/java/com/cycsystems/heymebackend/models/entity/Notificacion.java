@@ -2,6 +2,7 @@ package com.cycsystems.heymebackend.models.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
@@ -42,9 +44,9 @@ public class Notificacion implements Serializable {
 	@Column(name = "notificacion", nullable = false)
 	private String notificacion;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idContacto")
-	private Contacto destinatario;
+	private List<Contacto> destinatarios;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idCanal", nullable = false)
@@ -125,12 +127,12 @@ public class Notificacion implements Serializable {
 		this.notificacion = notificacion;
 	}
 
-	public Contacto getDestinatario() {
-		return destinatario;
+	public List<Contacto> getDestinatarios() {
+		return destinatarios;
 	}
 
-	public void setDestinatario(Contacto destinatario) {
-		this.destinatario = destinatario;
+	public void setDestinatarios(List<Contacto> destinatarios) {
+		this.destinatarios = destinatarios;
 	}
 
 	public Canal getCanal() {

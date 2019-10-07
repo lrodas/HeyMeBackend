@@ -7,10 +7,11 @@ import com.cycsystems.heymebackend.common.Notificacion;
 
 public class NotificacionRequest extends BaseInput {
 
-	Notificacion notificacion;
-	String nombreUsuario;
-	Date fechaInicio;
-	Date fechaFin;
+	private Notificacion notificacion;
+	private String nombreUsuario;
+	private Date fechaInicio;
+	private Date fechaFin;
+	private Integer tipo;
 
 	public Notificacion getNotificacion() {
 		return notificacion;
@@ -44,9 +45,18 @@ public class NotificacionRequest extends BaseInput {
 		this.fechaFin = fechaFin;
 	}
 
+	public Integer getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(Integer tipo) {
+		this.tipo = tipo;
+	}
+
 	@Override
 	public String toString() {
 		return "NotificacionRequest [notificacion=" + notificacion + ", nombreUsuario=" + nombreUsuario
-				+ ", fechaInicio=" + fechaInicio + ", fechaFin=" + fechaFin + ", toString()=" + super.toString() + "]";
+				+ ", fechaInicio=" + fechaInicio + ", fechaFin=" + fechaFin + ", tipo=" + tipo + ", toString()="
+				+ super.toString() + "]";
 	}
 }

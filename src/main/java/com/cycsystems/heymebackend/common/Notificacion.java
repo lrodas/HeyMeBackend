@@ -1,6 +1,7 @@
 package com.cycsystems.heymebackend.common;
 
 import java.util.Date;
+import java.util.List;
 
 public class Notificacion {
 
@@ -10,7 +11,7 @@ public class Notificacion {
 	private Date fechaProgramacion;
 	private EstadoNotificacion estado;
 	private String notificacion;
-	private Contacto destinatario;
+	private List<Contacto> destinatarios;
 	private Usuario usuario;
 	private Canal canal;
 
@@ -62,12 +63,12 @@ public class Notificacion {
 		this.notificacion = notificacion;
 	}
 
-	public Contacto getDestinatario() {
-		return destinatario;
+	public List<Contacto> getDestinatarios() {
+		return destinatarios;
 	}
 
-	public void setDestinatario(Contacto destinatario) {
-		this.destinatario = destinatario;
+	public void setDestinatarios(List<Contacto> destinatarios) {
+		this.destinatarios = destinatarios;
 	}
 
 	public Usuario getUsuario() {

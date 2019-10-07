@@ -44,33 +44,34 @@ public class TareasProgramadas {
 		
 		List<Notificacion> notificaciones = this.notificationService.findbySendingDate(fechaActual, ESTADO_NOTIFICACION_PROGRAMADA);
 		
-		for (Notificacion notificacion: notificaciones) {				
-			switch(notificacion.getCanal().getIdCanal()) {
-				case 1:
-					
-					this.smsService.sendSMS(
-							notificacion.getDestinatario().getTelefono(),
-							null,
-							notificacion.getNotificacion());
-					
-					break;
-				case 2:
-					
-					this.mailService.sendMail(
-							this.MAIL_FROM, 
-							notificacion.getDestinatario().getEmail(),
-							notificacion.getTitulo(),
-							notificacion.getNotificacion());
-					break;
-				case 3:
-					
-					break;
-			}
-			
-			notificacion.setEstado(new EstadoNotificacion(this.ESTADO_NOTIFICACION_ENVIADA));
-			
-			this.notificationService.save(notificacion);
-		}
+//		for (Notificacion notificacion: notificaciones) {	
+//
+//			switch(notificacion.getCanal().getIdCanal()) {
+//				case 1:
+//					
+//					this.smsService.sendSMS(
+//							notificacion.getDestinatarios().getTelefono(),
+//							null,
+//							notificacion.getNotificacion());
+//					
+//					break;
+//				case 2:
+//					
+//					this.mailService.sendMail(
+//							this.MAIL_FROM, 
+//							notificacion.getDestinatarios().getEmail(),
+//							notificacion.getTitulo(),
+//							notificacion.getNotificacion());
+//					break;
+//				case 3:
+//					
+//					break;
+//			}
+//			
+//			notificacion.setEstado(new EstadoNotificacion(this.ESTADO_NOTIFICACION_ENVIADA));
+//			
+//			this.notificationService.save(notificacion);
+//		}
 		
 	}
 

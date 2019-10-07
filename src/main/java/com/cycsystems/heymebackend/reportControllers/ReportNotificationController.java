@@ -50,53 +50,55 @@ public class ReportNotificationController {
 		List<Notificacion> notificaciones = new ArrayList<>();
 		NotificacionResponse output = new NotificacionResponse();
 		
-		if (input.getNotificacion() == null ||
-				input.getNotificacion().getEstado() == null || 
-				input.getNotificacion().getEstado().getIdEstadoNotificacion() == null ||
-				input.getNotificacion().getEstado().getIdEstadoNotificacion() <= 0) {
-			
-			output.setCodigo("0060");
-			output.setDescripcion("Debe enviar el estado de la notificacion");
-			output.setIndicador("ERROR");
-			return new AsyncResult<>(ResponseEntity.ok(output));
-			
-		} else if (input.getNotificacion().getTitulo() != null && 
-				!input.getNotificacion().getTitulo().isEmpty()) {
-			
+//		output.setCodigo("0060");
+//		output.setDescripcion("Debe enviar el estado de la notificacion");
+//		output.setIndicador("ERROR");
+//		return new AsyncResult<>(ResponseEntity.ok(output));
+		
+		Calendar calendar = Calendar.getInstance();
+		
+		Integer tipo = input.getTipo();
+		if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_ESTADO) {
+		} else if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_TITULO) {
 			notificaciones = this.notificacionService.findByTitle(input.getNotificacion().getTitulo(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
-		
-		} else if (input.getNombreUsuario() != null && !input.getNombreUsuario().isEmpty()) {
-			
+		} else if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_USUARIO) {
 			notificaciones = this.notificacionService.findByUser(input.getNombreUsuario(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
-		
-		} else if (input != null &&
-				input.getFechaFin() != null && input.getFechaInicio() != null) {
-			
-			Calendar calendar = Calendar.getInstance();
-		    calendar.set(Calendar.HOUR_OF_DAY, 0);
-		    calendar.set(Calendar.MINUTE, 0);
-		    calendar.set(Calendar.SECOND, 0);
-		    calendar.set(Calendar.MILLISECOND, 0);
-		    
-		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getYear(),
-		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getMonthValue() - 1,
-		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getDayOfMonth() + 1);
-		    
-		    Date fechaInicio = calendar.getTime();
-		    
-		    calendar.set(Calendar.HOUR_OF_DAY, 23);
-		    calendar.set(Calendar.MINUTE, 59);
-		    calendar.set(Calendar.SECOND, 59);
-		    calendar.set(Calendar.MILLISECOND, 0);
-		    
-		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getYear(),
-		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getMonthValue() - 1,
-		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
-		    
-		    Date fechaFin = calendar.getTime();
-			
-			notificaciones = this.notificacionService.findByProgrammingDate(fechaInicio, fechaFin);
-
+		} else if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_FECHA_PROGRAMACION) {
+			calendar.set(Calendar.HOUR_OF_DAY, 0);
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, 0);
+			calendar.set(Calendar.MILLISECOND, 0);
+			calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getYear(),
+					LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getMonthValue() - 1,
+			LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getDayOfMonth() + 1);
+			Date fechaInicioProgramacion = calendar.getTime();
+			calendar.set(Calendar.HOUR_OF_DAY, 23);
+			calendar.set(Calendar.MINUTE, 59);
+			calendar.set(Calendar.SECOND, 59);
+			calendar.set(Calendar.MILLISECOND, 0);
+			calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getYear(),
+					LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getMonthValue() - 1,
+			LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
+			Date fechaFinProgramacion = calendar.getTime();
+			notificaciones = this.notificacionService.findByProgrammingDate(fechaInicioProgramacion, fechaFinProgramacion);
+		} else if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_FECHA_ENVIO) {
+			calendar.set(Calendar.HOUR_OF_DAY, 0);
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, 0);
+			calendar.set(Calendar.MILLISECOND, 0);
+			calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getYear(),
+					LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getMonthValue() - 1,
+			LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getDayOfMonth() + 1);
+			Date fechaInicioEnvio = calendar.getTime();
+			calendar.set(Calendar.HOUR_OF_DAY, 23);
+			calendar.set(Calendar.MINUTE, 59);
+			calendar.set(Calendar.SECOND, 59);
+			calendar.set(Calendar.MILLISECOND, 0);
+			calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getYear(),
+					LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getMonthValue() - 1,
+			LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
+			Date fechaFinEnvio = calendar.getTime();
+			notificaciones = this.notificacionService.findByShippingDate(fechaInicioEnvio, fechaFinEnvio);
 		}
 		
 		LOG.info("notificaciones: " + notificaciones);
