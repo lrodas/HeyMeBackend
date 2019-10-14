@@ -31,7 +31,43 @@ public class RoleController {
 	
 	@Autowired
 	private IRoleService roleService;
-	
+
+	@Async
+	@PostMapping("/changeStatus")
+	public ListenableFuture<ResponseEntity<?>> cambiarEstado(@RequestBody RoleRequest input) {
+
+		LOG.info("METHOD: cambiarEstado() --PARAMS: RoleRequest: " + input);
+		RoleResponse output = new RoleResponse();
+
+		if (input.getRole().getIdRole() == null || input.getRole().getIdRole() <= 0) {
+			output.setCodigo("0065");
+			output.setDescripcion("Es necesario enviar el id del role");
+			output.setIndicador("ERROR");
+		} else if (input.getRole().getEstado() == null) {
+			output.setCodigo("0049");
+			output.setDescripcion("Es necesario enviar el estado del role");
+			output.setIndicador("ERROR");
+		} else {
+
+			Role role = this.roleService.findById(input.getRole().getIdRole());
+
+			if (role != null) {
+				role.setEstado(input.getRole().getEstado());
+				role = this.roleService.save(role);
+
+				output.setCodigo("0000");
+				output.setDescripcion("Role guardado exitosamente");
+				output.setIndicador("SUCCESS");
+				output.setRole(this.mapRole(role));
+			} else {
+				output.setCodigo("0000");
+				output.setDescripcion("El role no existe, por  favor verificar");
+				output.setIndicador("ERROR");
+			}
+		}
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+
 	@Async
 	@PostMapping("/save")
 	public ListenableFuture<ResponseEntity<?>> guardarRole(@RequestBody RoleRequest input) {
