@@ -1,4 +1,4 @@
-package com.bolsadeideas.springboot.app;
+package com.cycsystems.heymebackend;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

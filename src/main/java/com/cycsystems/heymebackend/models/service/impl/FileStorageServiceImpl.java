@@ -93,7 +93,7 @@ public class FileStorageServiceImpl implements IFileStorageService {
 		
 		File imagen = new File(path);			
 		if (!imagen.exists()) {
-			path = Paths.get(rutaBasica, "no-img.jpg").toString();
+			path = Paths.get(rutaBasica, "no-img.png").toString();
 		}
 		
 		LOG.info("Ruta cargada: " + path);

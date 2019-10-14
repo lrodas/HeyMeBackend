@@ -71,8 +71,7 @@ public class BitacoraAspect {
 			if (!metodo.equalsIgnoreCase("obtenerImagen")) {
 				try {
 					Object[] signatureArgs = p.getArgs();
-					LOG.info("signature: " + signatureArgs);
-					if (signatureArgs[0] != null) {
+					if (signatureArgs.length > 0 && signatureArgs[0] != null) {
 						Bitacora bitacora = new Bitacora();
 						bitacora.setMetodo(metodo);
 						bitacora.setJson(objectMapper.writer().writeValueAsString(result.getBody()));
