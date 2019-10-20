@@ -52,6 +52,9 @@ public class Notificacion implements Serializable {
 	@JoinColumn(name = "idCanal", nullable = false)
 	private Canal canal;
 
+	@Column(name = "codigo")
+	private String codigo;
+
 	@PrePersist
 	private void prePersist() {
 		this.fechaProgramacion = new Date();
@@ -143,11 +146,28 @@ public class Notificacion implements Serializable {
 		this.canal = canal;
 	}
 
+	public String getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(String codigo) {
+		this.codigo = codigo;
+	}
+
 	@Override
 	public String toString() {
-		return "Notificacion [idNotificaciones=" + idNotificaciones + ", titulo=" + titulo + ", fechaEnvio="
-				+ fechaEnvio + ", fechaProgramacion=" + fechaProgramacion + ", estado=" + estado + ", usuario="
-				+ usuario + "]";
+		return "Notificacion{" +
+				"idNotificaciones=" + idNotificaciones +
+				", titulo='" + titulo + '\'' +
+				", fechaEnvio=" + fechaEnvio +
+				", fechaProgramacion=" + fechaProgramacion +
+				", estado=" + estado +
+				", usuario=" + usuario +
+				", notificacion='" + notificacion + '\'' +
+				", destinatarios=" + destinatarios +
+				", canal=" + canal +
+				", codigo='" + codigo + '\'' +
+				'}';
 	}
 
 	private static final long serialVersionUID = 1L;

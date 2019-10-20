@@ -1,8 +1,10 @@
 package com.cycsystems.heymebackend;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.cycsystems.heymebackend.models.entity.Contacto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,43 +38,42 @@ public class TareasProgramadas {
 	
 	@Value("${mail.from}")
 	private String MAIL_FROM;
-		
-	@Scheduled(fixedDelay = 1000)
-	public void taskSendMessage() {
-		
-		Date fechaActual = new Date();
-		
-		List<Notificacion> notificaciones = this.notificationService.findbySendingDate(fechaActual, ESTADO_NOTIFICACION_PROGRAMADA);
-		
-//		for (Notificacion notificacion: notificaciones) {	
-//
-//			switch(notificacion.getCanal().getIdCanal()) {
-//				case 1:
-//					
-//					this.smsService.sendSMS(
-//							notificacion.getDestinatarios().getTelefono(),
-//							null,
-//							notificacion.getNotificacion());
-//					
-//					break;
-//				case 2:
-//					
-//					this.mailService.sendMail(
-//							this.MAIL_FROM, 
-//							notificacion.getDestinatarios().getEmail(),
-//							notificacion.getTitulo(),
-//							notificacion.getNotificacion());
-//					break;
-//				case 3:
-//					
-//					break;
-//			}
-//			
-//			notificacion.setEstado(new EstadoNotificacion(this.ESTADO_NOTIFICACION_ENVIADA));
-//			
-//			this.notificationService.save(notificacion);
-//		}
-		
-	}
 
+	@Value("${canal.sms}")
+	private Integer CANAL_SMS;
+
+	@Value("${canal.mail}")
+	private Integer CANAL_MAIL;
+
+	@Value("${canal.whatsapp}")
+	private Integer CANAL_WHATSAPP;
+		
+	@Scheduled(cron = "0 0 0/12 * * *")
+	public void taskSendMessage() {
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		Date fechaActual = calendar.getTime();
+
+		List<Notificacion> notificaciones = this.notificationService.findbySendingDate(fechaActual, ESTADO_NOTIFICACION_PROGRAMADA);
+
+		for (Notificacion notificacion : notificaciones) {
+			String codigo = "";
+			for (Contacto contacto : notificacion.getDestinatarios()) {
+				if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_SMS) == 0) {
+					codigo = this.smsService.sendSMS(contacto.getTelefono(), notificacion.getNotificacion());
+				} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_MAIL) == 0) {
+					this.mailService.sendMail(this.MAIL_FROM, contacto.getEmail(), notificacion.getTitulo(), notificacion.getNotificacion());
+				} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_WHATSAPP) == 0) {
+
+				}
+			}
+			notificacion.setCodigo(codigo);
+			notificacion.setEstado(new EstadoNotificacion(this.ESTADO_NOTIFICACION_ENVIADA));
+			this.notificationService.save(notificacion);
+		}
+	}
 }
