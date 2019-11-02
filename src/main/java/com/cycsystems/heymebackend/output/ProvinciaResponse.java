@@ -1,9 +1,9 @@
 package com.cycsystems.heymebackend.output;
 
-import java.util.List;
-
 import com.cycsystems.heymebackend.common.BaseOutput;
 import com.cycsystems.heymebackend.common.Provincia;
+
+import java.util.List;
 
 public class ProvinciaResponse extends BaseOutput {
 

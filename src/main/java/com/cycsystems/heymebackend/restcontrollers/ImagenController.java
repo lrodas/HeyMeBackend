@@ -1,7 +1,10 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
-import java.io.IOException;
-
+import com.cycsystems.heymebackend.models.entity.Usuario;
+import com.cycsystems.heymebackend.models.service.IFileStorageService;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
+import com.cycsystems.heymebackend.output.ImagenResponse;
+import com.cycsystems.heymebackend.util.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,19 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.cycsystems.heymebackend.models.entity.Usuario;
-import com.cycsystems.heymebackend.models.service.IFileStorageService;
-import com.cycsystems.heymebackend.models.service.IUsuarioService;
-import com.cycsystems.heymebackend.output.ImagenResponse;
-import com.cycsystems.heymebackend.util.Constants;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/image")

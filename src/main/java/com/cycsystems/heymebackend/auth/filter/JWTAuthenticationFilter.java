@@ -1,15 +1,12 @@
 package com.cycsystems.heymebackend.auth.filter;
 
-import java.io.IOException;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.cycsystems.heymebackend.auth.service.JWTService;
+import com.cycsystems.heymebackend.auth.service.JWTServiceImpl;
+import com.cycsystems.heymebackend.models.entity.Usuario;
+import com.cycsystems.heymebackend.util.Constants;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,13 +15,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import com.cycsystems.heymebackend.auth.service.JWTService;
-import com.cycsystems.heymebackend.auth.service.JWTServiceImpl;
-import com.cycsystems.heymebackend.models.entity.Usuario;
-import com.cycsystems.heymebackend.util.Constants;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {

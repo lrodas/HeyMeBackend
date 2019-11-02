@@ -1,8 +1,7 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.cycsystems.heymebackend.models.entity.Usuario;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.cycsystems.heymebackend.models.entity.Usuario;
-import com.cycsystems.heymebackend.models.service.IUsuarioService;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service("jpaUserDetailsService")
 public class JpaUserDetailsService implements UserDetailsService{

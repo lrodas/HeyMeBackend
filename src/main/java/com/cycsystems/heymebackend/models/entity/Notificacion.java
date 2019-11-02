@@ -1,20 +1,9 @@
 package com.cycsystems.heymebackend.models.entity;
 
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "notificacion")
@@ -55,20 +44,25 @@ public class Notificacion implements Serializable {
 	@Column(name = "codigo")
 	private String codigo;
 
+	@Column(name="estadoPago")
+	private Boolean estadoPago;
+
 	@PrePersist
 	private void prePersist() {
 		this.fechaProgramacion = new Date();
 	}
 
-	public Notificacion(Long idNotificaciones, String titulo, Date fechaEnvio, Date fechaProgramacion,
-			EstadoNotificacion estado, Usuario usuario, String notificacion) {
-		this.idNotificaciones = idNotificaciones;
+	public Notificacion(String titulo, Date fechaEnvio, Date fechaProgramacion, EstadoNotificacion estado, Usuario usuario, String notificacion, List<Contacto> destinatarios, Canal canal, String codigo, Boolean estadoPago) {
 		this.titulo = titulo;
 		this.fechaEnvio = fechaEnvio;
 		this.fechaProgramacion = fechaProgramacion;
 		this.estado = estado;
 		this.usuario = usuario;
 		this.notificacion = notificacion;
+		this.destinatarios = destinatarios;
+		this.canal = canal;
+		this.codigo = codigo;
+		this.estadoPago = estadoPago;
 	}
 
 	public Notificacion() {
@@ -154,6 +148,14 @@ public class Notificacion implements Serializable {
 		this.codigo = codigo;
 	}
 
+	public Boolean getEstadoPago() {
+		return estadoPago;
+	}
+
+	public void setEstadoPago(Boolean estadoPago) {
+		this.estadoPago = estadoPago;
+	}
+
 	@Override
 	public String toString() {
 		return "Notificacion{" +
@@ -167,9 +169,9 @@ public class Notificacion implements Serializable {
 				", destinatarios=" + destinatarios +
 				", canal=" + canal +
 				", codigo='" + codigo + '\'' +
+				", estadoPago=" + estadoPago +
 				'}';
 	}
 
 	private static final long serialVersionUID = 1L;
-
 }

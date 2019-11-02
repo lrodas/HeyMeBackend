@@ -1,9 +1,9 @@
 package com.cycsystems.heymebackend.models.service;
 
+import com.cycsystems.heymebackend.models.entity.Bitacora;
+
 import java.util.Date;
 import java.util.List;
-
-import com.cycsystems.heymebackend.models.entity.Bitacora;
 
 public interface IBitacoraService {
 

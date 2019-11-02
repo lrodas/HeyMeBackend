@@ -1,9 +1,9 @@
 package com.cycsystems.heymebackend.output;
 
-import java.util.List;
-
 import com.cycsystems.heymebackend.common.BaseOutput;
 import com.cycsystems.heymebackend.common.Permiso;
+
+import java.util.List;
 
 public class PermisoResponse extends BaseOutput {
 

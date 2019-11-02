@@ -1,9 +1,9 @@
 package com.cycsystems.heymebackend.input;
 
-import java.util.Date;
-
 import com.cycsystems.heymebackend.common.BaseInput;
 import com.cycsystems.heymebackend.common.Notificacion;
+
+import java.util.Date;
 
 public class NotificacionRequest extends BaseInput {
 

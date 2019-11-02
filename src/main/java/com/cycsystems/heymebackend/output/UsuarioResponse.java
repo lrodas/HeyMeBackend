@@ -1,10 +1,10 @@
 package com.cycsystems.heymebackend.output;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.cycsystems.heymebackend.common.BaseOutput;
 import com.cycsystems.heymebackend.common.Usuario;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsuarioResponse extends BaseOutput {
 

@@ -1,18 +1,17 @@
 package com.cycsystems.heymebackend.auth.filter;
 
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.cycsystems.heymebackend.auth.service.JWTService;
+import com.cycsystems.heymebackend.auth.service.JWTServiceImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.cycsystems.heymebackend.auth.service.JWTService;
-import com.cycsystems.heymebackend.auth.service.JWTServiceImpl;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {

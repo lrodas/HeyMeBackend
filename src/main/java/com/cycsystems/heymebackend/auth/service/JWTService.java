@@ -1,12 +1,11 @@
 package com.cycsystems.heymebackend.auth.service;
 
-import java.io.IOException;
-import java.util.Collection;
-
+import io.jsonwebtoken.Claims;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-import io.jsonwebtoken.Claims;
+import java.io.IOException;
+import java.util.Collection;
 
 public interface JWTService {
 

@@ -1,8 +1,12 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import com.cycsystems.heymebackend.common.Opcion;
+import com.cycsystems.heymebackend.input.RoleRequest;
+import com.cycsystems.heymebackend.models.entity.Permiso;
+import com.cycsystems.heymebackend.models.entity.Role;
+import com.cycsystems.heymebackend.models.service.IRoleService;
+import com.cycsystems.heymebackend.output.RoleResponse;
+import com.cycsystems.heymebackend.util.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cycsystems.heymebackend.common.Opcion;
-import com.cycsystems.heymebackend.input.RoleRequest;
-import com.cycsystems.heymebackend.models.entity.Permiso;
-import com.cycsystems.heymebackend.models.entity.Role;
-import com.cycsystems.heymebackend.models.service.IRoleService;
-import com.cycsystems.heymebackend.output.RoleResponse;
-import com.cycsystems.heymebackend.util.Constants;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/role")

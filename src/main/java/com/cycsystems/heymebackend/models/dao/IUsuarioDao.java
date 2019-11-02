@@ -1,11 +1,10 @@
 package com.cycsystems.heymebackend.models.dao;
 
-import java.util.Date;
-import java.util.List;
-
+import com.cycsystems.heymebackend.models.entity.Usuario;
 import org.springframework.data.repository.CrudRepository;
 
-import com.cycsystems.heymebackend.models.entity.Usuario;
+import java.util.Date;
+import java.util.List;
 
 public interface IUsuarioDao extends CrudRepository<Usuario, Integer>{
 

@@ -1,9 +1,9 @@
 package com.cycsystems.heymebackend.input;
 
-import java.util.List;
-
 import com.cycsystems.heymebackend.common.BaseInput;
 import com.cycsystems.heymebackend.common.Permiso;
+
+import java.util.List;
 
 public class PermisoRequest extends BaseInput {
 

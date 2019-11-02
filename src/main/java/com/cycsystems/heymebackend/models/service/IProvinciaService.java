@@ -1,8 +1,8 @@
 package com.cycsystems.heymebackend.models.service;
 
-import java.util.List;
-
 import com.cycsystems.heymebackend.models.entity.Provincia;
+
+import java.util.List;
 
 public interface IProvinciaService {
 

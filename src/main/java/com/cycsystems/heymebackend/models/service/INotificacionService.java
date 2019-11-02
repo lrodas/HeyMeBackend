@@ -1,9 +1,9 @@
 package com.cycsystems.heymebackend.models.service;
 
+import com.cycsystems.heymebackend.models.entity.Notificacion;
+
 import java.util.Date;
 import java.util.List;
-
-import com.cycsystems.heymebackend.models.entity.Notificacion;
 
 public interface INotificacionService {
 
@@ -30,4 +30,8 @@ public interface INotificacionService {
 	public abstract List<Notificacion> findbySendingDate(Date fecha, Integer idEstadoNotificacion);
 	
 	public abstract List<Notificacion> findByStatus(Integer status);
+
+	public abstract List<Notificacion> findByCompanyAndStatus(Integer idEmpresa, Integer idEstado);
+
+	public abstract List<Notificacion> findByCompanyAndStatusPayment(Integer idEmpresa, Boolean estado);
 }

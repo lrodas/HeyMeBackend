@@ -1,8 +1,7 @@
 package com.cycsystems.heymebackend.input;
 
-import org.springframework.web.multipart.MultipartFile;
-
 import com.cycsystems.heymebackend.common.BaseInput;
+import org.springframework.web.multipart.MultipartFile;
 
 public class ImagenRequest extends BaseInput {
 

@@ -1,7 +1,10 @@
 package com.cycsystems.heymebackend;
 
-import java.util.Arrays;
-
+import com.cycsystems.heymebackend.auth.filter.JWTAuthenticationFilter;
+import com.cycsystems.heymebackend.auth.filter.JWTAuthorizationFilter;
+import com.cycsystems.heymebackend.auth.service.JWTService;
+import com.cycsystems.heymebackend.models.service.impl.JpaUserDetailsService;
+import com.cycsystems.heymebackend.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +19,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.cycsystems.heymebackend.auth.filter.JWTAuthenticationFilter;
-import com.cycsystems.heymebackend.auth.filter.JWTAuthorizationFilter;
-import com.cycsystems.heymebackend.auth.service.JWTService;
-import com.cycsystems.heymebackend.models.service.impl.JpaUserDetailsService;
-import com.cycsystems.heymebackend.util.Constants;
+import java.util.Arrays;
 
 @EnableGlobalMethodSecurity(securedEnabled=true, prePostEnabled=true)
 @Configuration

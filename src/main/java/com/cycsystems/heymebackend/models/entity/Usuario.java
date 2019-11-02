@@ -1,26 +1,13 @@
 package com.cycsystems.heymebackend.models.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 @Entity
 @Table(name = "usuario",uniqueConstraints= {@UniqueConstraint(columnNames= {"username"})})
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Usuario implements Serializable {
 
 	@Id
@@ -53,15 +40,11 @@ public class Usuario implements Serializable {
 	private Boolean enabled;
 	
 	private Date fechaAlta;
-	
-	@PrePersist
-	private void prePersist() {
-		this.fechaAlta = new Date();
-	}
 
-	public Usuario(Integer idUsuario, String nombres, String apellidos, String direccion, String telefono, Role role,
-			String username, String password, String img, Genero genero, Boolean enabled) {
-		this.idUsuario = idUsuario;
+	@ManyToOne(fetch = FetchType.EAGER)
+	private Empresa empresa;
+
+	public Usuario(String nombres, String apellidos, String direccion, String telefono, Role role, String username, String password, String img, Genero genero, Boolean enabled, Date fechaAlta, Empresa empresa) {
 		this.nombres = nombres;
 		this.apellidos = apellidos;
 		this.direccion = direccion;
@@ -72,6 +55,13 @@ public class Usuario implements Serializable {
 		this.img = img;
 		this.genero = genero;
 		this.enabled = enabled;
+		this.fechaAlta = fechaAlta;
+		this.empresa = empresa;
+	}
+
+	@PrePersist
+	private void prePersist() {
+		this.fechaAlta = new Date();
 	}
 
 	public Usuario(Integer idUsuario) {
@@ -171,6 +161,14 @@ public class Usuario implements Serializable {
 
 	public Date getFechaAlta() {
 		return fechaAlta;
+	}
+
+	public Empresa getEmpresa() {
+		return empresa;
+	}
+
+	public void setEmpresa(Empresa empresa) {
+		this.empresa = empresa;
 	}
 
 	@Override

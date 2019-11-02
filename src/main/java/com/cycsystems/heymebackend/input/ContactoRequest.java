@@ -1,9 +1,9 @@
 package com.cycsystems.heymebackend.input;
 
-import java.util.Date;
-
 import com.cycsystems.heymebackend.common.BaseInput;
 import com.cycsystems.heymebackend.common.Contacto;
+
+import java.util.Date;
 
 public class ContactoRequest extends BaseInput {
 

@@ -1,14 +1,13 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.cycsystems.heymebackend.models.dao.INotificacionDao;
 import com.cycsystems.heymebackend.models.entity.Notificacion;
 import com.cycsystems.heymebackend.models.service.INotificacionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class NotificacionServiceImpl implements INotificacionService {
@@ -58,12 +57,22 @@ public class NotificacionServiceImpl implements INotificacionService {
 
 	@Override
 	public List<Notificacion> findbySendingDate(Date fecha, Integer idEstadoNotificacion) {
-		return this.repository.findByFechaEnvioLessThanAndEstado_idEstadoNotificacion(fecha, idEstadoNotificacion);
+		return this.repository.findByFechaEnvioLessThanEqualAndEstado_idEstadoNotificacion(fecha, idEstadoNotificacion);
 	}
 
 	@Override
 	public List<Notificacion> findByStatus(Integer status) {
 		return this.repository.findByEstado_idEstadoNotificacionEquals(status);
+	}
+
+	@Override
+	public List<Notificacion> findByCompanyAndStatus(Integer idEmpresa, Integer idEstado) {
+		return this.repository.findByUsuario_Empresa_IdEmpresaAndEstado_IdEstadoNotificacion(idEmpresa, idEstado);
+	}
+
+	@Override
+	public List<Notificacion> findByCompanyAndStatusPayment(Integer idEmpresa, Boolean estado) {
+		return this.repository.findByUsuario_Empresa_IdEmpresaAndEstadoPago(idEmpresa, estado);
 	}
 
 	@Override

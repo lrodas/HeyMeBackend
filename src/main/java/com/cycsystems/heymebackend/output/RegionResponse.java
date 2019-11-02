@@ -1,9 +1,9 @@
 package com.cycsystems.heymebackend.output;
 
-import java.util.List;
-
 import com.cycsystems.heymebackend.common.BaseOutput;
 import com.cycsystems.heymebackend.common.Region;
+
+import java.util.List;
 
 public class RegionResponse extends BaseOutput {
 

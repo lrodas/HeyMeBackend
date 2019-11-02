@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bindings xmlns="http://java.sun.com/xml/ns/jaxb" if-exists="true" version="2.1">
+      
+    <!--
+
+Este archivo ha sido generado por la arquitectura JavaTM para la implantación de la referencia de enlace (JAXB) XML v2.3.0 
+Visite <a href="https://javaee.github.io/jaxb-v2/">https://javaee.github.io/jaxb-v2/</a> 
+Todas las modificaciones realizadas en este archivo se perderán si se vuelve a compilar el esquema de origen. 
+Generado el: 2019.10.23 a las 08:58:52 PM CST 
+
+  -->
+      
+    <bindings xmlns:tns="http://www.banguat.gob.gt/variables/ws/" if-exists="true" scd="x-schema::tns">
+            
+        <schemaBindings map="false">
+                  
+            <package name="com.cycsystems.tipocambio.wsdl"/>
+                
+        </schemaBindings>
+            
+        <bindings if-exists="true" scd="tns:VariablesDisponibles">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.VariablesDisponibles"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:VariablesDisponiblesResponse">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.VariablesDisponiblesResponse"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="~tns:InfoVariable">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.InfoVariable"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:Variables">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.Variables"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:VariablesResponse">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.VariablesResponse"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioFechaInicial">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioFechaInicial"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioFechaInicialResponse">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioFechaInicialResponse"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="~tns:DataVariable">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.DataVariable"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioRango">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioRango"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioRangoResponse">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioRangoResponse"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioFechaInicialMoneda">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioFechaInicialMoneda"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioFechaInicialMonedaResponse">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioFechaInicialMonedaResponse"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioRangoMoneda">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioRangoMoneda"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioRangoMonedaResponse">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioRangoMonedaResponse"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioDia">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioDia"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioDiaResponse">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioDiaResponse"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioDiaString">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioDiaString"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="tns:TipoCambioDiaStringResponse">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.TipoCambioDiaStringResponse"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="~tns:ArrayOfVariable">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.ArrayOfVariable"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="~tns:Variable">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.Variable"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="~tns:ArrayOfVar">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.ArrayOfVar"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="~tns:Var">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.Var"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="~tns:ArrayOfVarDolar">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.ArrayOfVarDolar"/>
+                
+        </bindings>
+            
+        <bindings if-exists="true" scd="~tns:VarDolar">
+                  
+            <class ref="com.cycsystems.tipocambio.wsdl.VarDolar"/>
+                
+        </bindings>
+          
+    </bindings>
+    
+</bindings>

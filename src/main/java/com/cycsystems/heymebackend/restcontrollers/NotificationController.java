@@ -1,12 +1,16 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
+import com.cycsystems.heymebackend.common.*;
+import com.cycsystems.heymebackend.input.NotificacionRequest;
+import com.cycsystems.heymebackend.models.entity.Contacto;
+import com.cycsystems.heymebackend.models.entity.Notificacion;
+import com.cycsystems.heymebackend.models.entity.Usuario;
+import com.cycsystems.heymebackend.models.service.*;
+import com.cycsystems.heymebackend.output.DatosGraficaResponse;
+import com.cycsystems.heymebackend.output.DatosNotificacionPrecioResponse;
+import com.cycsystems.heymebackend.output.NotificacionResponse;
+import com.cycsystems.heymebackend.util.Constants;
+import com.cycsystems.heymebackend.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,22 +24,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cycsystems.heymebackend.common.Canal;
-import com.cycsystems.heymebackend.common.EstadoNotificacion;
-import com.cycsystems.heymebackend.common.Genero;
-import com.cycsystems.heymebackend.common.Pais;
-import com.cycsystems.heymebackend.common.Provincia;
-import com.cycsystems.heymebackend.common.Region;
-import com.cycsystems.heymebackend.common.Role;
-import com.cycsystems.heymebackend.input.NotificacionRequest;
-import com.cycsystems.heymebackend.models.entity.Contacto;
-import com.cycsystems.heymebackend.models.entity.Notificacion;
-import com.cycsystems.heymebackend.models.entity.Usuario;
-import com.cycsystems.heymebackend.models.service.IContactoService;
-import com.cycsystems.heymebackend.models.service.INotificacionService;
-import com.cycsystems.heymebackend.models.service.IUsuarioService;
-import com.cycsystems.heymebackend.output.NotificacionResponse;
-import com.cycsystems.heymebackend.util.Constants;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/notification")
@@ -51,14 +46,198 @@ public class NotificationController {
 	
 	@Autowired
 	private IUsuarioService usuarioService;
+
+	@Autowired
+	private ITwilioService twilioService;
+
+	@Autowired
+	private IEmpresaService empresaService;
 	
 	@Value("${estado.notificacion.programada}")
 	private Integer ESTADO_NOTIFICACION_PROGRAMADA;
+
+	@Value("${estado.notificacion.enviada}")
+	private Integer ESTADO_NOTIFICACION_ENVIADA;
+
+	@Value("${estado.notificacion.creada}")
+	private Integer ESTADO_NOTIFICACION_CREADA;
+
+	@Value("${canal.sms}")
+	private Integer CANAL_SMS;
+
+	@Value("${canal.mail}")
+	private Integer CANAL_MAIL;
+
+	@Value("${canal.whatsapp}")
+	private Integer CANAL_WHATSAPP;
+
+	@Async
+	@PostMapping("/retrieveNotificationPricePerMonth")
+	public ListenableFuture<ResponseEntity<DatosNotificacionPrecioResponse>> retrieveNotificationPricePerMonth(
+			@RequestBody NotificacionRequest input
+	) {
+		LOG.info("METHOD: retrieveNotificationPricePerMonth() --PARAMS: notificacionRequest: " + input);
+		DatosNotificacionPrecioResponse output = new DatosNotificacionPrecioResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+		List<Notificacion> notificaciones = this.notificacionService.findByCompanyAndStatusPayment(usuario.getEmpresa().getIdEmpresa(), false);
+		BigDecimal tarifa = usuario.getEmpresa().getTarifa();
+		output.setDatos(new ArrayList<>());
+
+		for (Notificacion notificacion: notificaciones) {
+			DatosNotificacionPrecio dato = new DatosNotificacionPrecio();
+			if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_MAIL) == 0) {
+				boolean existeCanal = false;
+				for (DatosNotificacionPrecio modelo: output.getDatos()) {
+					if (modelo.getCanal().equalsIgnoreCase("MAIL")) {
+						dato.setPrecio(new BigDecimal(0));
+						existeCanal = true;
+					}
+				}
+
+				if (!existeCanal) {
+					dato.setPrecio(new BigDecimal(0));
+					dato.setCanal("MAIL");
+					output.getDatos().add(dato);
+				}
+			} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_WHATSAPP) == 0) {
+				boolean existeCanal = false;
+				for (DatosNotificacionPrecio modelo: output.getDatos()) {
+					if (modelo.getCanal().equalsIgnoreCase("WHATSAPP")) {
+						dato.setPrecio(dato.getPrecio().add(tarifa));
+						existeCanal = true;
+					}
+				}
+
+				if (!existeCanal) {
+					dato.setPrecio(tarifa);
+					dato.setCanal("WHATSAPP");
+					output.getDatos().add(dato);
+				}
+			} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_SMS) == 0) {
+				boolean existeCanal = false;
+				for (DatosNotificacionPrecio modelo: output.getDatos()) {
+					if (modelo.getCanal().equalsIgnoreCase("SMS")) {
+						dato.setPrecio(dato.getPrecio().add(tarifa));
+						existeCanal = true;
+					}
+				}
+
+				if (!existeCanal) {
+					dato.setPrecio(tarifa);
+					dato.setCanal("SMS");
+					output.getDatos().add(dato);
+				}
+			}
+		}
+
+		output.setCodigo("0000");
+		output.setDescripcion("Datos obtenidos exitosamente");
+		output.setIndicador("SUCCESS");
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+
+	@Async
+	@PostMapping("/retrieveNotificationCountPerMonth")
+	public ListenableFuture<ResponseEntity<DatosGraficaResponse>> retrieveNotificationCountPerMonth(
+			@RequestBody NotificacionRequest input
+	) {
+		LOG.info("METHOD: retrieveNotificationCountPerMonth() --PARAMS: notificacionRequest: " + input);
+		DatosGraficaResponse output = new DatosGraficaResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+		List<Notificacion> notificaciones = this.notificacionService.findByCompanyAndStatus(usuario.getEmpresa().getIdEmpresa(), this.ESTADO_NOTIFICACION_ENVIADA);
+		List<DataGrupoGrafica> graficas = new ArrayList<>();
+
+		for (Notificacion notificacion: notificaciones) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(notificacion.getFechaEnvio());
+			String mes = Util.convertIntMonthToStringMonth(calendar.get(Calendar.MONTH) + 1);
+			boolean existeMES = false;
+
+			for (DataGrupoGrafica grupo: graficas) {
+				if (grupo.getName().equalsIgnoreCase(mes)) {
+
+					if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_MAIL) == 0) {
+						boolean existeCanal = false;
+						for (GraficaBarras data: grupo.getSeries()) {
+							if (data.getName().equalsIgnoreCase("CORREO")) {
+								data.setValue(data.getValue() + 1);
+								existeCanal = true;
+							}
+						}
+
+						if (!existeCanal) {
+							GraficaBarras grafica = new GraficaBarras();
+							grafica.setValue(1);
+							grafica.setName("CORREO");
+							grupo.getSeries().add(grafica);
+						}
+
+					} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_SMS) == 0) {
+						boolean existeCanal = false;
+						for (GraficaBarras data: grupo.getSeries()) {
+							if (data.getName().equalsIgnoreCase("SMS")) {
+								data.setValue(data.getValue() + 1);
+								existeCanal = true;
+							}
+						}
+
+						if (!existeCanal) {
+							GraficaBarras grafica = new GraficaBarras();
+							grafica.setValue(1);
+							grafica.setName("SMS");
+							grupo.getSeries().add(grafica);
+						}
+					} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_WHATSAPP) == 0) {
+						boolean existeCanal = false;
+						for (GraficaBarras data: grupo.getSeries()) {
+							if (data.getName().equalsIgnoreCase("WHATSAPP")) {
+								data.setValue(data.getValue() + 1);
+								existeCanal = true;
+							}
+						}
+
+						if (!existeCanal) {
+							GraficaBarras grafica = new GraficaBarras();
+							grafica.setValue(1);
+							grafica.setName("WHATSAPP");
+							grupo.getSeries().add(grafica);
+						}
+					}
+					existeMES = true;
+				}
+			}
+			if (!existeMES) {
+
+				DataGrupoGrafica grupo = new DataGrupoGrafica();
+				grupo.setName(mes);
+				grupo.setSeries(new ArrayList<>());
+
+				GraficaBarras grafica = new GraficaBarras();
+				grafica.setValue(1);
+				if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_MAIL) == 0) {
+					grafica.setName("CORREO");
+				} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_SMS) == 0) {
+					grafica.setName("SMS");
+				} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_WHATSAPP) == 0) {
+					grafica.setName("WHATSAPP");
+				}
+				grupo.getSeries().add(grafica);
+				graficas.add(grupo);
+			}
+		}
+
+		output.setSeries(graficas);
+		output.setCodigo("0000");
+		output.setDescripcion("Datos obtenidos exitosamente");
+		output.setIndicador("SUCCESS");
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
 	
 	@Async
 	@PostMapping("/findByProgrammingDate")
 	public ListenableFuture<ResponseEntity<?>> obtenerNotificacionPorFechaProgramacion(
-			@RequestBody NotificacionRequest input) {
+			@RequestBody NotificacionRequest input
+	) {
 		
 		LOG.info("METHOD: obtenerNotificacionPorFechaProgramacion() --PARAMS: notificacionRequest: " + input);
 		NotificacionResponse output = new NotificacionResponse();
@@ -87,7 +266,7 @@ public class NotificationController {
 		    
 		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getYear(),
 		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getMonthValue() - 1,
-		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getDayOfMonth() + 1);
+		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getDayOfMonth());
 		    
 		    fechaInicio = calendar.getTime();
 		    
@@ -98,22 +277,14 @@ public class NotificationController {
 		    
 		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getYear(),
 		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getMonthValue() - 1,
-		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
+		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth());
 		    
 		    fechaFin = calendar.getTime();
-			
+
+		    LOG.info("fechaInicio: " + fechaInicio + ", fechaFin: " + fechaFin);
 			List<Notificacion> notificaciones = this.notificacionService.findByProgrammingDate(fechaInicio, fechaFin);
-			
-			for (int x = 0; x < notificaciones.size(); x++) {
-				if (notificaciones.get(x).getEstado().getIdEstadoNotificacion() == 1) {
-					notificaciones.remove(x);
-				}
-			}
-			
-			output.setNotificaciones(this.mapparLista(notificaciones));
-			output.setCodigo("0000");
-			output.setDescripcion("Notificaciones obtenidas exitosamente");
-			output.setIndicador("SUCCESS");			
+
+			validarBorrador(output, notificaciones);
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
@@ -166,21 +337,25 @@ public class NotificationController {
 		    fechaFin = calendar.getTime();
 			
 			List<Notificacion> notificaciones = this.notificacionService.findByShippingDate(fechaInicio, fechaFin);
-			
-			for (int x = 0; x < notificaciones.size(); x++) {
-				if (notificaciones.get(x).getEstado().getIdEstadoNotificacion() == 1) {
-					notificaciones.remove(x);
-				}
-			}
-			
-			output.setNotificaciones(this.mapparLista(notificaciones));
-			output.setCodigo("0000");
-			output.setDescripcion("Notificaciones obtenidas exitosamente");
-			output.setIndicador("SUCCESS");			
+
+			validarBorrador(output, notificaciones);
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
-	
+
+	private void validarBorrador(NotificacionResponse output, List<Notificacion> notificaciones) {
+		for (int x = 0; x < notificaciones.size(); x++) {
+			if (notificaciones.get(x).getEstado().getIdEstadoNotificacion() == this.ESTADO_NOTIFICACION_CREADA) {
+				notificaciones.remove(x);
+			}
+		}
+
+		output.setNotificaciones(this.mapparLista(notificaciones));
+		output.setCodigo("0000");
+		output.setDescripcion("Notificaciones obtenidas exitosamente");
+		output.setIndicador("SUCCESS");
+	}
+
 	@Async
 	@PostMapping("/findByTitle")
 	public ListenableFuture<ResponseEntity<?>> obtenerNotificacionPorTitulo(

@@ -1,13 +1,12 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.cycsystems.heymebackend.models.dao.IOpcionDao;
 import com.cycsystems.heymebackend.models.entity.Opcion;
 import com.cycsystems.heymebackend.models.service.IOpcionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class OpcionServiceImpl implements IOpcionService {
