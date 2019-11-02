@@ -79,22 +79,23 @@ public class NotificationController {
 		LOG.info("METHOD: retrieveNotificationPricePerMonth() --PARAMS: notificacionRequest: " + input);
 		DatosNotificacionPrecioResponse output = new DatosNotificacionPrecioResponse();
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-		List<Notificacion> notificaciones = this.notificacionService.findByCompanyAndStatusPayment(usuario.getEmpresa().getIdEmpresa(), false);
+		List<Notificacion> notificaciones = this.notificacionService.findByCompanyAndStatusPayment(usuario.getEmpresa().getIdEmpresa(), false, this.ESTADO_NOTIFICACION_ENVIADA);
+		LOG.info("notificaciones obtenidas");
 		BigDecimal tarifa = usuario.getEmpresa().getTarifa();
 		output.setDatos(new ArrayList<>());
 
 		for (Notificacion notificacion: notificaciones) {
-			DatosNotificacionPrecio dato = new DatosNotificacionPrecio();
 			if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_MAIL) == 0) {
 				boolean existeCanal = false;
 				for (DatosNotificacionPrecio modelo: output.getDatos()) {
 					if (modelo.getCanal().equalsIgnoreCase("MAIL")) {
-						dato.setPrecio(new BigDecimal(0));
+						modelo.setPrecio(new BigDecimal(0));
 						existeCanal = true;
 					}
 				}
 
 				if (!existeCanal) {
+					DatosNotificacionPrecio dato = new DatosNotificacionPrecio();
 					dato.setPrecio(new BigDecimal(0));
 					dato.setCanal("MAIL");
 					output.getDatos().add(dato);
@@ -103,12 +104,13 @@ public class NotificationController {
 				boolean existeCanal = false;
 				for (DatosNotificacionPrecio modelo: output.getDatos()) {
 					if (modelo.getCanal().equalsIgnoreCase("WHATSAPP")) {
-						dato.setPrecio(dato.getPrecio().add(tarifa));
+						modelo.setPrecio(modelo.getPrecio().add(tarifa));
 						existeCanal = true;
 					}
 				}
 
 				if (!existeCanal) {
+					DatosNotificacionPrecio dato = new DatosNotificacionPrecio();
 					dato.setPrecio(tarifa);
 					dato.setCanal("WHATSAPP");
 					output.getDatos().add(dato);
@@ -117,12 +119,13 @@ public class NotificationController {
 				boolean existeCanal = false;
 				for (DatosNotificacionPrecio modelo: output.getDatos()) {
 					if (modelo.getCanal().equalsIgnoreCase("SMS")) {
-						dato.setPrecio(dato.getPrecio().add(tarifa));
+						modelo.setPrecio(modelo.getPrecio().add(tarifa));
 						existeCanal = true;
 					}
 				}
 
 				if (!existeCanal) {
+					DatosNotificacionPrecio dato = new DatosNotificacionPrecio();
 					dato.setPrecio(tarifa);
 					dato.setCanal("SMS");
 					output.getDatos().add(dato);

@@ -33,5 +33,5 @@ public interface INotificacionService {
 
 	public abstract List<Notificacion> findByCompanyAndStatus(Integer idEmpresa, Integer idEstado);
 
-	public abstract List<Notificacion> findByCompanyAndStatusPayment(Integer idEmpresa, Boolean estado);
+	public abstract List<Notificacion> findByCompanyAndStatusPayment(Integer idEmpresa, Boolean estado, Integer idEstado);
 }

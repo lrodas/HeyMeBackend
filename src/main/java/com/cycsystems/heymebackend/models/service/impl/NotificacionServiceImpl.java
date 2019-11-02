@@ -71,8 +71,8 @@ public class NotificacionServiceImpl implements INotificacionService {
 	}
 
 	@Override
-	public List<Notificacion> findByCompanyAndStatusPayment(Integer idEmpresa, Boolean estado) {
-		return this.repository.findByUsuario_Empresa_IdEmpresaAndEstadoPago(idEmpresa, estado);
+	public List<Notificacion> findByCompanyAndStatusPayment(Integer idEmpresa, Boolean estado, Integer idEstado) {
+		return this.repository.findByUsuario_Empresa_IdEmpresaAndEstadoPagoAndEstado_IdEstadoNotificacion(idEmpresa, estado, idEstado);
 	}
 
 	@Override
