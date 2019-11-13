@@ -95,7 +95,7 @@ public class BitacoraAspect {
 		try {
 			
 			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-			
+			LOG.info("ERROR: " + e.getMessage());
 			Object[] signatureArgs = p.getArgs();
 			BaseInput input = (BaseInput) signatureArgs[0];
 			Bitacora bitacora = new Bitacora();

@@ -4,7 +4,9 @@ import com.cycsystems.heymebackend.common.Opcion;
 import com.cycsystems.heymebackend.input.RoleRequest;
 import com.cycsystems.heymebackend.models.entity.Permiso;
 import com.cycsystems.heymebackend.models.entity.Role;
+import com.cycsystems.heymebackend.models.entity.Usuario;
 import com.cycsystems.heymebackend.models.service.IRoleService;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.RoleResponse;
 import com.cycsystems.heymebackend.util.Constants;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +32,9 @@ public class RoleController {
 	
 	@Autowired
 	private IRoleService roleService;
+	
+	@Autowired
+	private IUsuarioService usuarioService;
 
 	@Async
 	@PostMapping("/changeStatus")
@@ -109,20 +114,29 @@ public class RoleController {
 	
 	@Async
 	@PostMapping("/findAll")
-	public ListenableFuture<ResponseEntity<?>> obtenerTodos() {
+	public ListenableFuture<ResponseEntity<?>> obtenerTodos(@RequestBody RoleRequest input) {
 		
 		LOG.info("METHOD: obtenerTodos()");
-		
-		List<Role> roles = this.roleService.findAll();
 		RoleResponse output = new RoleResponse();
 		
-		for (Role role: roles) {
-			output.getRoles().add(this.mapRole(role));
+		if (input.getIdUsuario() == null || input.getIdUsuario() <= 0) {
+			
+			output.setCodigo("0062");
+			output.setDescripcion("Debe enviar el id del usuario a cambiar el estado");
+			output.setIndicador("ERROR");
+		} else {
+			
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			List<Role> roles = this.roleService.findAll(usuario.getEmpresa());
+			for (Role role: roles) {
+				output.getRoles().add(this.mapRole(role));
+			}
+			
+			output.setCodigo("0000");
+			output.setDescripcion("Roles obtenidos exitosamente");
+			output.setIndicador("SUCCESS");
 		}
 		
-		output.setCodigo("0000");
-		output.setDescripcion("Roles obtenidos exitosamente");
-		output.setIndicador("SUCCESS");
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
@@ -138,9 +152,17 @@ public class RoleController {
 			output.setCodigo("0049");
 			output.setDescripcion("Es necesario enviar el estado del role");
 			output.setIndicador("ERROR");
+		} else if (input.getIdUsuario() == null || input.getIdUsuario() <= 0) {
+			
+			output.setCodigo("0062");
+			output.setDescripcion("Debe enviar el id del usuario a cambiar el estado");
+			output.setIndicador("ERROR");
+			
 		} else {
 			
-			List<Role> roles = this.roleService.findByStatus(input.getRole().getEstado());
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			
+			List<Role> roles = this.roleService.findByStatus(usuario.getEmpresa().getIdEmpresa(), input.getRole().getEstado());
 			
 			for (Role role: roles) {
 				output.getRoles().add(this.mapRole(role));
@@ -164,9 +186,16 @@ public class RoleController {
 			output.setCodigo("0049");
 			output.setDescripcion("Es necesario enviar el nombre del role");
 			output.setIndicador("ERROR");
+		} else if (input.getIdUsuario() == null || input.getIdUsuario() <= 0) {
+			
+			output.setCodigo("0062");
+			output.setDescripcion("Debe enviar el id del usuario a cambiar el estado");
+			output.setIndicador("ERROR");
+			
 		} else {
 			
-			List<Role> roles = this.roleService.findByNombreLike(input.getRole().getDescripcion());
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			List<Role> roles = this.roleService.findByNombreLike(usuario.getEmpresa().getIdEmpresa(), input.getRole().getDescripcion());
 			
 			for (Role role: roles) {
 				output.getRoles().add(this.mapRole(role));

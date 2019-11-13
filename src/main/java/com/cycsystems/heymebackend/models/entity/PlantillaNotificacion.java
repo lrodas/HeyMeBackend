@@ -14,7 +14,7 @@ public class PlantillaNotificacion implements Serializable {
 	@Column(name = "titulo", nullable = false)
 	private String titulo;
 
-	@Column(name = "plantilla", nullable = false)
+	@Column(name = "plantilla", nullable = false, columnDefinition = "TEXT")
 	private String plantilla;
 
 	@Column(name = "estado", columnDefinition = "TINYINT DEFAULT 1")

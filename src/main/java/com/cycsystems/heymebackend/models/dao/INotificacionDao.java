@@ -10,21 +10,21 @@ import java.util.List;
 @Repository
 public interface INotificacionDao extends JpaRepository<Notificacion, Long> {
 
-	public abstract List<Notificacion> findByUsuario_NombresLikeIgnoreCaseOrUsuario_ApellidosLikeIgnoreCaseAndEstado_idEstadoNotificacionEquals(String nombre, String apellido, Integer estado);
+	public abstract List<Notificacion> findByEmpresa_IdEmpresaAndUsuario_NombresLikeIgnoreCaseOrUsuario_ApellidosLikeIgnoreCaseAndEstado_idEstadoNotificacionEquals(Integer idEmpresa, String nombre, String apellido, Integer estado);
 	
-	public abstract List<Notificacion> findByTituloLikeIgnoreCaseAndEstado_idEstadoNotificacion(String titulo, Integer estado);
+	public abstract List<Notificacion> findByEmpresa_IdEmpresaAndTituloLikeIgnoreCaseAndEstado_idEstadoNotificacion(Integer idEmpresa, String titulo, Integer estado);
 	
-	public abstract List<Notificacion> findByFechaProgramacionBetween(Date fechaInicio, Date fechaFin);
+	public abstract List<Notificacion> findByEmpresa_IdEmpresaAndFechaProgramacionBetween(Integer idEmpresa, Date fechaInicio, Date fechaFin);
 	
-	public abstract List<Notificacion> findByFechaEnvioLessThanEqualAndEstado_idEstadoNotificacion(Date fecha, Integer idEstadoNotificacion);
+	public abstract List<Notificacion> findByEmpresa_IdEmpresaAndFechaEnvioLessThanEqualAndEstado_idEstadoNotificacion(Integer idEmpresa, Date fecha, Integer idEstadoNotificacion);
 	
-	public abstract List<Notificacion> findByEstado_idEstadoNotificacionEquals(Integer estado);
+	public abstract List<Notificacion> findByEmpresa_IdEmpresaAndEstado_idEstadoNotificacionEquals(Integer idEmpresa, Integer estado);
 	
-	public abstract List<Notificacion> findByUsuario_NombresLikeIgnoreCaseOrUsuario_ApellidosLikeIgnoreCase(String nombre, String apellido);
+	public abstract List<Notificacion> findByEmpresa_IdEmpresaAndUsuario_NombresLikeIgnoreCaseOrUsuario_ApellidosLikeIgnoreCase(Integer idEmpresa, String nombre, String apellido);
 	
-	public abstract List<Notificacion> findByFechaEnvioBetween(Date fechaInicio, Date fechaFin);
+	public abstract List<Notificacion> findByEmpresa_IdEmpresaAndFechaEnvioBetween(Integer idEmpresa, Date fechaInicio, Date fechaFin);
 
-	public abstract List<Notificacion> findByUsuario_Empresa_IdEmpresaAndEstado_IdEstadoNotificacion(Integer idEmpresa, Integer idEstado);
+	public abstract List<Notificacion> findByEmpresa_IdEmpresaAndEstado_IdEstadoNotificacion(Integer idEmpresa, Integer idEstado);
 
-	public abstract List<Notificacion> findByUsuario_Empresa_IdEmpresaAndEstadoPagoAndEstado_IdEstadoNotificacion(Integer idEmpresa, Boolean estado, Integer idEstado);
+	public abstract List<Notificacion> findByEmpresa_IdEmpresaAndEstadoPagoAndEstado_IdEstadoNotificacion(Integer idEmpresa, Boolean estado, Integer idEstado);
 }

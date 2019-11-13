@@ -1,11 +1,13 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
+import com.cycsystems.heymebackend.models.service.IParametroService;
+import com.cycsystems.heymebackend.util.Constants;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.type.PhoneNumber;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,30 +15,29 @@ public class SMSServiceImpl {
 
 	private static final Logger LOG = LogManager.getLogger(SMSServiceImpl.class);
 	
-	@Value("${twilio.account.service.id}")
-	private String SERVICE_ID;
-
-	@Value("${twilio.account.auth.token}")
-	private String AUTH_TOKEN;
-
-	@Value("${twilio.account.sid}")
-	private String ACCOUNT_SID;
+	@Autowired
+	private IParametroService parametroService;
 	
-	public String sendSMS(String to, String smsMessage) {
-		LOG.info("USER: " + ACCOUNT_SID + ", PASS" + AUTH_TOKEN);
+	public String sendSMS(Integer idEmpresa, String to, String smsMessage) {
+		
+		String accountSid = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.ACCOUNT_SID).getValor();
+		String authToken = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.AUTH_TOKEN).getValor();
+		String serviceId = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.SERVICE_ID).getValor();
+		
+		LOG.info("USER: " + accountSid + ", PASS: " + authToken);
 
-		Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
-		
-		Message message = Message.creator( 
-                new PhoneNumber(to),  
-                SERVICE_ID,
-                smsMessage)      
+		Twilio.init(accountSid, authToken);
+
+		Message message = Message.creator(
+                new PhoneNumber(to),
+                serviceId,
+                smsMessage)
             .create();
-		
+
 		LOG.info("Mensaje: " + message.getStatus());
 		return message.getSid();
 	}
-/*
+
 	public static void main(String[] args) {
 		Twilio.init("AC32599858daab272963667e14e797b929", "1260ba2b54f7fe5fd27ba5a6a816a5d7");
 
@@ -46,5 +47,5 @@ public class SMSServiceImpl {
 				"ESTO ES otra GRAN PRUEBA")
 				.create();
 		System.out.println(message.getStatus().toString());
-	}*/
+	}
 }

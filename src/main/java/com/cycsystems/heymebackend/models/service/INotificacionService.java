@@ -17,19 +17,19 @@ public interface INotificacionService {
 
 	public long count();
 	
-	public List<Notificacion> findByUser(String usuario, Integer estado);
+	public abstract List<Notificacion> findByUser(Integer idEmpresa, String usuario, Integer estado);
 	
-	public abstract List<Notificacion> findByUser(String usuario);
+	public abstract List<Notificacion> findByUser(Integer idEmpresa, String usuario);
 	
-	public abstract List<Notificacion> findByTitle(String title, Integer estado);
+	public abstract List<Notificacion> findByTitle(String title, Integer estado, Integer idEmpresa);
 	
-	public abstract List<Notificacion> findByProgrammingDate(Date fechaInicio, Date fechaFin);
+	public abstract List<Notificacion> findByProgrammingDate(Date fechaInicio, Date fechaFin, Integer idEmpresa);
 	
-	public abstract List<Notificacion> findByShippingDate(Date fechaInicio, Date fechaFin);
+	public abstract List<Notificacion> findByShippingDate(Date fechaInicio, Date fechaFin, Integer idEmpresa);
 	
-	public abstract List<Notificacion> findbySendingDate(Date fecha, Integer idEstadoNotificacion);
+	public abstract List<Notificacion> findbySendingDate(Date fecha, Integer idEstadoNotificacion, Integer idEmpresa);
 	
-	public abstract List<Notificacion> findByStatus(Integer status);
+	public abstract List<Notificacion> findByStatus(Integer status, Integer idEmpresa);
 
 	public abstract List<Notificacion> findByCompanyAndStatus(Integer idEmpresa, Integer idEstado);
 

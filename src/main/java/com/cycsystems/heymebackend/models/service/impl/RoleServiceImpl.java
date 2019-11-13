@@ -2,6 +2,7 @@ package com.cycsystems.heymebackend.models.service.impl;
 
 import com.cycsystems.heymebackend.models.dao.IPermisoDao;
 import com.cycsystems.heymebackend.models.dao.IRoleDao;
+import com.cycsystems.heymebackend.models.entity.Empresa;
 import com.cycsystems.heymebackend.models.entity.Permiso;
 import com.cycsystems.heymebackend.models.entity.Role;
 import com.cycsystems.heymebackend.models.service.IRoleService;
@@ -58,18 +59,23 @@ public class RoleServiceImpl implements IRoleService {
 	}
 
 	@Override
-	public List<Role> findByStatus(Boolean status) {
-		return this.roleRepository.findByEstadoEquals(status);
+	public List<Role> findByStatus(Integer idEmpresa, Boolean status) {
+		return this.roleRepository.findByEmpresa_IdEmpresaAndEstadoEquals(idEmpresa, status);
 	}
 
 	@Override
-	public List<Role> findByTitle(String title) {
-		return this.roleRepository.findByDescripcionEquals(title);
+	public List<Role> findByTitle(Integer idEmpresa, String title) {
+		return this.roleRepository.findByEmpresa_IdEmpresaAndDescripcionEquals(idEmpresa, title);
 	}
 
 	@Override
-	public List<Role> findByNombreLike(String nombre) {
-		return this.roleRepository.findByDescripcionLikeIgnoreCase("%" + nombre + "%");
+	public List<Role> findByNombreLike(Integer idEmpresa, String nombre) {
+		return this.roleRepository.findByEmpresa_IdEmpresaAndDescripcionLikeIgnoreCase(idEmpresa, "%" + nombre + "%");
+	}
+
+	@Override
+	public List<Role> findAll(Empresa empresa) {
+		return this.roleRepository.findByEmpresa(empresa);
 	}
 
 }

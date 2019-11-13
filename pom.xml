@@ -7,7 +7,7 @@
 	<groupId>com.cycsystems.heymebackend</groupId>
 	<artifactId>HeyMeBackend</artifactId>
 	<version>0.0.1</version>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 
 	<name>HeyMeBackend</name>
 	<description>Proyecto api para Hey Me</description>
@@ -38,13 +38,13 @@
 		<profile>
 			<id>cycsystems</id>
 			<properties>
-				<appProfile>cycsystems</appProfile>
+				<appProfileClient>cycsystems</appProfileClient>
 			</properties>
 		</profile>
 		<profile>
 			<id>local</id>
 			<properties>
-				<appProfile>local</appProfile>
+				<appProfileClient>local</appProfileClient>
 			</properties>
 		</profile>
 		<profile>
@@ -56,6 +56,7 @@
 	</profiles>
 
 	<build>
+		<finalName>heymebackend</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

@@ -1,14 +1,14 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
+import com.cycsystems.heymebackend.models.service.IParametroService;
 import com.cycsystems.heymebackend.models.service.ITwilioService;
+import com.cycsystems.heymebackend.util.Constants;
 import com.google.common.collect.Range;
 import com.twilio.Twilio;
 import com.twilio.base.ResourceSet;
 import com.twilio.rest.api.v2010.account.Message;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
@@ -16,21 +16,17 @@ import java.util.Date;
 
 @Service
 public class TwilioServiceImpl implements ITwilioService {
-
-    private static final Logger LOG = LogManager.getLogger(SMSServiceImpl.class);
-
-    @Value("${twilio.account.service.id}")
-    private String SERVICE_ID;
-
-    @Value("${twilio.account.auth.token}")
-    private String AUTH_TOKEN;
-
-    @Value("${twilio.account.sid}")
-    private String ACCOUNT_SID;
+    
+    @Autowired
+    private IParametroService parametroService;
 
     @Override
-    public ResourceSet<Message> mensajesEnviadosPorFecha(Date fechaInicio, Date fechaFin) {
-        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+    public ResourceSet<Message> mensajesEnviadosPorFecha(Integer idEmpresa, Date fechaInicio, Date fechaFin) {
+    	
+    	String accountSid = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.ACCOUNT_SID).getValor();
+		String authToken = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.AUTH_TOKEN).getValor();
+    	
+        Twilio.init(accountSid, authToken);
         Calendar calendarFechaInicio = Calendar.getInstance();
         Calendar calendarFechaFin = Calendar.getInstance();
         calendarFechaInicio.setTime(fechaInicio);
@@ -46,8 +42,12 @@ public class TwilioServiceImpl implements ITwilioService {
     }
 
     @Override
-    public ResourceSet<Message> mensajesEnviados() {
-        Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
+    public ResourceSet<Message> mensajesEnviados(Integer idEmpresa) {
+
+    	String accountSid = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.ACCOUNT_SID).getValor();
+		String authToken = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.AUTH_TOKEN).getValor();
+    	
+    	Twilio.init(accountSid, authToken);
         ResourceSet<Message> mensajes = Message.reader()
                 .read();
         return mensajes;

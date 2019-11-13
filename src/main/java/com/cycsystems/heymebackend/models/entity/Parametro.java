@@ -4,25 +4,28 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
-@Table(name="empresa")
-@NoArgsConstructor
+@Table(name = "parametro")
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-public class Empresa implements Serializable {
+@ToString
+public class Parametro implements Serializable {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idEmpresa;
-    private String nombreEmpresa;
-    private String direccion;
-    private String telefono;
+    private Integer idParametro;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Empresa empresa;
+    private String nombre;
+    private String valor;
     /**
 	 * 
 	 */

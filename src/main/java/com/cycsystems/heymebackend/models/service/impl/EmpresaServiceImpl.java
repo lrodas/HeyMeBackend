@@ -3,6 +3,8 @@ package com.cycsystems.heymebackend.models.service.impl;
 import com.cycsystems.heymebackend.models.dao.IEmpresaDao;
 import com.cycsystems.heymebackend.models.entity.Empresa;
 import com.cycsystems.heymebackend.models.service.IEmpresaService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
 @Service
 public class EmpresaServiceImpl implements IEmpresaService {
 
+	@Autowired
     private IEmpresaDao empresaDao;
 
     @Override

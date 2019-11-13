@@ -13,13 +13,13 @@ public interface IContactoService {
 
 	public boolean existsById(Integer id);
 
-	public List<Contacto> findAll();
+	public List<Contacto> findAll(Integer idEmpresa);
 
 	public long count();
 	
-	public List<Contacto> findByName(String name);
+	public List<Contacto> findByName(Integer idEmpresa, String name);
 	
-	public List<Contacto> findByCreationDate(Date fechaInicio, Date fechaFin);
+	public List<Contacto> findByCreationDate(Integer idEmpresa, Date fechaInicio, Date fechaFin);
 	
-	public List<Contacto> findByStatus(Boolean status);
+	public List<Contacto> findByStatus(Integer idEmpresa, Boolean status);
 }

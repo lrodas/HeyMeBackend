@@ -5,8 +5,10 @@ import com.cycsystems.heymebackend.common.Provincia;
 import com.cycsystems.heymebackend.common.Region;
 import com.cycsystems.heymebackend.input.ContactoRequest;
 import com.cycsystems.heymebackend.models.entity.Contacto;
+import com.cycsystems.heymebackend.models.entity.Usuario;
 import com.cycsystems.heymebackend.models.service.IContactoService;
 import com.cycsystems.heymebackend.models.service.IProvinciaService;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.ContactoResponse;
 import com.cycsystems.heymebackend.util.Constants;
 import org.apache.logging.log4j.LogManager;
@@ -40,15 +42,19 @@ public class ContactoController {
 	@Autowired
 	private IContactoService contactoService;
 	
+	@Autowired
+	private IUsuarioService usuarioService;
+	
 	@Async
 	@PostMapping("/findAll")
-	public ListenableFuture<ResponseEntity<?>> obtenerTodos() {
+	public ListenableFuture<ResponseEntity<?>> obtenerTodos(@RequestBody ContactoRequest input) {
 		
 		LOG.info("METHOD: obtenerContactos()");
 		
 		ContactoResponse output = new ContactoResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
-		List<Contacto> contactos = this.contactoService.findAll();
+		List<Contacto> contactos = this.contactoService.findAll(usuario.getEmpresa().getIdEmpresa());
 		
 		output.setCodigo("0000");
 		output.setDescripcion("Contactos obtenidos exitosamente");
@@ -101,6 +107,7 @@ public class ContactoController {
 		LOG.info("METHOD: obtenerContactoPorEstado() --PARAMS: contactoRequest:" + input);
 		
 		ContactoResponse output = new ContactoResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getUsuario() == null) {
 			output.setCodigo("0045");
@@ -112,7 +119,7 @@ public class ContactoController {
 			output.setIndicador("ERROR");
 		} else {
 			
-			List<Contacto> contactos = this.contactoService.findByStatus(input.getContacto().getEstado());
+			List<Contacto> contactos = this.contactoService.findByStatus(usuario.getEmpresa().getIdEmpresa(), input.getContacto().getEstado());
 			
 			output.setCodigo("0000");
 			output.setDescripcion("Contactos obtenidos exitosamente");
@@ -132,6 +139,7 @@ public class ContactoController {
 		ContactoResponse output = new ContactoResponse();
 		Date fechaInicio = null;
 		Date fechaFin = null;
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getFechaInicio() == null) {
 			output.setCodigo("0030");
@@ -171,7 +179,7 @@ public class ContactoController {
 		    fechaFin = calendar.getTime();
 			
 		    LOG.info("Fecha Inicio: " + fechaInicio + ", fechaFin: " + fechaFin);
-			List<Contacto> contactos = this.contactoService.findByCreationDate(fechaInicio, fechaFin);
+			List<Contacto> contactos = this.contactoService.findByCreationDate(usuario.getEmpresa().getIdEmpresa(), fechaInicio, fechaFin);
 			
 			output.setContactos(this.mapContacts(contactos));
 			output.setCodigo("0000");
@@ -187,6 +195,7 @@ public class ContactoController {
 		
 		LOG.info("METHOD: obtenerContacto() --PARAMS: ContactoRequest: " + input);
 		ContactoResponse output = new ContactoResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getContacto().getNombre() == null || input.getContacto().getNombre().isEmpty()) {
 			output.setCodigo("0029");
@@ -194,7 +203,7 @@ public class ContactoController {
 			output.setIndicador("ERROR");
 		} else {
 			
-			List<Contacto> contactos = this.contactoService.findByName(input.getContacto().getNombre());
+			List<Contacto> contactos = this.contactoService.findByName(usuario.getEmpresa().getIdEmpresa(), input.getContacto().getNombre());
 			
 			output.setCodigo("0000");
 			output.setDescripcion("Contactos obtenidos exitosamente");
@@ -240,7 +249,9 @@ public class ContactoController {
 				output.setCodigo("0028");
 				output.setDescripcion("La region enviada no existe, por favor verifique");
 				output.setIndicador("ERROR");
-			} else {				
+			} else {
+				Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+				
 				Contacto contacto = new Contacto();
 				contacto.setIdContacto(input.getContacto().getIdContacto());
 				contacto.setNombre(input.getContacto().getNombre());
@@ -250,6 +261,7 @@ public class ContactoController {
 				contacto.setTelefono(input.getContacto().getTelefono());
 				contacto.setEstado(input.getContacto().getEstado());
 				contacto.setProvincia(provincia);
+				contacto.setUsuario(usuario);
 				
 				contacto = this.contactoService.save(contacto);
 				

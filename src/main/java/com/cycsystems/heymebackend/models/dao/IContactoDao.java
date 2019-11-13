@@ -10,9 +10,11 @@ import java.util.List;
 @Repository
 public interface IContactoDao extends JpaRepository<Contacto, Integer> {
 
-	public abstract List<Contacto> findByNombreLikeIgnoreCaseOrApellidoLikeIgnoreCase(String nombre, String apellido);
+	public abstract List<Contacto> findByUsuario_Empresa_IdEmpresa(Integer idEmpresa);
 	
-	public abstract List<Contacto> findByFechaCreacionBetween(Date fechaInicio, Date fechaFin);
+	public abstract List<Contacto> findByUsuario_Empresa_IdEmpresaAndNombreLikeIgnoreCaseOrApellidoLikeIgnoreCase(Integer idEmpresa, String nombre, String apellido);
 	
-	public abstract List<Contacto> findByEstadoEquals(Boolean estado);
+	public abstract List<Contacto> findByUsuario_Empresa_IdEmpresaAndFechaCreacionBetween(Integer idEmpresa, Date fechaInicio, Date fechaFin);
+	
+	public abstract List<Contacto> findByUsuario_Empresa_IdEmpresaAndEstadoEquals(Integer idEmpresa, Boolean estado);
 }

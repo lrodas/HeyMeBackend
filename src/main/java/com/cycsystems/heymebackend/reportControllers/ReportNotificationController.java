@@ -2,7 +2,9 @@ package com.cycsystems.heymebackend.reportControllers;
 
 import com.cycsystems.heymebackend.input.NotificacionRequest;
 import com.cycsystems.heymebackend.models.entity.Notificacion;
+import com.cycsystems.heymebackend.models.entity.Usuario;
 import com.cycsystems.heymebackend.models.service.INotificacionService;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.NotificacionResponse;
 import com.cycsystems.heymebackend.util.Constants;
 import com.cycsystems.heymebackend.util.GeneradorExcel;
@@ -41,13 +43,16 @@ public class ReportNotificationController {
 	@Autowired
 	private INotificacionService notificacionService;
 	
+	@Autowired
+	private IUsuarioService usuarioService;
+	
 	@Async
 	@PostMapping("/notificationReportExcel")
 	public ListenableFuture<ResponseEntity<?>> notificationReportExcel(@RequestBody NotificacionRequest input) {
 		
 		LOG.info("METHOD: notificationReportExcel() --PARAMS: notificacionesRequest: " + input);
 		List<Notificacion> notificaciones = new ArrayList<>();
-		NotificacionResponse output = new NotificacionResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 //		output.setCodigo("0060");
 //		output.setDescripcion("Debe enviar el estado de la notificacion");
@@ -59,9 +64,9 @@ public class ReportNotificationController {
 		Integer tipo = input.getTipo();
 		if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_ESTADO) {
 		} else if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_TITULO) {
-			notificaciones = this.notificacionService.findByTitle(input.getNotificacion().getTitulo(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
+			notificaciones = this.notificacionService.findByTitle(input.getNotificacion().getTitulo(), input.getNotificacion().getEstado().getIdEstadoNotificacion(), usuario.getEmpresa().getIdEmpresa());
 		} else if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_USUARIO) {
-			notificaciones = this.notificacionService.findByUser(input.getNombreUsuario(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
+			notificaciones = this.notificacionService.findByUser(usuario.getEmpresa().getIdEmpresa(), input.getNombreUsuario(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
 		} else if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_FECHA_PROGRAMACION) {
 			calendar.set(Calendar.HOUR_OF_DAY, 0);
 			calendar.set(Calendar.MINUTE, 0);
@@ -79,7 +84,7 @@ public class ReportNotificationController {
 					LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getMonthValue() - 1,
 			LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
 			Date fechaFinProgramacion = calendar.getTime();
-			notificaciones = this.notificacionService.findByProgrammingDate(fechaInicioProgramacion, fechaFinProgramacion);
+			notificaciones = this.notificacionService.findByProgrammingDate(fechaInicioProgramacion, fechaFinProgramacion, usuario.getEmpresa().getIdEmpresa());
 		} else if (tipo == Constants.NOTIFICACION_TIPO_BUSQUEDA_FECHA_ENVIO) {
 			calendar.set(Calendar.HOUR_OF_DAY, 0);
 			calendar.set(Calendar.MINUTE, 0);
@@ -97,7 +102,7 @@ public class ReportNotificationController {
 					LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getMonthValue() - 1,
 			LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
 			Date fechaFinEnvio = calendar.getTime();
-			notificaciones = this.notificacionService.findByShippingDate(fechaInicioEnvio, fechaFinEnvio);
+			notificaciones = this.notificacionService.findByShippingDate(fechaInicioEnvio, fechaFinEnvio, usuario.getEmpresa().getIdEmpresa());
 		}
 		
 		LOG.info("notificaciones: " + notificaciones);
@@ -126,6 +131,7 @@ public class ReportNotificationController {
 		LOG.info("METHOD: notificationReport() --PARAMS: notificacionesRequest: " + input);
 		List<Notificacion> notificaciones = new ArrayList<>();
 		NotificacionResponse output = new NotificacionResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getNotificacion() == null ||
 				input.getNotificacion().getEstado() == null || 
@@ -140,11 +146,11 @@ public class ReportNotificationController {
 		} else if (input.getNotificacion().getTitulo() != null && 
 				!input.getNotificacion().getTitulo().isEmpty()) {
 			
-			notificaciones = this.notificacionService.findByTitle(input.getNotificacion().getTitulo(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
+			notificaciones = this.notificacionService.findByTitle(input.getNotificacion().getTitulo(), input.getNotificacion().getEstado().getIdEstadoNotificacion(), usuario.getEmpresa().getIdEmpresa());
 		
 		} else if (input.getNombreUsuario() != null && !input.getNombreUsuario().isEmpty()) {
 			
-			notificaciones = this.notificacionService.findByUser(input.getNombreUsuario(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
+			notificaciones = this.notificacionService.findByUser(usuario.getEmpresa().getIdEmpresa(), input.getNombreUsuario(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
 		
 		} else if (input != null &&
 				input.getFechaFin() != null && input.getFechaInicio() != null) {
@@ -172,7 +178,7 @@ public class ReportNotificationController {
 		    
 		    Date fechaFin = calendar.getTime();
 			
-			notificaciones = this.notificacionService.findByProgrammingDate(fechaInicio, fechaFin);
+			notificaciones = this.notificacionService.findByProgrammingDate(fechaInicio, fechaFin, usuario.getEmpresa().getIdEmpresa());
 
 		}
 		

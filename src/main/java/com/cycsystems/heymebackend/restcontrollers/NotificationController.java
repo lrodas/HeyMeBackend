@@ -1,20 +1,16 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
-import com.cycsystems.heymebackend.common.*;
-import com.cycsystems.heymebackend.input.NotificacionRequest;
-import com.cycsystems.heymebackend.models.entity.Contacto;
-import com.cycsystems.heymebackend.models.entity.Notificacion;
-import com.cycsystems.heymebackend.models.entity.Usuario;
-import com.cycsystems.heymebackend.models.service.*;
-import com.cycsystems.heymebackend.output.DatosGraficaResponse;
-import com.cycsystems.heymebackend.output.DatosNotificacionPrecioResponse;
-import com.cycsystems.heymebackend.output.NotificacionResponse;
-import com.cycsystems.heymebackend.util.Constants;
-import com.cycsystems.heymebackend.util.Util;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -24,13 +20,29 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import com.cycsystems.heymebackend.common.Canal;
+import com.cycsystems.heymebackend.common.DataGrupoGrafica;
+import com.cycsystems.heymebackend.common.DatosNotificacionPrecio;
+import com.cycsystems.heymebackend.common.EstadoNotificacion;
+import com.cycsystems.heymebackend.common.Genero;
+import com.cycsystems.heymebackend.common.GraficaBarras;
+import com.cycsystems.heymebackend.common.Pais;
+import com.cycsystems.heymebackend.common.Provincia;
+import com.cycsystems.heymebackend.common.Region;
+import com.cycsystems.heymebackend.common.Role;
+import com.cycsystems.heymebackend.input.NotificacionRequest;
+import com.cycsystems.heymebackend.models.entity.Contacto;
+import com.cycsystems.heymebackend.models.entity.Notificacion;
+import com.cycsystems.heymebackend.models.entity.Usuario;
+import com.cycsystems.heymebackend.models.service.IContactoService;
+import com.cycsystems.heymebackend.models.service.INotificacionService;
+import com.cycsystems.heymebackend.models.service.IParametroService;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
+import com.cycsystems.heymebackend.output.DatosGraficaResponse;
+import com.cycsystems.heymebackend.output.DatosNotificacionPrecioResponse;
+import com.cycsystems.heymebackend.output.NotificacionResponse;
+import com.cycsystems.heymebackend.util.Constants;
+import com.cycsystems.heymebackend.util.Util;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/notification")
@@ -46,30 +58,9 @@ public class NotificationController {
 	
 	@Autowired
 	private IUsuarioService usuarioService;
-
-	@Autowired
-	private ITwilioService twilioService;
-
-	@Autowired
-	private IEmpresaService empresaService;
 	
-	@Value("${estado.notificacion.programada}")
-	private Integer ESTADO_NOTIFICACION_PROGRAMADA;
-
-	@Value("${estado.notificacion.enviada}")
-	private Integer ESTADO_NOTIFICACION_ENVIADA;
-
-	@Value("${estado.notificacion.creada}")
-	private Integer ESTADO_NOTIFICACION_CREADA;
-
-	@Value("${canal.sms}")
-	private Integer CANAL_SMS;
-
-	@Value("${canal.mail}")
-	private Integer CANAL_MAIL;
-
-	@Value("${canal.whatsapp}")
-	private Integer CANAL_WHATSAPP;
+	@Autowired
+	private IParametroService parametroService;
 
 	@Async
 	@PostMapping("/retrieveNotificationPricePerMonth")
@@ -79,13 +70,19 @@ public class NotificationController {
 		LOG.info("METHOD: retrieveNotificationPricePerMonth() --PARAMS: notificacionRequest: " + input);
 		DatosNotificacionPrecioResponse output = new DatosNotificacionPrecioResponse();
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-		List<Notificacion> notificaciones = this.notificacionService.findByCompanyAndStatusPayment(usuario.getEmpresa().getIdEmpresa(), false, this.ESTADO_NOTIFICACION_ENVIADA);
+		List<Notificacion> notificaciones = this.notificacionService.findByCompanyAndStatusPayment(
+				usuario.getEmpresa().getIdEmpresa(), 
+				false,
+				Constants.ESTADO_NOTIFICACION_ENVIADA);
 		LOG.info("notificaciones obtenidas");
-		BigDecimal tarifa = usuario.getEmpresa().getTarifa();
+		BigDecimal tarifa = new BigDecimal(
+				this.parametroService.findParameterByEmpresaAndName(
+						usuario.getEmpresa().getIdEmpresa(),
+						Constants.NOTIFICATION_RATE).getValor());
 		output.setDatos(new ArrayList<>());
 
 		for (Notificacion notificacion: notificaciones) {
-			if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_MAIL) == 0) {
+			if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_EMAIL) == 0) {
 				boolean existeCanal = false;
 				for (DatosNotificacionPrecio modelo: output.getDatos()) {
 					if (modelo.getCanal().equalsIgnoreCase("MAIL")) {
@@ -100,7 +97,7 @@ public class NotificationController {
 					dato.setCanal("MAIL");
 					output.getDatos().add(dato);
 				}
-			} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_WHATSAPP) == 0) {
+			} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_WHATSAPP) == 0) {
 				boolean existeCanal = false;
 				for (DatosNotificacionPrecio modelo: output.getDatos()) {
 					if (modelo.getCanal().equalsIgnoreCase("WHATSAPP")) {
@@ -115,7 +112,7 @@ public class NotificationController {
 					dato.setCanal("WHATSAPP");
 					output.getDatos().add(dato);
 				}
-			} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_SMS) == 0) {
+			} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_SMS) == 0) {
 				boolean existeCanal = false;
 				for (DatosNotificacionPrecio modelo: output.getDatos()) {
 					if (modelo.getCanal().equalsIgnoreCase("SMS")) {
@@ -146,9 +143,16 @@ public class NotificationController {
 	) {
 		LOG.info("METHOD: retrieveNotificationCountPerMonth() --PARAMS: notificacionRequest: " + input);
 		DatosGraficaResponse output = new DatosGraficaResponse();
+		
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-		List<Notificacion> notificaciones = this.notificacionService.findByCompanyAndStatus(usuario.getEmpresa().getIdEmpresa(), this.ESTADO_NOTIFICACION_ENVIADA);
+		
+		LOG.info("Empresa: " + usuario.getEmpresa());
+		List<Notificacion> notificaciones = this.notificacionService.findByCompanyAndStatusPayment(
+				usuario.getEmpresa().getIdEmpresa(), 
+				false,
+				Constants.ESTADO_NOTIFICACION_ENVIADA);
 		List<DataGrupoGrafica> graficas = new ArrayList<>();
+		LOG.info("Notificaciones: " + notificaciones);
 
 		for (Notificacion notificacion: notificaciones) {
 			Calendar calendar = Calendar.getInstance();
@@ -159,7 +163,7 @@ public class NotificationController {
 			for (DataGrupoGrafica grupo: graficas) {
 				if (grupo.getName().equalsIgnoreCase(mes)) {
 
-					if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_MAIL) == 0) {
+					if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_EMAIL) == 0) {
 						boolean existeCanal = false;
 						for (GraficaBarras data: grupo.getSeries()) {
 							if (data.getName().equalsIgnoreCase("CORREO")) {
@@ -175,7 +179,7 @@ public class NotificationController {
 							grupo.getSeries().add(grafica);
 						}
 
-					} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_SMS) == 0) {
+					} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_SMS) == 0) {
 						boolean existeCanal = false;
 						for (GraficaBarras data: grupo.getSeries()) {
 							if (data.getName().equalsIgnoreCase("SMS")) {
@@ -190,7 +194,7 @@ public class NotificationController {
 							grafica.setName("SMS");
 							grupo.getSeries().add(grafica);
 						}
-					} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_WHATSAPP) == 0) {
+					} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_WHATSAPP) == 0) {
 						boolean existeCanal = false;
 						for (GraficaBarras data: grupo.getSeries()) {
 							if (data.getName().equalsIgnoreCase("WHATSAPP")) {
@@ -217,11 +221,11 @@ public class NotificationController {
 
 				GraficaBarras grafica = new GraficaBarras();
 				grafica.setValue(1);
-				if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_MAIL) == 0) {
+				if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_EMAIL) == 0) {
 					grafica.setName("CORREO");
-				} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_SMS) == 0) {
+				} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_SMS) == 0) {
 					grafica.setName("SMS");
-				} else if (notificacion.getCanal().getIdCanal().compareTo(this.CANAL_WHATSAPP) == 0) {
+				} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_WHATSAPP) == 0) {
 					grafica.setName("WHATSAPP");
 				}
 				grupo.getSeries().add(grafica);
@@ -246,6 +250,7 @@ public class NotificationController {
 		NotificacionResponse output = new NotificacionResponse();
 		Date fechaInicio = null;
 		Date fechaFin = null;
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getFechaInicio() == null) {
 			output.setCodigo("0035");
@@ -285,9 +290,12 @@ public class NotificationController {
 		    fechaFin = calendar.getTime();
 
 		    LOG.info("fechaInicio: " + fechaInicio + ", fechaFin: " + fechaFin);
-			List<Notificacion> notificaciones = this.notificacionService.findByProgrammingDate(fechaInicio, fechaFin);
+			List<Notificacion> notificaciones = this.notificacionService.findByProgrammingDate(fechaInicio, fechaFin, usuario.getEmpresa().getIdEmpresa());
 
-			validarBorrador(output, notificaciones);
+			validarBorrador(
+					output,
+					notificaciones,
+					this.usuarioService.findById(input.getIdUsuario()).getEmpresa().getIdEmpresa());
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
@@ -301,6 +309,7 @@ public class NotificationController {
 		NotificacionResponse output = new NotificacionResponse();
 		Date fechaInicio = null;
 		Date fechaFin = null;
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getFechaInicio() == null) {
 			output.setCodigo("0035");
@@ -339,16 +348,24 @@ public class NotificationController {
 		    
 		    fechaFin = calendar.getTime();
 			
-			List<Notificacion> notificaciones = this.notificacionService.findByShippingDate(fechaInicio, fechaFin);
+			List<Notificacion> notificaciones = this.notificacionService.findByShippingDate(fechaInicio, fechaFin, usuario.getEmpresa().getIdEmpresa());
 
-			validarBorrador(output, notificaciones);
+			validarBorrador(
+					output,
+					notificaciones,
+					this.usuarioService.findById(input.getIdUsuario()).getEmpresa().getIdEmpresa());
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 
-	private void validarBorrador(NotificacionResponse output, List<Notificacion> notificaciones) {
+	private void validarBorrador(
+			NotificacionResponse output, 
+			List<Notificacion> notificaciones,
+			Integer idEmpresa
+	) {
+		
 		for (int x = 0; x < notificaciones.size(); x++) {
-			if (notificaciones.get(x).getEstado().getIdEstadoNotificacion() == this.ESTADO_NOTIFICACION_CREADA) {
+			if (notificaciones.get(x).getEstado().getIdEstadoNotificacion().compareTo(Constants.ESTADO_NOTIFICACION_ENVIADA) == 0) {
 				notificaciones.remove(x);
 			}
 		}
@@ -366,6 +383,7 @@ public class NotificationController {
 		
 		LOG.info("METHOD: obtenerNotificacionPorTitulo() --PARAMS: notificacionRequest: " + input);
 		NotificacionResponse output = new NotificacionResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getNotificacion().getTitulo() == null || input.getNotificacion().getTitulo().isEmpty()) { 
 			output.setCodigo("0034");
@@ -373,7 +391,7 @@ public class NotificationController {
 			output.setIndicador("ERROR");
 		} else {
 			
-			List<Notificacion> notificaciones = this.notificacionService.findByTitle(input.getNotificacion().getTitulo(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
+			List<Notificacion> notificaciones = this.notificacionService.findByTitle(input.getNotificacion().getTitulo(), input.getNotificacion().getEstado().getIdEstadoNotificacion(), usuario.getEmpresa().getIdEmpresa());
 			
 			output.setNotificaciones(this.mapparLista(notificaciones));
 			output.setCodigo("0000");
@@ -391,6 +409,7 @@ public class NotificationController {
 		LOG.info("METHOD: obtenerNotificacionesPorUsuario() --PARAMS: " + input);
 		
 		NotificacionResponse output = new NotificacionResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getNombreUsuario() == null || input.getNombreUsuario().isEmpty()) {
 			output.setCodigo("0033");
@@ -406,9 +425,9 @@ public class NotificationController {
 			List<Notificacion> notificaciones = new ArrayList<>();
 			
 			if (input.getNotificacion().getEstado().getIdEstadoNotificacion() == 0) {
-				notificaciones = this.notificacionService.findByUser(input.getNombreUsuario());
+				notificaciones = this.notificacionService.findByUser(usuario.getEmpresa().getIdEmpresa(), input.getNombreUsuario());
 			} else {				
-				notificaciones = this.notificacionService.findByUser(input.getNombreUsuario(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
+				notificaciones = this.notificacionService.findByUser(usuario.getEmpresa().getIdEmpresa(), input.getNombreUsuario(), input.getNotificacion().getEstado().getIdEstadoNotificacion());
 			}
 			
 			output.setNotificaciones(this.mapparLista(notificaciones));			
@@ -426,6 +445,7 @@ public class NotificationController {
 		
 		LOG.info("METHOD: obtenerNotificacionesPorEstado() --PARAMS: notificacionRequest: " + input);
 		NotificacionResponse output = new NotificacionResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getNotificacion().getEstado() == null || input.getNotificacion().getEstado().getIdEstadoNotificacion() <= 0) {
 			output.setCodigo("0060");
@@ -433,7 +453,7 @@ public class NotificationController {
 			output.setIndicador("ERROR");
 		}
 		
-		List<Notificacion> notificaciones = this.notificacionService.findByStatus(input.getNotificacion().getEstado().getIdEstadoNotificacion());
+		List<Notificacion> notificaciones = this.notificacionService.findByStatus(input.getNotificacion().getEstado().getIdEstadoNotificacion(), usuario.getEmpresa().getIdEmpresa());
 		
 		output.setCodigo("0000");
 		output.setDescripcion("Notificaciones obtenidas exitosamente");
@@ -493,6 +513,8 @@ public class NotificationController {
 								input.getNotificacion().getEstado().getIdEstadoNotificacion(),
 								input.getNotificacion().getEstado().getDescripcion()));
 				notificacion.setUsuario(usuario);
+				notificacion.setEstadoPago(false);
+				notificacion.setEmpresa(usuario.getEmpresa());
 				
 				com.cycsystems.heymebackend.models.entity.Canal canal = new com.cycsystems.heymebackend.models.entity.Canal();
 				canal.setIdCanal(input.getNotificacion().getCanal().getIdCanal());
@@ -533,6 +555,7 @@ public class NotificationController {
 			modelo.setFechaProgramacion(notificacion.getFechaProgramacion());
 			modelo.setIdNotificaciones(notificacion.getIdNotificaciones());
 			modelo.setNotificacion(notificacion.getNotificacion());
+			modelo.setEstadoPago(notificacion.getEstadoPago());
 			
 			com.cycsystems.heymebackend.common.Usuario usuario = new com.cycsystems.heymebackend.common.Usuario();
 			usuario.setIdUsuario(notificacion.getUsuario().getIdUsuario());

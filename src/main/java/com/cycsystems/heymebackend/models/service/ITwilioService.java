@@ -7,8 +7,8 @@ import java.util.Date;
 
 public interface ITwilioService {
 
-    public ResourceSet<Message> mensajesEnviadosPorFecha(Date fechaInicio, Date fechaFin);
-    public ResourceSet<Message> mensajesEnviados();
+    public ResourceSet<Message> mensajesEnviadosPorFecha(Integer idEmpresa, Date fechaInicio, Date fechaFin);
+    public ResourceSet<Message> mensajesEnviados(Integer idEmpresa);
     public Double totalCostoMensajes();
 
 }

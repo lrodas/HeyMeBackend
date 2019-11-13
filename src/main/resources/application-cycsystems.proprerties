@@ -3,7 +3,3 @@ images.url=/home/lrodas/heyme/images
 database.source=heyme_source_dev
 mail.from=irisguerraderodas@gmail.com
 mail.pass=55742084
-
-twilio.account.sid=ACf4c7316cf61c006ee02cefb63932521d
-twilio.account.auth.token=40123341ab22235aaaef8dc9019057b6
-twilio.account.service.id=MG7c30aa41add51cfb9076b051603fb007

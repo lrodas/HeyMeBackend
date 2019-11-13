@@ -1,8 +1,6 @@
 package com.cycsystems.heymebackend.util;
 
 import com.cycsystems.heymebackend.models.entity.Notificacion;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -13,8 +11,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class GeneradorExcel {
-
-	private static final Logger logger = LogManager.getLogger(GeneradorExcel.class);
 	
 	public static ByteArrayInputStream reporteNotificaciones(List<Notificacion> notificaciones) throws IOException {
 	    

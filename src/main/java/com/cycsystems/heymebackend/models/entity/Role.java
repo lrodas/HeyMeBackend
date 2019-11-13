@@ -2,13 +2,28 @@ package com.cycsystems.heymebackend.models.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name="role")
+@AllArgsConstructor
+@RequiredArgsConstructor
+@Getter
+@Setter
+@ToString
 public class Role implements Serializable {
+
+	public Role(Integer idRole) {
+		this.idRole = idRole;
+	}
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -25,71 +40,12 @@ public class Role implements Serializable {
 	@Column(name="estado")
 	private Boolean estado;
 	
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name="idEmpresa")
+	private Empresa empresa;
+	
 	@OneToMany(mappedBy = "puesto", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<Permiso> permisos;
-
-	public Role(Integer idRole, @NotEmpty String descripcion, @NotEmpty String nombre, Boolean estado) {
-		this.idRole = idRole;
-		this.descripcion = descripcion;
-		this.nombre = nombre;
-		this.estado = estado;
-	}
-
-	public Role(Integer idRole) {
-		this.idRole = idRole;
-	}
-
-	public Role() {
-	}
-
-	public Integer getIdRole() {
-		return idRole;
-	}
-
-	public void setIdRole(Integer idRole) {
-		this.idRole = idRole;
-	}
-
-	public String getDescripcion() {
-		return descripcion;
-	}
-
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
-
-	public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-
-	public Boolean getEstado() {
-		return estado;
-	}
-
-	public void setEstado(Boolean estado) {
-		this.estado = estado;
-	}
-
-	public List<Permiso> getPermisos() {
-		if (this.permisos == null) {
-			this.permisos = new ArrayList<>();
-		}
-		return permisos;
-	}
-
-	public void setPermisos(List<Permiso> permisos) {
-		this.permisos = permisos;
-	}
-
-	@Override
-	public String toString() {
-		return "Role [idRole=" + idRole + ", descripcion=" + descripcion + ", nombre=" + nombre + ", estado=" + estado
-				+ ", permisos=" + permisos + "]";
-	}
 
 	/**
 	 * 
