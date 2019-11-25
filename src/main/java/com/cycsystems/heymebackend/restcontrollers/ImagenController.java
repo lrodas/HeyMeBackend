@@ -5,6 +5,8 @@ import com.cycsystems.heymebackend.models.service.IFileStorageService;
 import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.ImagenResponse;
 import com.cycsystems.heymebackend.util.Constants;
+import com.cycsystems.heymebackend.util.Response;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,13 +43,13 @@ public class ImagenController {
 		String nombreArchivo = "";
 		
 		if (imagen == null || imagen.isEmpty()) {
-			output.setCodigo("0015");
-			output.setDescripcion("Debes enviar una imagen a guardar");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.IMAGE_NOT_EMPTY_ERROR.getCodigo());
+			output.setDescripcion(Response.IMAGE_NOT_EMPTY_ERROR.getMessage());
+			output.setIndicador(Response.IMAGE_NOT_EMPTY_ERROR.getIndicador());
 		} else if (imagen == null || imagen.isEmpty()) {
-			output.setCodigo("0014");
-			output.setDescripcion("Debes enviar el id del usuario para guardar la imagen");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.ID_USUARIO_ERROR.getCodigo());
+			output.setDescripcion(Response.ID_USUARIO_ERROR.getMessage());
+			output.setIndicador(Response.ID_USUARIO_ERROR.getIndicador());
 		} else {
 			
 			Usuario usuario = this.usuarioService.findById(id);
@@ -58,24 +60,24 @@ public class ImagenController {
 				} catch (IOException e) {
 					LOG.info("A ocurrido un error al guardar la imagen: " + e);
 					
-					output.setCodigo("0016");
-					output.setDescripcion("Debes enviar una imagen a guardar");
-					output.setIndicador("ERROR");
+					output.setCodigo(Response.IMAGE_COULD_NOT_SAVE_ERROR.getCodigo());
+					output.setDescripcion(Response.IMAGE_COULD_NOT_SAVE_ERROR.getMessage());
+					output.setIndicador(Response.IMAGE_COULD_NOT_SAVE_ERROR.getIndicador());
 				}
 				
 				if (nombreArchivo != null && !nombreArchivo.isEmpty()) {
 					usuario.setImg(nombreArchivo);
 					this.usuarioService.save(usuario);
 					
-					output.setCodigo("0000");
-					output.setDescripcion("La imagen del usuario fue actualizada exitosamente");
-					output.setIndicador("SUCCESS");
+					output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+					output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+					output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 					output.setImg(nombreArchivo);
 				}
 			} else {
-				output.setCodigo("0017");
-				output.setDescripcion("El usuario no existe, por favor verificar");
-				output.setIndicador("ERROR");
+				output.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				output.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				output.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
 			}
 			
 		}
@@ -88,7 +90,9 @@ public class ImagenController {
 
 		LOG.info("METHOD: obtenerImagen() --PARAMS: nombre: " + nombre);
 		
-		Resource loader = this.fileStorage.loadFileAsResource(nombre);
+		Integer idUsuario = Integer.parseInt(nombre.split("-")[0]);
+		
+		Resource loader = this.fileStorage.loadFileAsResource(nombre, idUsuario);
 		return new AsyncResult<>(new ResponseEntity<Resource>(loader, HttpStatus.OK));
 	}
 }
