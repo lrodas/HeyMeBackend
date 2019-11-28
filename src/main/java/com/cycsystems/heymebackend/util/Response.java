@@ -21,7 +21,12 @@ public enum Response {
 	NOTIFICATION_DATE_ERROR("0016", "Se debe enviar la fecha en que se enviara la notificacion", "ERROR"),
 	NOTIFICATION_CONTENT_ERROR("0017", "Se debe enviar el contenido de la notificacion", "ERROR"),
 	NOTIFICATION_CANAL_ERROR("0018", "Se debe enviar el canal", "ERROR"),
-	NOTIFICATION_CONTACT_ERROR("0019", "El contacto enviado no existe", "ERROR");
+	NOTIFICATION_CONTACT_ERROR("0019", "El contacto enviado no existe", "ERROR"),
+	NOTIFICATION_ID_ERROR("0020", "Se debe enviar el identificador de la notificacion", "ERROR"),
+	PACKAGE_NOT_AVAILABE("0021", "No cuentas con un paquete activo", "ERROR"),
+	NOTIFICATIONS_NOT_AVAILABLE("0022", "Tu paquete de notificaciones se ha agotado, por favor contacta con servicio al cliente", "ERROR"),
+	NOTIFICATION_NOT_EXISTS("0023", "La notificacion especificada no existe", "ERROR"),
+	NOTIFICATION_ALREADY_SENT("0024", "La notificacion ya fue enviada, no es posible cancelarla", "ERROR");
 	
 	private String codigo;
 	private String message;

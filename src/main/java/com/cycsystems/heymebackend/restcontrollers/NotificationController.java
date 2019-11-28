@@ -1,4 +1,4 @@
-package com.cycsystems.heymebackend.restcontrollers;
+ package com.cycsystems.heymebackend.restcontrollers;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -42,6 +42,8 @@ import com.cycsystems.heymebackend.models.service.INotificacionService;
 import com.cycsystems.heymebackend.models.service.IPaqueteConsumoService;
 import com.cycsystems.heymebackend.models.service.IParametroService;
 import com.cycsystems.heymebackend.models.service.IUsuarioService;
+import com.cycsystems.heymebackend.models.service.impl.MailServiceImpl;
+import com.cycsystems.heymebackend.models.service.impl.SMSServiceImpl;
 import com.cycsystems.heymebackend.output.DatosGraficaResponse;
 import com.cycsystems.heymebackend.output.DatosNotificacionPrecioResponse;
 import com.cycsystems.heymebackend.output.NotificacionResponse;
@@ -58,21 +60,208 @@ public class NotificationController {
 	
 	@Autowired
 	private INotificacionService notificacionService;
-	
 	@Autowired
 	private IContactoService contactoService;
-	
 	@Autowired
 	private IUsuarioService usuarioService;
-	
 	@Autowired
 	private IParametroService parametroService;
-
 	@Autowired
 	private IPaqueteConsumoService paqueteConsumoService;
-	
 	@Autowired
 	private IDetallePaqueteService detallePaqueteService;
+	@Autowired
+	private SMSServiceImpl smsService;
+	@Autowired
+	private MailServiceImpl mailService;
+	
+	@Async
+	@PostMapping("/cancelNotificationDelivery")
+	public ListenableFuture<ResponseEntity<NotificacionResponse>> cancelNotificationDelivery(
+			@RequestBody NotificacionRequest input) {
+		LOG.info("METHOD: cancelNotificationDelivery() --PARAMS: notificationRequest: " + input);
+		NotificacionResponse output = new NotificacionResponse();
+		
+		if (input.getNotificacion() == null) {
+			output.setCodigo(Response.NOTIFICATION_CONTENT_ERROR.getCodigo());
+			output.setDescripcion(Response.NOTIFICATION_CONTENT_ERROR.getMessage());
+			output.setIndicador(Response.NOTIFICATION_CONTENT_ERROR.getIndicador());
+		} else if (input.getNotificacion().getIdNotificaciones() == null || 
+				input.getNotificacion().getIdNotificaciones() <= 0) {
+			output.setCodigo(Response.NOTIFICATION_ID_ERROR.getCodigo());
+			output.setDescripcion(Response.NOTIFICATION_ID_ERROR.getMessage());
+			output.setIndicador(Response.NOTIFICATION_ID_ERROR.getIndicador());
+		} else {
+			Notificacion notificacion = this.notificacionService.findById(input.getNotificacion().getIdNotificaciones());
+			
+			if (notificacion != null && 
+					notificacion.getEstado().getIdEstadoNotificacion().compareTo(
+							Constants.ESTADO_NOTIFICACION_PROGRAMADA) == 0) {
+				
+				notificacion.setEstado(
+						new com.cycsystems.heymebackend.models.entity.EstadoNotificacion(
+								Constants.ESTADO_NOTIFICACION_ENVIADA));
+				notificacion = this.notificacionService.save(notificacion);
+				
+				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+				output.setNotificacion(this.mapModelo(notificacion));
+			} else if (notificacion.getEstado().getIdEstadoNotificacion().compareTo(
+							Constants.ESTADO_NOTIFICACION_PROGRAMADA) != 0) {
+				output.setCodigo(Response.NOTIFICATION_ALREADY_SENT.getCodigo());
+				output.setDescripcion(Response.NOTIFICATION_ALREADY_SENT.getMessage());
+				output.setIndicador(Response.NOTIFICATION_ALREADY_SENT.getIndicador());
+			} else {
+				output.setCodigo(Response.NOTIFICATION_NOT_EXISTS.getCodigo());
+				output.setDescripcion(Response.NOTIFICATION_NOT_EXISTS.getMessage());
+				output.setIndicador(Response.NOTIFICATION_NOT_EXISTS.getIndicador());
+			}
+		}
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+	
+	@Async
+	@PostMapping("/retrieveNotificationPerId")
+	public ListenableFuture<ResponseEntity<NotificacionResponse>> retrieveNotificationPerId(
+			@RequestBody NotificacionRequest input) {
+		LOG.info("METHOD: retrieveNotificationPerId() --PARAMS: notificacionRequest: " + input);
+		NotificacionResponse output = new NotificacionResponse();
+		
+		if (input.getNotificacion() == null) {
+			output.setCodigo(Response.NOTIFICATION_CONTENT_ERROR.getCodigo());
+			output.setDescripcion(Response.NOTIFICATION_CONTENT_ERROR.getMessage());
+			output.setIndicador(Response.NOTIFICATION_CONTENT_ERROR.getIndicador());
+		} else if (input.getNotificacion().getIdNotificaciones() == null || 
+				input.getNotificacion().getIdNotificaciones() <= 0) {
+			output.setCodigo(Response.NOTIFICATION_ID_ERROR.getCodigo());
+			output.setDescripcion(Response.NOTIFICATION_ID_ERROR.getMessage());
+			output.setIndicador(Response.NOTIFICATION_ID_ERROR.getIndicador());
+		} else {
+			Notificacion notificacion = this.notificacionService.findById(input.getNotificacion().getIdNotificaciones());
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+			output.setNotificacion(this.mapModelo(notificacion));
+		}
+		
+		return new AsyncResult<>(ResponseEntity.ok(output));
+		
+	}
+	
+	@Async
+	@PostMapping("/sendNotification")
+	public ListenableFuture<ResponseEntity<NotificacionResponse>> sendNotification(
+			@RequestBody NotificacionRequest input) {
+		LOG.info("METHOD: enviarNotificacion() --PARAMS: notificacionRequest: " + input);
+		NotificacionResponse output = new NotificacionResponse();
+		
+		if (input.getIdUsuario() == null || input.getIdUsuario() <= 0) {
+			output.setCodigo(Response.ID_USUARIO_ERROR.getCodigo());
+			output.setDescripcion(Response.ID_USUARIO_ERROR.getMessage());
+			output.setIndicador(Response.ID_USUARIO_ERROR.getIndicador());
+		} else if (input.getNotificacion() == null) {
+			output.setCodigo(Response.NOTIFICATION_CONTENT_ERROR.getCodigo());
+			output.setDescripcion(Response.NOTIFICATION_CONTENT_ERROR.getMessage());
+			output.setIndicador(Response.NOTIFICATION_CONTENT_ERROR.getIndicador());
+		} else if (input.getNotificacion().getIdNotificaciones() == null ||
+				input.getNotificacion().getIdNotificaciones() <= 0) {
+			output.setCodigo(Response.NOTIFICATION_ID_ERROR.getCodigo());
+			output.setDescripcion(Response.NOTIFICATION_ID_ERROR.getMessage());
+			output.setIndicador(Response.NOTIFICATION_ID_ERROR.getIndicador());
+		} else {
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(Calendar.DATE, calendar.getActualMaximum(Calendar.DATE));
+			
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			Notificacion notificacion = this.notificacionService.findById(input.getNotificacion().getIdNotificaciones());
+			List<PaqueteConsumo> listaPaquetes = this.paqueteConsumoService.findPackagesByStatusAndEndDate(
+					usuario.getEmpresa().getIdEmpresa(),
+					Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO,
+					calendar.getTime());
+			
+			if (listaPaquetes == null || listaPaquetes.isEmpty()) {
+				output.setCodigo(Response.PACKAGE_NOT_AVAILABE.getCodigo());
+				output.setDescripcion(Response.PACKAGE_NOT_AVAILABE.getMessage());
+				output.setIndicador(Response.PACKAGE_NOT_AVAILABE.getIndicador());
+			} else {
+				List<DetallePaquete> detalles = this.detallePaqueteService.findByPaquete(listaPaquetes.get(0).getPaquete().getIdPaquete());
+				
+				Integer smsRestantes = 0;
+				Integer mailRestantes = 0;
+				Integer whatsappRestantes = 0;
+				String codigo = "";
+				String mailFrom = this.parametroService.findParameterByEmpresaAndName(
+						usuario.getEmpresa().getIdEmpresa(),
+						Constants.REMITENTE_CORREO).getValor();
+				
+				for (DetallePaquete detalle: detalles) {
+					if (detalle.getCanal().getIdCanal().compareTo(Constants.CANAL_SMS) == 0) {
+						smsRestantes = detalle.getCuota() - listaPaquetes.get(0).getConsumoSMS();
+					} else if (detalle.getCanal().getIdCanal().compareTo(Constants.CANAL_EMAIL) == 0) {
+						mailRestantes = detalle.getCuota() - listaPaquetes.get(0).getConsumoMAIL();
+					} else if (detalle.getCanal().getIdCanal().compareTo(Constants.CANAL_WHATSAPP) == 0) {
+						whatsappRestantes = detalle.getCuota() - listaPaquetes.get(0).getConsumoWhatsapp();;
+					}
+				}
+				
+				if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_EMAIL) == 0) {
+					if (mailRestantes.compareTo(0) <= 0) {
+						output.setCodigo(Response.NOTIFICATIONS_NOT_AVAILABLE.getCodigo());
+						output.setDescripcion(Response.NOTIFICATIONS_NOT_AVAILABLE.getMessage());
+						output.setIndicador(Response.NOTIFICATIONS_NOT_AVAILABLE.getIndicador());
+					} else {
+						for (Contacto contacto: notificacion.getDestinatarios()) {
+							this.mailService.sendMail(mailFrom, 
+									contacto.getEmail(), 
+									notificacion.getTitulo(),
+									notificacion.getNotificacion());
+						}
+						notificacion.setCodigo(codigo);
+						notificacion.setEstado(
+								new com.cycsystems.heymebackend.models.entity.EstadoNotificacion(
+										Constants.ESTADO_NOTIFICACION_ENVIADA));
+						notificacion.setFechaEnvio(new Date());
+						notificacion = this.notificacionService.save(notificacion);
+						
+						output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+						output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+						output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+						output.setNotificacion(this.mapModelo(notificacion));
+					}
+				} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_SMS) == 0) {
+					if (smsRestantes.compareTo(0) <= 0) {
+						output.setCodigo(Response.NOTIFICATIONS_NOT_AVAILABLE.getCodigo());
+						output.setDescripcion(Response.NOTIFICATIONS_NOT_AVAILABLE.getMessage());
+						output.setIndicador(Response.NOTIFICATIONS_NOT_AVAILABLE.getIndicador());
+					} else {
+						for (Contacto contacto: notificacion.getDestinatarios()) {
+							codigo = this.smsService.sendSMS(usuario.getEmpresa().getIdEmpresa(), "+502" + contacto.getTelefono(), notificacion.getNotificacion());
+							listaPaquetes.get(0).setConsumoSMS(listaPaquetes.get(0).getConsumoSMS() + 1);
+						}
+						notificacion.setCodigo(codigo);
+						notificacion.setEstado(
+								new com.cycsystems.heymebackend.models.entity.EstadoNotificacion(
+										Constants.ESTADO_NOTIFICACION_ENVIADA));
+						notificacion.setFechaEnvio(new Date());
+						notificacion = this.notificacionService.save(notificacion);
+						
+						output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+						output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+						output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+						output.setNotificacion(this.mapModelo(notificacion));
+					}
+				} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_WHATSAPP) == 0) {
+					if (whatsappRestantes.compareTo(0) <= 0) {
+						output.setCodigo(Response.NOTIFICATIONS_NOT_AVAILABLE.getCodigo());
+						output.setDescripcion(Response.NOTIFICATIONS_NOT_AVAILABLE.getMessage());
+						output.setIndicador(Response.NOTIFICATIONS_NOT_AVAILABLE.getIndicador());
+					}
+				}	
+			}
+		}
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
 	
 	@Async
 	@PostMapping("/retrieveRemainingNotifications")
@@ -83,9 +272,9 @@ public class NotificationController {
 		PaqueteConsumoResponse output = new PaqueteConsumoResponse();
 
 		if (input.getIdUsuario() == null || input.getIdUsuario() <= 0) {
-			output.setCodigo("0062");
-			output.setDescripcion("Debe enviar el id del usuario a cambiar el estado");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.ID_USUARIO_ERROR.getCodigo());
+			output.setDescripcion(Response.ID_USUARIO_ERROR.getMessage());
+			output.setIndicador(Response.ID_USUARIO_ERROR.getIndicador());
 		} else if (input.getTipo() == null || input.getTipo() <= 0) {
 			output.setCodigo("0070");
 			output.setDescripcion("Debe enviar el id del estado del paquete asignado");
