@@ -14,7 +14,7 @@ public class GeneradorExcel {
 	
 	public static ByteArrayInputStream reporteNotificaciones(List<Notificacion> notificaciones) throws IOException {
 	    
-		String[] COLUMNs = {"#", "Titulo", "Fecha de Envio", "Fecha de programacion", "Estado", "Usuario"};
+		String[] COLUMNs = {"#", "Asunto", "Fecha de Envio", "Fecha de programacion", "Estado", "Usuario"};
 	    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
 		
 		try(

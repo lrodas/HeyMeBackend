@@ -40,7 +40,7 @@ public class GeneradorPdf {
             Style.headerCellStyle(hcell);
             table.addCell(hcell);
 
-            hcell = new PdfPCell(new Phrase("TITULO", headFont));
+            hcell = new PdfPCell(new Phrase("ASUNTO", headFont));
             Style.headerCellStyle(hcell);
             table.addCell(hcell);
 
