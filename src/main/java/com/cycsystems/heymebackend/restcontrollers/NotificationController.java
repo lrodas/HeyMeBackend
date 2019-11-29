@@ -100,7 +100,7 @@ public class NotificationController {
 				
 				notificacion.setEstado(
 						new com.cycsystems.heymebackend.models.entity.EstadoNotificacion(
-								Constants.ESTADO_NOTIFICACION_ENVIADA));
+								Constants.ESTADO_NOTIFICACION_CANCELADA));
 				notificacion = this.notificacionService.save(notificacion);
 				
 				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
