@@ -1,6 +1,5 @@
 package com.cycsystems.heymebackend.models.dao;
 
-import com.cycsystems.heymebackend.models.entity.Empresa;
 import com.cycsystems.heymebackend.models.entity.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -16,5 +15,5 @@ public interface IRoleDao extends JpaRepository<Role, Integer> {
 	
 	public abstract List<Role> findByEmpresa_IdEmpresaAndDescripcionLikeIgnoreCase(Integer idEmpresa, String nombre);
 	
-	public abstract List<Role> findByEmpresa(Empresa empresa);
+	public abstract List<Role> findByEmpresa_IdEmpresa(Integer idEmpresa);
 }

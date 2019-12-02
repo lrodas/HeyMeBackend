@@ -26,7 +26,14 @@ public enum Response {
 	PACKAGE_NOT_AVAILABE("0021", "No cuentas con un paquete activo", "ERROR"),
 	NOTIFICATIONS_NOT_AVAILABLE("0022", "Tu paquete de notificaciones se ha agotado, por favor contacta con servicio al cliente", "ERROR"),
 	NOTIFICATION_NOT_EXISTS("0023", "La notificacion especificada no existe", "ERROR"),
-	NOTIFICATION_ALREADY_SENT("0024", "La notificacion ya fue enviada, no es posible cancelarla", "ERROR");
+	NOTIFICATION_ALREADY_SENT("0024", "La notificacion ya fue enviada, no es posible cancelarla", "ERROR"),
+	PACKAGE_NOT_EMPTY("0025", "Debe enviar el paquete que desea asignar", "ERROR"),
+	USER_NOT_EMPTY("0026", "Debe especificar el usuario", "ERROR"),
+	TEMPLATE_NOT_EMPTY("0027", "Debe enviar la informacion de la plantilla", "ERROR"),
+	TEMPLATE_NOT_EXISTS("0028", "No se encuentra la plantilla con el identificador enviado", "ERROR"),
+	TEMPLATE_STATUS_NOT_EMPTY("0029", "Debe enviar el estado de la plantilla", "ERROR"),
+	TEMPLATE_TITLE_NOT_EMPTY("0030", "Debe enviar el titulo de la plantilla", "ERROR"),
+	TEMPLATE_CONTENT_NOT_EMPTY("0031", "Debe enviar el contenido de la plantilla", "ERROR");
 	
 	private String codigo;
 	private String message;

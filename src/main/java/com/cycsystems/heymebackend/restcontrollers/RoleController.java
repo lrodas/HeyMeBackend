@@ -116,7 +116,7 @@ public class RoleController {
 	@PostMapping("/findAll")
 	public ListenableFuture<ResponseEntity<?>> obtenerTodos(@RequestBody RoleRequest input) {
 		
-		LOG.info("METHOD: obtenerTodos()");
+		LOG.info("METHOD: obtenerTodos() --PARAMS: roleRequest: " + input);
 		RoleResponse output = new RoleResponse();
 		
 		if (input.getIdUsuario() == null || input.getIdUsuario() <= 0) {
@@ -127,7 +127,7 @@ public class RoleController {
 		} else {
 			
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-			List<Role> roles = this.roleService.findAll(usuario.getEmpresa());
+			List<Role> roles = this.roleService.findAll(usuario.getEmpresa().getIdEmpresa());
 			for (Role role: roles) {
 				output.getRoles().add(this.mapRole(role));
 			}
@@ -136,7 +136,6 @@ public class RoleController {
 			output.setDescripcion("Roles obtenidos exitosamente");
 			output.setIndicador("SUCCESS");
 		}
-		
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}

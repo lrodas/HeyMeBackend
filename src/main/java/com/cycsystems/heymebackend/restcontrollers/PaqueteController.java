@@ -2,6 +2,7 @@ package com.cycsystems.heymebackend.restcontrollers;
 
 import java.util.Calendar;
 
+import com.cycsystems.heymebackend.util.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,18 +48,18 @@ public class PaqueteController {
 		PaqueteResponse output = new PaqueteResponse();
 		
 		if (input.getPaquete() == null) {
-			output.setCodigo("0080");
-			output.setDescripcion("Debe enviar el paquete");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		} else if (input.getPaquete().getIdPaquete() == null ||
 				input.getPaquete().getIdPaquete() <= 0) {
-			output.setCodigo("0081");
-			output.setDescripcion("Debe enviar el paquete a asignar");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.PACKAGE_NOT_AVAILABE.getCodigo());
+			output.setDescripcion(Response.PACKAGE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.PACKAGE_NOT_EMPTY.getIndicador());
 		} else if (input.getIdUsuario() == null || input.getIdUsuario() <= 0) {
-			output.setCodigo("0011");
-			output.setDescripcion("Debe especificar el usuario");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.USER_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.USER_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.USER_NOT_EMPTY.getIndicador());
 		} else {
 			
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
@@ -80,10 +81,10 @@ public class PaqueteController {
 			
 			entity = this.consumoService.save(entity);
 			
-			output.setCodigo("0000");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 			output.setConsumo(this.mapModel(entity));
-			output.setDescripcion("Paquete asignado exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
