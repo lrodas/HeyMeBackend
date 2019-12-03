@@ -282,7 +282,7 @@ public class UsuarioController {
 			usuario.setImg(input.getDatos().getImg());
 			usuario.setEnabled(input.getDatos().getEnabled());
 			
-			this.usuarioService.save(usuario);
+			usuario = this.usuarioService.save(usuario);
 			
 			response.setUsuario(mapUsuario(usuario));
 			
@@ -326,8 +326,9 @@ public class UsuarioController {
 			usuario.setApellidos(input.getDatos().getApellidos());
 			usuario.setTelefono(input.getDatos().getTelefono());
 			usuario.setDireccion(input.getDatos().getDireccion());
+			usuario.setRole(new Role(input.getDatos().getRole().getIdRole()));
 			
-			this.usuarioService.save(usuario);
+			usuario = this.usuarioService.save(usuario);
 			
 			response.setUsuario(mapUsuario(usuario));
 			

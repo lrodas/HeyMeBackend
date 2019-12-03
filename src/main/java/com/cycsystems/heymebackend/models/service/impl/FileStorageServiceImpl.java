@@ -93,16 +93,16 @@ public class FileStorageServiceImpl implements IFileStorageService {
 	public Resource loadFileAsResource(String nombre, Integer idUsuario) {
 		
 		LOG.info("METHOD: loadFileAsResource() --PARAMS: nombre: " + nombre);
-		
+
 		String path = "";
 		Usuario usuario = this.usuarioService.findById(idUsuario);
 		String rutaBasica = this.parametroService.findParameterByEmpresaAndName(
 				usuario.getEmpresa().getIdEmpresa(),
 				Constants.IMAGES_URL).getValor();
-		
+
 		path = Paths.get(rutaBasica, nombre).toString();
-		
-		File imagen = new File(path);			
+
+		File imagen = new File(path);
 		if (!imagen.exists()) {
 			path = Paths.get(rutaBasica, "no-img.png").toString();
 		}
