@@ -30,8 +30,8 @@ public class PlantillaNotificacionServiceImpl implements IPlantillaNotificacionS
 	}
 
 	@Override
-	public List<PlantillaNotificacion> findAll() {
-		return this.repository.findAll();
+	public List<PlantillaNotificacion> findAll(Integer idEmpresa) {
+		return this.repository.findByEmpresa_IdEmpresa(idEmpresa);
 	}
 
 	@Override
@@ -40,13 +40,13 @@ public class PlantillaNotificacionServiceImpl implements IPlantillaNotificacionS
 	}
 
 	@Override
-	public List<PlantillaNotificacion> findByTitle(String title) {
-		return this.repository.findByTituloLikeIgnoreCase("%" + title + "%");
+	public List<PlantillaNotificacion> findByTitle(Integer idEmpresa, String title) {
+		return this.repository.findByEmpresa_IdEmpresaAndTituloLikeIgnoreCase(idEmpresa, "%" + title + "%");
 	}
 
 	@Override
-	public List<PlantillaNotificacion> findByEstado(Boolean estado) {
-		return this.repository.findByEstadoEquals(estado);
+	public List<PlantillaNotificacion> findByEstado(Integer idEmpresa, Boolean estado) {
+		return this.repository.findByEmpresa_IdEmpresaAndEstadoEquals(idEmpresa, estado);
 	}
 
 }

@@ -3,7 +3,9 @@ package com.cycsystems.heymebackend.restcontrollers;
 import com.cycsystems.heymebackend.common.Canal;
 import com.cycsystems.heymebackend.input.PlantillaNotificacionRequest;
 import com.cycsystems.heymebackend.models.entity.PlantillaNotificacion;
+import com.cycsystems.heymebackend.models.entity.Usuario;
 import com.cycsystems.heymebackend.models.service.IPlantillaNotificacionService;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.PlantillaNotificacionResponse;
 import com.cycsystems.heymebackend.util.Constants;
 import com.cycsystems.heymebackend.util.Response;
@@ -28,6 +30,8 @@ public class PlantillaNotificacionController {
 	
 	@Autowired
 	private IPlantillaNotificacionService service;
+	@Autowired
+	private IUsuarioService usuarioService;
 	
 	@PostMapping("/findById")
 	public ListenableFuture<ResponseEntity<?>> obtenerPlantillaPorId(
@@ -85,8 +89,9 @@ public class PlantillaNotificacionController {
 			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-			
-			List<PlantillaNotificacion> listaPlantillas = this.service.findByEstado(input.getPlantilla().getEstado());
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			List<PlantillaNotificacion> listaPlantillas = this.service.findByEstado(usuario.getEmpresa().getIdEmpresa(), input.getPlantilla().getEstado());
 			
 			if (listaPlantillas != null) {
 				for (PlantillaNotificacion plantilla: listaPlantillas) {
@@ -120,8 +125,9 @@ public class PlantillaNotificacionController {
 			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-			
-			List<PlantillaNotificacion> listaPlantillas = this.service.findByTitle(input.getPlantilla().getTitulo());
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			List<PlantillaNotificacion> listaPlantillas = this.service.findByTitle(usuario.getEmpresa().getIdEmpresa(), input.getPlantilla().getTitulo());
 			
 			if (listaPlantillas != null) {
 				for (PlantillaNotificacion plantilla: listaPlantillas) {
@@ -135,17 +141,17 @@ public class PlantillaNotificacionController {
 	}
 	
 	@PostMapping("/findAll")
-	public ListenableFuture<ResponseEntity<?>> obtenerPlantillas() {
+	public ListenableFuture<ResponseEntity<?>> obtenerPlantillas(@RequestBody PlantillaNotificacionRequest input) {
 		
-		LOG.info("METHOD: obtenerPlantillas()");
+		LOG.info("METHOD: obtenerPlantillas() --PARAMS: plantillaNotificacionRequest: " + input);
 		
 		PlantillaNotificacionResponse output = new PlantillaNotificacionResponse();
-		
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 		output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 		output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		
-		List<PlantillaNotificacion> listaPlantillas = this.service.findAll();
+		List<PlantillaNotificacion> listaPlantillas = this.service.findAll(usuario.getEmpresa().getIdEmpresa());
 		
 		if (listaPlantillas != null) {
 			for (PlantillaNotificacion plantilla: listaPlantillas) {
@@ -153,7 +159,7 @@ public class PlantillaNotificacionController {
 			}
 		}
 		
-		return new AsyncResult<ResponseEntity<?>>(ResponseEntity.ok(output));
+		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
 	@PostMapping("/save")

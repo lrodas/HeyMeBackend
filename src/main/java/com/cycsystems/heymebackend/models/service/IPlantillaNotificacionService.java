@@ -12,11 +12,11 @@ public interface IPlantillaNotificacionService {
 
 	public boolean existsById(Integer id);
 
-	public List<PlantillaNotificacion> findAll();
+	public List<PlantillaNotificacion> findAll(Integer idEmpresa);
 
 	public long count();
 	
-	public abstract List<PlantillaNotificacion> findByTitle(String title);
+	public abstract List<PlantillaNotificacion> findByTitle(Integer idEmpresa, String title);
 	
-	public abstract List<PlantillaNotificacion> findByEstado(Boolean estado);
+	public abstract List<PlantillaNotificacion> findByEstado(Integer idEmpresa, Boolean estado);
 }
