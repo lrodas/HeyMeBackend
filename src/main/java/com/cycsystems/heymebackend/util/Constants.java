@@ -21,10 +21,10 @@ public class Constants {
 	public static final Integer CANAL_SMS = 1;
 	public static final Integer CANAL_EMAIL = 2;
 	public static final Integer CANAL_WHATSAPP = 3;
-	
+
 	public static final Integer ESTADO_PAQUETE_CONSUMO_ACTIVO = 1;
 	public static final Integer ESTADO_PAQUETE_CONSUMO_VENCIDO = 2;
-	public static final Integer ESTADO_PAQUETE_CONSUMO_SUSPENDIDO = 3;
+	public static final Integer ESTADO_PAQUETE_CONSUMO_INACTIVO = 3;
 	
 	public static final Integer ESTADO_PAQUETE_ACTIVO = 1;
 	public static final Integer ESTADO_PAQUETE_INACTIVO = 2;

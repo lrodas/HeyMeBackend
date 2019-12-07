@@ -175,7 +175,7 @@ public class NotificationController {
 			
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 			Notificacion notificacion = this.notificacionService.findById(input.getNotificacion().getIdNotificaciones());
-			List<PaqueteConsumo> listaPaquetes = this.paqueteConsumoService.findPackagesByStatusAndEndDate(
+			List<PaqueteConsumo> listaPaquetes = this.paqueteConsumoService.findPackagesByCompanyAndStatusAndEndDate(
 					usuario.getEmpresa().getIdEmpresa(),
 					Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO,
 					calendar.getTime());
@@ -286,7 +286,7 @@ public class NotificationController {
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 
-			List<PaqueteConsumo> paqueteConsumos = this.paqueteConsumoService.findPackagesByStatusAndEndDate(usuario.getEmpresa().getIdEmpresa(), input.getTipo(), input.getFechaFin());
+			List<PaqueteConsumo> paqueteConsumos = this.paqueteConsumoService.findPackagesByCompanyAndStatusAndEndDate(usuario.getEmpresa().getIdEmpresa(), input.getTipo(), input.getFechaFin());
 			NotificacionesRestantes notificacionesRestantes = new NotificacionesRestantes();
 			notificacionesRestantes.setCantidadCorreo(0);
 			notificacionesRestantes.setCantidadMensajes(0);

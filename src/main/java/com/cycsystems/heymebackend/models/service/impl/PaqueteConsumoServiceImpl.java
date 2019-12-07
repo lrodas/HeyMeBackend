@@ -16,12 +16,27 @@ public class PaqueteConsumoServiceImpl implements IPaqueteConsumoService {
     private IPaqueteConsumoDao paqueteConsumoRepository;
 
     @Override
-    public List<PaqueteConsumo> findPackagesByStatusAndEndDate(Integer idEmpresa, Integer status, Date endDate) {
-        return this.paqueteConsumoRepository.findByEmpresa_IdEmpresaAndEstado_IdEstadoPaqueteConsumoAndFechaFinLessThanEqual(idEmpresa, status, endDate);
+    public List<PaqueteConsumo> findPackagesByCompanyAndStatusAndEndDate(Integer idEmpresa, Integer status, Date endDate) {
+        return this.paqueteConsumoRepository.findByEmpresa_IdEmpresaAndEstado_IdEstadoPaqueteConsumoAndFechaFinGreaterThanEqual(idEmpresa, status, endDate);
     }
 
 	@Override
 	public PaqueteConsumo save(PaqueteConsumo entity) {
 		return this.paqueteConsumoRepository.save(entity);
 	}
+
+    @Override
+    public List<PaqueteConsumo> findPackagesByCompanyStartDateAndStatus(Date fechaInicio, Integer status) {
+        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaInicioEqual(status, fechaInicio);
+    }
+
+    @Override
+    public List<PaqueteConsumo> findPackageByStatusAndEndDate(Integer status, Date fechaFin) {
+        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaLessThanEqual(status, fechaFin);
+    }
+
+    @Override
+    public List<PaqueteConsumo> findPackageByStatusAndStartDate(Integer status, Date fechaInicio) {
+        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaInicioEqual(status, fechaInicio);
+    }
 }

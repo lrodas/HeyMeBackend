@@ -4,16 +4,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.cycsystems.heymebackend.models.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.cycsystems.heymebackend.models.entity.Contacto;
-import com.cycsystems.heymebackend.models.entity.DetallePaquete;
-import com.cycsystems.heymebackend.models.entity.Empresa;
-import com.cycsystems.heymebackend.models.entity.EstadoNotificacion;
-import com.cycsystems.heymebackend.models.entity.Notificacion;
-import com.cycsystems.heymebackend.models.entity.PaqueteConsumo;
 import com.cycsystems.heymebackend.models.service.IDetallePaqueteService;
 import com.cycsystems.heymebackend.models.service.IEmpresaService;
 import com.cycsystems.heymebackend.models.service.INotificacionService;
@@ -43,8 +38,8 @@ public class TareasProgramadas {
 	@Autowired
 	private IDetallePaqueteService detallePaqueteService;
 
-	// @Scheduled(fixedDelay = 3600000)
-	@Scheduled(fixedDelay = 60000)
+	@Scheduled(fixedDelay = 3600000)
+	// @Scheduled(fixedDelay = 60000)
 	public void taskSendMessage() {
 
 		List<Empresa> empresas = this.empresaService.findAll();
@@ -60,7 +55,7 @@ public class TareasProgramadas {
 		
 		for (Empresa empresa: empresas) {
 			
-			List<PaqueteConsumo> listaPaquetes = this.paqueteConsumoService.findPackagesByStatusAndEndDate(
+			List<PaqueteConsumo> listaPaquetes = this.paqueteConsumoService.findPackagesByCompanyAndStatusAndEndDate(
 					empresa.getIdEmpresa(),
 					Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO,
 					fechaFin);
@@ -114,6 +109,21 @@ public class TareasProgramadas {
 				
 				this.paqueteConsumoService.save(listaPaquetes.get(0));
 			}
+		}
+	}
+
+	@Scheduled(cron = "0 0 0/12 1/1 * ?")
+	private void activateAndDeactivatePackage() {
+		List<PaqueteConsumo> paquetesInactivos = this.paqueteConsumoService.findPackagesByCompanyStartDateAndStatus(new Date(), Constants.ESTADO_PAQUETE_CONSUMO_INACTIVO);
+		for (PaqueteConsumo paquete: paquetesInactivos) {
+			paquete.setEstado(new EstadoPaqueteConsumo(Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO));
+			this.paqueteConsumoService.save(paquete);
+		}
+
+		List<PaqueteConsumo> paquetesActivos = this.paqueteConsumoService.findPackageByStatusAndEndDate(Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO, new Date());
+		for (PaqueteConsumo paquete: paquetesActivos) {
+			paquete.setEstado(new EstadoPaqueteConsumo(Constants.ESTADO_PAQUETE_CONSUMO_VENCIDO));
+			this.paqueteConsumoService.save(paquete);
 		}
 	}
 }

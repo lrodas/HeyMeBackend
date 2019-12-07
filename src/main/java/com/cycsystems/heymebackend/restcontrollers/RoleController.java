@@ -92,15 +92,17 @@ public class RoleController {
 			output.setDescripcion("Es necesario enviar el estado del role");
 			output.setIndicador("ERROR");
 		} else {
-			
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 			Role role = new Role();
-			role.setIdRole(input.getRole().getIdRole());
+			if (input.getRole().getIdRole() != null && input.getRole().getIdRole() > 0) {
+				role = this.roleService.findById(input.getRole().getIdRole());
+			}
 			role.setNombre(input.getRole().getNombre());
 			role.setDescripcion(input.getRole().getDescripcion());
 			role.setEstado(input.getRole().getEstado());
+			role.setEmpresa(usuario.getEmpresa());
 			role.setPermisos(this.mapPermisos(input.getRole().getPermisos()));
-			
-			
 			role = this.roleService.save(role);
 			
 			output.setCodigo("0000");
