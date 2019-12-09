@@ -27,16 +27,16 @@ public class PaqueteConsumoServiceImpl implements IPaqueteConsumoService {
 
     @Override
     public List<PaqueteConsumo> findPackagesByCompanyStartDateAndStatus(Date fechaInicio, Integer status) {
-        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaInicioEqual(status, fechaInicio);
+        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaInicio(status, fechaInicio);
     }
 
     @Override
     public List<PaqueteConsumo> findPackageByStatusAndEndDate(Integer status, Date fechaFin) {
-        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaLessThanEqual(status, fechaFin);
+        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaFinLessThanEqual(status, fechaFin);
     }
 
     @Override
     public List<PaqueteConsumo> findPackageByStatusAndStartDate(Integer status, Date fechaInicio) {
-        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaInicioEqual(status, fechaInicio);
+        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaInicio(status, fechaInicio);
     }
 }

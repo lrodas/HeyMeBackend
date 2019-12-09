@@ -39,13 +39,13 @@ public class PaqueteConsumo implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idEmpresa", nullable = false)
 	private Empresa empresa;
-	
+
 	@Column(nullable = false, columnDefinition = " DATE DEFAULT '1900-01-01'")
 	private Date fechaInicio;
-	
+
 	@Column(nullable = false, columnDefinition = " DATE DEFAULT '1900-01-01'")
 	private Date fechaFin;
-	
+
 	@Column(name = "consumoSMS", nullable = false, columnDefinition = " Int DEFAULT 0")
 	private Integer consumoSMS;
 	

@@ -13,7 +13,7 @@ public interface IPaqueteConsumoDao extends JpaRepository<PaqueteConsumo, Intege
 
 	public List<PaqueteConsumo> findByEmpresa_IdEmpresaAndEstado_IdEstadoPaqueteConsumoAndFechaFinGreaterThanEqual(Integer idEmpresa, Integer idEstadoPaquete, Date fechaFin);
 
-	public List<PaqueteConsumo> findByEstado_IdEstadoPaqueteConsumoAndFechaInicioEqual(Integer idEstadoPaquete, Date fechaInicio);
+	public List<PaqueteConsumo> findByEstado_IdEstadoPaqueteConsumoAndFechaInicio(Integer idEstadoPaquete, Date fechaInicio);
 
-	public List<PaqueteConsumo> findByEstado_IdEstadoPaqueteConsumoAndFechaLessThanEqual(Integer idEstadoPaquete, Date fechaFin);
+	public List<PaqueteConsumo> findByEstado_IdEstadoPaqueteConsumoAndFechaFinLessThanEqual(Integer idEstadoPaquete, Date fechaFin);
 }

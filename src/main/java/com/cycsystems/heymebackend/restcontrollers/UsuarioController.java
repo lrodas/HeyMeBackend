@@ -370,7 +370,7 @@ public class UsuarioController {
 				
 				if (this.passwordEncoder.matches(request.getContrasenaActual(), usuario.getPassword()) ) {
 					
-					usuario.setPassword(request.getNuevaContrasena());
+					usuario.setPassword(this.passwordEncoder.encode(request.getNuevaContrasena()));
 					this.usuarioService.save(usuario);
 					
 					response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
