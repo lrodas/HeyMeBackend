@@ -175,10 +175,9 @@ public class NotificationController {
 			
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 			Notificacion notificacion = this.notificacionService.findById(input.getNotificacion().getIdNotificaciones());
-			List<PaqueteConsumo> listaPaquetes = this.paqueteConsumoService.findPackagesByCompanyAndStatusAndEndDate(
+			List<PaqueteConsumo> listaPaquetes = this.paqueteConsumoService.findPackagesByCompanyAndStatus(
 					usuario.getEmpresa().getIdEmpresa(),
-					Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO,
-					calendar.getTime());
+					Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO);
 			
 			if (listaPaquetes == null || listaPaquetes.isEmpty()) {
 				output.setCodigo(Response.PACKAGE_NOT_AVAILABE.getCodigo());
@@ -286,7 +285,7 @@ public class NotificationController {
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 
-			List<PaqueteConsumo> paqueteConsumos = this.paqueteConsumoService.findPackagesByCompanyAndStatusAndEndDate(usuario.getEmpresa().getIdEmpresa(), input.getTipo(), input.getFechaFin());
+			List<PaqueteConsumo> paqueteConsumos = this.paqueteConsumoService.findPackagesByCompanyAndStatus(usuario.getEmpresa().getIdEmpresa(), input.getTipo());
 			NotificacionesRestantes notificacionesRestantes = new NotificacionesRestantes();
 			notificacionesRestantes.setCantidadCorreo(0);
 			notificacionesRestantes.setCantidadMensajes(0);

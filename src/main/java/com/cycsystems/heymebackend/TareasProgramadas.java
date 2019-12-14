@@ -51,14 +51,12 @@ public class TareasProgramadas {
 		calendar.set(Calendar.MILLISECOND, 0);
 		Date fechaActual = calendar.getTime();
 		calendar.set(Calendar.DATE, calendar.getActualMaximum(Calendar.DATE));
-		Date fechaFin = calendar.getTime();
 		
 		for (Empresa empresa: empresas) {
 			
-			List<PaqueteConsumo> listaPaquetes = this.paqueteConsumoService.findPackagesByCompanyAndStatusAndEndDate(
+			List<PaqueteConsumo> listaPaquetes = this.paqueteConsumoService.findPackagesByCompanyAndStatus(
 					empresa.getIdEmpresa(),
-					Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO,
-					fechaFin);
+					Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO);
 			
 			if (listaPaquetes != null && listaPaquetes.size() > 0) {
 				

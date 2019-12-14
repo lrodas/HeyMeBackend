@@ -16,8 +16,8 @@ public class PaqueteConsumoServiceImpl implements IPaqueteConsumoService {
     private IPaqueteConsumoDao paqueteConsumoRepository;
 
     @Override
-    public List<PaqueteConsumo> findPackagesByCompanyAndStatusAndEndDate(Integer idEmpresa, Integer status, Date endDate) {
-        return this.paqueteConsumoRepository.findByEmpresa_IdEmpresaAndEstado_IdEstadoPaqueteConsumoAndFechaFinGreaterThanEqual(idEmpresa, status, endDate);
+    public List<PaqueteConsumo> findPackagesByCompanyAndStatus(Integer idEmpresa, Integer status) {
+        return this.paqueteConsumoRepository.findByEmpresa_IdEmpresaAndEstado_IdEstadoPaqueteConsumo(idEmpresa, status);
     }
 
 	@Override
@@ -32,7 +32,7 @@ public class PaqueteConsumoServiceImpl implements IPaqueteConsumoService {
 
     @Override
     public List<PaqueteConsumo> findPackageByStatusAndEndDate(Integer status, Date fechaFin) {
-        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaFinLessThanEqual(status, fechaFin);
+        return this.paqueteConsumoRepository.findByEstado_IdEstadoPaqueteConsumoAndFechaFinLessThan(status, fechaFin);
     }
 
     @Override

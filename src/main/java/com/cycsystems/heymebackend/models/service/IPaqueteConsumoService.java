@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IPaqueteConsumoService {
 
-	public List<PaqueteConsumo> findPackagesByCompanyAndStatusAndEndDate(Integer idEmpresa, Integer status, Date endDate);
+	public List<PaqueteConsumo> findPackagesByCompanyAndStatus(Integer idEmpresa, Integer status);
 	public PaqueteConsumo save (PaqueteConsumo entity);
 	public List<PaqueteConsumo> findPackagesByCompanyStartDateAndStatus(Date fechaInicio, Integer status);
 	public List<PaqueteConsumo> findPackageByStatusAndEndDate(Integer status, Date fechaFin);
