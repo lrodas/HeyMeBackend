@@ -33,8 +33,27 @@ public enum Response {
 	TEMPLATE_NOT_EXISTS("0028", "No se encuentra la plantilla con el identificador enviado", "ERROR"),
 	TEMPLATE_STATUS_NOT_EMPTY("0029", "Debe enviar el estado de la plantilla", "ERROR"),
 	TEMPLATE_TITLE_NOT_EMPTY("0030", "Debe enviar el titulo de la plantilla", "ERROR"),
-	TEMPLATE_CONTENT_NOT_EMPTY("0031", "Debe enviar el contenido de la plantilla", "ERROR");
-	
+	TEMPLATE_CONTENT_NOT_EMPTY("0031", "Debe enviar el contenido de la plantilla", "ERROR"),
+	COUNTRY_CONTENT_EMPTY("0032", "Debes enviar el contenido del pais", "ERROR"),
+	COUNTRY_ID_EMPTY("0033", "Debes enviar el identificador del pais", "ERROR"),
+	COUNTRY_NOT_EXIST("0034", "El pais no existe", "ERROR"),
+	COUNTRY_NAME_NOT_EMPTY("0035", "Debe enviar el nombre del pais", "ERROR"),
+	COUNTRY_CODE_NOT_EMPTY("0036", "Debe enviar el codigo del pais", "ERROR"),
+	CONTACT_NAME_NOT_EMPTY("0037", "El nombre del contacto es obligatorio", "ERROR"),
+	CONTACT_LAST_NAME_NOT_EMPTY("0038", "El apellido del contacto es obligatorio", "ERROR"),
+	CONTACT_ADDRESS_NOT_EMPTY("0039", "La direccion del contacto es obligatoria", "ERROR"),
+	CONTACT_REGION_NOT_EMPTY("0040", "La region a la que pertenece el contacto es obligatorio", "ERROR"),
+	CONTACT_PHONE_NOT_EMPTY("0041", "El telefono del contacto es obligatorio", "ERROR"),
+	CONTACT_REGION_NOT_EXIST("0042", "La region enviada no existe, por favor verificar", "ERROR"),
+	CONTACT_NOT_EMPTY("0043", "Es necesario enviar los datos del contacto", "ERROR"),
+	CONTACT_ID_NOT_EMPTY("0044", "Es necesario enviar el identificador del contacto", "ERROR"),
+	CONTACT_NOT_EXIST("0045", "No existe un contacto con el identificador enviado", "ERROR"),
+	CONTACT_STATUS_NOT_EMPTY("0046", "Es necesario enviar el estado del usuario", "ERROR"),
+	START_DATE_NOT_EMPTY("0047", "La fecha de inicio es obligatoria", "ERROR"),
+	END_DATE_NOT_EMPTY("0048", "La fecha de fin es obligatoria", "ERROR"),
+	START_DATE_BEFORE_END_DATE("0049", "La fecha de inicio debe ser menor a la fecha de fin", "ERROR"),
+	COUNTRY_NOT_EMPTY("0050", "El pais del numero telefonico es obligatorio", "ERROR");
+
 	private String codigo;
 	private String message;
 	private String indicador;

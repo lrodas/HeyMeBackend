@@ -84,7 +84,7 @@ public class TareasProgramadas {
 						if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_SMS) == 0) {
 							
 							if (smsRestantes.compareTo(0) > 0) {								
-								codigo = this.smsService.sendSMS(empresa.getIdEmpresa(), "+502" + contacto.getTelefono(), notificacion.getNotificacion());
+								codigo = this.smsService.sendSMS(empresa.getIdEmpresa(), contacto.getPais().getCodigo() + contacto.getTelefono(), notificacion.getNotificacion());
 								listaPaquetes.get(0).setConsumoSMS(listaPaquetes.get(0).getConsumoSMS() + 1);
 							}
 						} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_EMAIL) == 0) {

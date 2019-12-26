@@ -43,7 +43,7 @@ public class RegionController {
 			com.cycsystems.heymebackend.common.Region modelo = new com.cycsystems.heymebackend.common.Region();
 			modelo.setIdRegion(region.getIdRegion());
 			modelo.setNombre(region.getNombre());
-			modelo.setPais(new Pais(region.getPais().getIdPais(), region.getPais().getNombre()));
+			modelo.setPais(new Pais(region.getPais().getIdPais(), region.getPais().getNombre(), region.getPais().getCodigo(), region.getPais().getEstado()));
 			modelos.add(modelo);
 		}
 		
@@ -58,7 +58,7 @@ public class RegionController {
 			output.setRegiones(modelos);
 		}
 		
-		return new AsyncResult<ResponseEntity<?>>(ResponseEntity.ok(output));
+		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 
 }

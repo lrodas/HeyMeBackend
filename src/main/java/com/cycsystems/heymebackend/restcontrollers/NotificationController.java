@@ -904,7 +904,9 @@ public class NotificationController {
 							contacto.getProvincia().getRegion().getNombre(),
 							new Pais(
 									contacto.getProvincia().getRegion().getPais().getIdPais(),
-									contacto.getProvincia().getRegion().getPais().getNombre()))));
+									contacto.getProvincia().getRegion().getPais().getNombre(),
+									contacto.getProvincia().getRegion().getPais().getCodigo(),
+									contacto.getProvincia().getRegion().getPais().getEstado()))));
 			modelos.add(modelo);
 			
 		}

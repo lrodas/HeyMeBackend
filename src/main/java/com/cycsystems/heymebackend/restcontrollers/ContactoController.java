@@ -7,10 +7,12 @@ import com.cycsystems.heymebackend.input.ContactoRequest;
 import com.cycsystems.heymebackend.models.entity.Contacto;
 import com.cycsystems.heymebackend.models.entity.Usuario;
 import com.cycsystems.heymebackend.models.service.IContactoService;
+import com.cycsystems.heymebackend.models.service.IPaisService;
 import com.cycsystems.heymebackend.models.service.IProvinciaService;
 import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.ContactoResponse;
 import com.cycsystems.heymebackend.util.Constants;
+import com.cycsystems.heymebackend.util.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,9 @@ public class ContactoController {
 	
 	@Autowired
 	private IUsuarioService usuarioService;
+
+	@Autowired
+	private IPaisService paisService;
 	
 	@Async
 	@PostMapping("/findAll")
@@ -56,9 +61,9 @@ public class ContactoController {
 		
 		List<Contacto> contactos = this.contactoService.findAll(usuario.getEmpresa().getIdEmpresa());
 		
-		output.setCodigo("0000");
-		output.setDescripcion("Contactos obtenidos exitosamente");
-		output.setIndicador("SUCCESS");
+		output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+		output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+		output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		output.setContactos(this.mapContacts(contactos));
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -72,27 +77,24 @@ public class ContactoController {
 		ContactoResponse output = new ContactoResponse();
 		
 		if (input.getContacto() == null) {
-			output.setCodigo("0058");
-			output.setDescripcion("Es necesario enviar los datos del contacto");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.CONTACT_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_NOT_EMPTY.getIndicador());
 		} else if (input.getContacto().getIdContacto() == null || input.getContacto().getIdContacto() <= 0) {
-			output.setCodigo("0059");
-			output.setDescripcion("Es necesario enviar el id del contacto");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.CONTACT_ID_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_ID_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_ID_NOT_EMPTY.getIndicador());
 		} else {
 			Contacto contacto = this.contactoService.findById(input.getContacto().getIdContacto());
 			
 			if (contacto == null) {
-				output.setCodigo("0060");
-				output.setDescripcion("El usuario con el id: " + input.getContacto().getIdContacto() + " no existe");
-				output.setIndicador("ERROR");
+				output.setCodigo(Response.CONTACT_NOT_EXIST.getCodigo());
+				output.setDescripcion(Response.CONTACT_NOT_EXIST.getMessage());
+				output.setIndicador(Response.CONTACT_NOT_EXIST.getIndicador());
 			} else {
-				
-				
-				
-				output.setCodigo("0000");
-				output.setDescripcion("Contactos obtenidos exitosamente");
-				output.setIndicador("SUCCESS");
+				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 				output.setContacto(this.mapContact(contacto));
 			}
 		}
@@ -110,20 +112,20 @@ public class ContactoController {
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getUsuario() == null) {
-			output.setCodigo("0045");
-			output.setDescripcion("Es necesario enviar los datos del usuario");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.CONTACT_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_NOT_EMPTY.getIndicador());
 		} else if (input.getContacto().getEstado() == null) {
-			output.setCodigo("0046");
-			output.setDescripcion("Es necesario enviar el estado del usuario");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.CONTACT_STATUS_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_STATUS_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_STATUS_NOT_EMPTY.getIndicador());
 		} else {
 			
 			List<Contacto> contactos = this.contactoService.findByStatus(usuario.getEmpresa().getIdEmpresa(), input.getContacto().getEstado());
 			
-			output.setCodigo("0000");
-			output.setDescripcion("Contactos obtenidos exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			output.setContactos(this.mapContacts(contactos));
 		}
 		
@@ -132,7 +134,7 @@ public class ContactoController {
 	
 	@Async
 	@PostMapping("/findByCreationDate")
-	public ListenableFuture<ResponseEntity<?>> obtenerContactoPorFecha(@RequestBody ContactoRequest input) {
+	public ListenableFuture<ResponseEntity<ContactoResponse>> obtenerContactoPorFecha(@RequestBody ContactoRequest input) {
 		
 		LOG.info("METHOD: obtenerContactoPorFecha() --PARAMS: ContactoRequest: " + input);
 		
@@ -142,17 +144,17 @@ public class ContactoController {
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getFechaInicio() == null) {
-			output.setCodigo("0030");
-			output.setDescripcion("La fecha de inicio es obligatoria");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.START_DATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.START_DATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.START_DATE_NOT_EMPTY.getIndicador());
 		} else if (input.getFechaFin() == null) {
-			output.setCodigo("0031");
-			output.setDescripcion("La fecha de fin es obligatoria");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.END_DATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.END_DATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.END_DATE_NOT_EMPTY.getIndicador());
 		} else if (input.getFechaInicio().after(input.getFechaFin())) {
-			output.setCodigo("0032");
-			output.setDescripcion("La fecha de inicio debe ser menor a la fecha de fin");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.START_DATE_BEFORE_END_DATE.getCodigo());
+			output.setDescripcion(Response.START_DATE_BEFORE_END_DATE.getMessage());
+			output.setIndicador(Response.START_DATE_BEFORE_END_DATE.getIndicador());
 		} else {
 			
 			Calendar calendar = Calendar.getInstance();
@@ -177,37 +179,36 @@ public class ContactoController {
 		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
 		    
 		    fechaFin = calendar.getTime();
-			
-		    LOG.info("Fecha Inicio: " + fechaInicio + ", fechaFin: " + fechaFin);
+
 			List<Contacto> contactos = this.contactoService.findByCreationDate(usuario.getEmpresa().getIdEmpresa(), fechaInicio, fechaFin);
 			
 			output.setContactos(this.mapContacts(contactos));
-			output.setCodigo("0000");
-			output.setDescripcion("Contactos obtenidos exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
 	@Async
 	@PostMapping("/findByName")
-	public ListenableFuture<ResponseEntity<?>> obtenerContactoPorNombre(@RequestBody ContactoRequest input) {
+	public ListenableFuture<ResponseEntity<ContactoResponse>> obtenerContactoPorNombre(@RequestBody ContactoRequest input) {
 		
 		LOG.info("METHOD: obtenerContacto() --PARAMS: ContactoRequest: " + input);
 		ContactoResponse output = new ContactoResponse();
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getContacto().getNombre() == null || input.getContacto().getNombre().isEmpty()) {
-			output.setCodigo("0029");
-			output.setDescripcion("El nombre del contacto es obligatorio");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.CONTACT_NAME_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_NAME_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_NAME_NOT_EMPTY.getIndicador());
 		} else {
 			
 			List<Contacto> contactos = this.contactoService.findByName(usuario.getEmpresa().getIdEmpresa(), input.getContacto().getNombre());
 			
-			output.setCodigo("0000");
-			output.setDescripcion("Contactos obtenidos exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			output.setContactos(this.mapContacts(contactos));
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -215,61 +216,71 @@ public class ContactoController {
 	
 	@Async
 	@PostMapping("/save")
-	public ListenableFuture<ResponseEntity<?>> guardarContacto(@RequestBody ContactoRequest input) {
+	public ListenableFuture<ResponseEntity<ContactoResponse>> guardarContacto(@RequestBody ContactoRequest input) {
 		
 		LOG.info("METHOD: guardarContacto() --PARAMS: ContactoRequest:" + input);
 		ContactoResponse output = new ContactoResponse();
 		
 		if (input.getContacto().getNombre() == null || input.getContacto().getNombre().isEmpty()) {
-			output.setCodigo("0023");
-			output.setDescripcion("El nombre del contacto es obligatorio");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.CONTACT_NAME_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_NAME_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_NAME_NOT_EMPTY.getIndicador());
 		} else if (input.getContacto().getApellido() == null || input.getContacto().getApellido().isEmpty()) {
-			output.setCodigo("0024");
-			output.setDescripcion("El apellido del contacto es obligatorio");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.CONTACT_LAST_NAME_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_LAST_NAME_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_LAST_NAME_NOT_EMPTY.getIndicador());
 		} else if (input.getContacto().getDireccion() == null || input.getContacto().getDireccion().isEmpty()) {
-			output.setCodigo("0025");
-			output.setDescripcion("La direccion del contacto es obligatorio");
-			output.setIndicador("ERROR");
-		} else if (input.getContacto().getProvincia() == null || input.getContacto().getProvincia().getIdProvincia() == null ||
-				input.getContacto().getProvincia().getIdProvincia() <= 0) {
-			output.setCodigo("0026");
-			output.setDescripcion("La region a la que pertence el contacto es obligatoria");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.CONTACT_ADDRESS_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_ADDRESS_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_ADDRESS_NOT_EMPTY.getIndicador());
 		} else if (input.getContacto().getTelefono() == null || input.getContacto().getTelefono().isEmpty()) {
-			output.setCodigo("0027");
-			output.setDescripcion("El telefono del contacto es obligatorio");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.CONTACT_PHONE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_PHONE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_PHONE_NOT_EMPTY.getIndicador());
+		} else if (input.getContacto().getPais() == null || input.getContacto().getPais().getIdPais() == null ||
+					input.getContacto().getPais().getIdPais() <= 0) {
+			output.setCodigo(Response.COUNTRY_ID_EMPTY.getCodigo());
+			output.setDescripcion(Response.COUNTRY_ID_EMPTY.getMessage());
+			output.setIndicador(Response.COUNTRY_ID_EMPTY.getIndicador());
 		} else {
-			
-			com.cycsystems.heymebackend.models.entity.Provincia provincia = this.provinciaService.findById(input.getContacto().getProvincia().getIdProvincia());
-			
-			if (provincia == null) {
-				output.setCodigo("0028");
-				output.setDescripcion("La region enviada no existe, por favor verifique");
-				output.setIndicador("ERROR");
-			} else {
-				Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-				
-				Contacto contacto = new Contacto();
+
+			Contacto contacto = new Contacto();
+			if (input.getContacto().getProvincia() != null && input.getContacto().getProvincia().getIdProvincia() != null) {
+				com.cycsystems.heymebackend.models.entity.Provincia provincia = this.provinciaService.findById(input.getContacto().getProvincia().getIdProvincia());
+
+				if (provincia == null) {
+					output.setCodigo(Response.CONTACT_REGION_NOT_EXIST.getCodigo());
+					output.setDescripcion(Response.CONTACT_REGION_NOT_EXIST.getMessage());
+					output.setIndicador(Response.CONTACT_REGION_NOT_EXIST.getIndicador());
+
+					return new AsyncResult<>(ResponseEntity.ok(output));
+				} else {
+					contacto.setProvincia(provincia);
+				}
+			}
+
+			com.cycsystems.heymebackend.models.entity.Pais pais = this.paisService.findCountryById(input.getContacto().getPais().getIdPais());
+			contacto.setPais(pais);
+
+			if (input.getContacto().getIdContacto() != null) {
 				contacto.setIdContacto(input.getContacto().getIdContacto());
-				contacto.setNombre(input.getContacto().getNombre());
-				contacto.setApellido(input.getContacto().getApellido());
-				contacto.setDireccion(input.getContacto().getDireccion());
-				contacto.setEmail(input.getContacto().getEmail());
-				contacto.setTelefono(input.getContacto().getTelefono());
-				contacto.setEstado(input.getContacto().getEstado());
-				contacto.setProvincia(provincia);
-				contacto.setUsuario(usuario);
-				
-				contacto = this.contactoService.save(contacto);
-				
-				output.setCodigo("0000");
-				output.setDescripcion("El contacto fue guardado exitosamente");
-				output.setIndicador("SUCCESS");
-				output.setContacto(this.mapContact(contacto));
-			}			
+			}
+			contacto.setNombre(input.getContacto().getNombre());
+			contacto.setApellido(input.getContacto().getApellido());
+			contacto.setDireccion(input.getContacto().getDireccion());
+			contacto.setEmail(input.getContacto().getEmail());
+			contacto.setTelefono(input.getContacto().getTelefono());
+			contacto.setEstado(input.getContacto().getEstado());
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			contacto.setUsuario(usuario);
+
+			contacto = this.contactoService.save(contacto);
+
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+			output.setContacto(this.mapContact(contacto));
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -280,26 +291,7 @@ public class ContactoController {
 		List<com.cycsystems.heymebackend.common.Contacto> modelos = new ArrayList<>();
 		
 		for (Contacto contacto: contactos) {
-			com.cycsystems.heymebackend.common.Contacto modelo = new com.cycsystems.heymebackend.common.Contacto();
-			
-			modelo.setIdContacto(contacto.getIdContacto());
-			modelo.setNombre(contacto.getNombre());
-			modelo.setApellido(contacto.getApellido());
-			modelo.setDireccion(contacto.getDireccion());
-			modelo.setEmail(contacto.getEmail());
-			modelo.setEstado(contacto.getEstado());
-			modelo.setProvincia(new Provincia(
-					contacto.getProvincia().getIdProvincia(),
-					contacto.getProvincia().getNombre(),
-					new Region(
-							contacto.getProvincia().getRegion().getIdRegion(),
-							contacto.getProvincia().getRegion().getNombre(),
-							new Pais(
-									contacto.getProvincia().getRegion().getPais().getIdPais(),
-									contacto.getProvincia().getRegion().getPais().getNombre()))));
-			modelo.setTelefono(contacto.getTelefono());
-			
-			modelos.add(modelo);
+			modelos.add(this.mapContact(contacto));
 		}
 		
 		return modelos;
@@ -315,15 +307,28 @@ public class ContactoController {
 		modelo.setEmail(contacto.getEmail());
 		modelo.setEstado(contacto.getEstado());
 		modelo.setTelefono(contacto.getTelefono());
-		modelo.setProvincia(new Provincia(
-				contacto.getProvincia().getIdProvincia(),
-				contacto.getProvincia().getNombre(),
-				new Region(
-						contacto.getProvincia().getRegion().getIdRegion(),
-						contacto.getProvincia().getRegion().getNombre(),
-						new Pais(
-								contacto.getProvincia().getRegion().getPais().getIdPais(),
-								contacto.getProvincia().getRegion().getPais().getNombre()))));
+		modelo.setPais(
+				new Pais(
+						contacto.getPais().getIdPais(),
+						contacto.getPais().getNombre(),
+						contacto.getPais().getCodigo(),
+						contacto.getPais().getEstado()));
+
+		if (contacto.getProvincia() != null) {
+			modelo.setProvincia(new Provincia(
+					contacto.getProvincia().getIdProvincia(),
+					contacto.getProvincia().getNombre(),
+					new Region(
+							contacto.getProvincia().getRegion().getIdRegion(),
+							contacto.getProvincia().getRegion().getNombre(),
+							new Pais(
+									contacto.getProvincia().getRegion().getPais().getIdPais(),
+									contacto.getProvincia().getRegion().getPais().getNombre(),
+									contacto.getProvincia().getRegion().getPais().getCodigo(),
+									contacto.getProvincia().getRegion().getPais().getEstado()))));
+		} else {
+			modelo.setProvincia(new Provincia(0, "", new Region(0, "", new Pais())));
+		}
 		
 		return modelo;
 	}
