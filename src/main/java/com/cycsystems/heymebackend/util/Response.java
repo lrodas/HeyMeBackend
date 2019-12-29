@@ -52,7 +52,10 @@ public enum Response {
 	START_DATE_NOT_EMPTY("0047", "La fecha de inicio es obligatoria", "ERROR"),
 	END_DATE_NOT_EMPTY("0048", "La fecha de fin es obligatoria", "ERROR"),
 	START_DATE_BEFORE_END_DATE("0049", "La fecha de inicio debe ser menor a la fecha de fin", "ERROR"),
-	COUNTRY_NOT_EMPTY("0050", "El pais del numero telefonico es obligatorio", "ERROR");
+	COUNTRY_NOT_EMPTY("0050", "El pais del numero telefonico es obligatorio", "ERROR"),
+	PACKAGE_STATUS_NOT_EMPTY("0051", "Debe enviar el estado del paquete", "ERROR"),
+	PACKAGE_END_DATE_NOT_EMPTY("0052", "Debe enviar la fecha de finalizacion de vigencia del paquete", "ERROR"),
+	NOTIFICATION_STATUS_NOT_EMPTY("0053", "Debe enviar el titulo de la notificacion", "ERROR");
 
 	private String codigo;
 	private String message;

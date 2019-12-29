@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.cycsystems.heymebackend.models.entity.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -38,17 +40,15 @@ public class TareasProgramadas {
 	@Autowired
 	private IDetallePaqueteService detallePaqueteService;
 
-	@Scheduled(fixedDelay = 3600000)
+	private Logger LOG = LogManager.getLogger(TareasProgramadas.class);
+
+	@Scheduled(fixedDelay = 60000)
 	// @Scheduled(fixedDelay = 60000)
 	public void taskSendMessage() {
 
 		List<Empresa> empresas = this.empresaService.findAll();
 		
 		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.HOUR, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
 		Date fechaActual = calendar.getTime();
 		calendar.set(Calendar.DATE, calendar.getActualMaximum(Calendar.DATE));
 		
@@ -74,10 +74,10 @@ public class TareasProgramadas {
 						whatsappRestantes = detalle.getCuota() - listaPaquetes.get(0).getConsumoWhatsapp();;
 					}
 				}
-			
+				LOG.info("Fecha Actual: " + fechaActual);
 				List<Notificacion> notificaciones = this.notificationService.findbySendingDate(fechaActual, Constants.ESTADO_NOTIFICACION_PROGRAMADA, empresa.getIdEmpresa());
 				String mailFrom = this.parametroService.findParameterByEmpresaAndName(empresa.getIdEmpresa(), Constants.REMITENTE_CORREO).getValor();
-				
+				LOG.info("Notificaciones: " + notificaciones.size());
 				for (Notificacion notificacion : notificaciones) {
 					String codigo = "";
 					for (Contacto contacto : notificacion.getDestinatarios()) {
@@ -101,7 +101,7 @@ public class TareasProgramadas {
 						}
 					}
 					notificacion.setCodigo(codigo);
-					notificacion.setEstado(new EstadoNotificacion(Constants.ESTADO_NOTIFICACION_ENVIADA));
+					notificacion.setEstado(new EstadoNotificacion(Constants.ESTADO_NOTIFICACION_ENVIADA, ""));
 					this.notificationService.save(notificacion);
 				}
 				

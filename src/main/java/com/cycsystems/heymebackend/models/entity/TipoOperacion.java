@@ -1,13 +1,17 @@
 package com.cycsystems.heymebackend.models.entity;
 
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
 @Table(name = "tipoOperacion")
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 public class TipoOperacion implements Serializable {
 
 	@Id
@@ -16,13 +20,6 @@ public class TipoOperacion implements Serializable {
 
 	@Column(name = "nombre", nullable = false)
 	private String nombre;
-
-	public TipoOperacion() {
-	}
-
-	public TipoOperacion(Integer idTipoOperacion) {
-		this.idTipoOperacion = idTipoOperacion;
-	}
 
 	private static final long serialVersionUID = 1L;
 }

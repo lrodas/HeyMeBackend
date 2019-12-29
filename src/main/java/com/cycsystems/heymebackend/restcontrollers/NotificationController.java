@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.cycsystems.heymebackend.common.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +21,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cycsystems.heymebackend.common.Canal;
-import com.cycsystems.heymebackend.common.DataGrupoGrafica;
-import com.cycsystems.heymebackend.common.DatosNotificacionPrecio;
-import com.cycsystems.heymebackend.common.EstadoNotificacion;
-import com.cycsystems.heymebackend.common.Genero;
-import com.cycsystems.heymebackend.common.GraficaBarras;
-import com.cycsystems.heymebackend.common.NotificacionesRestantes;
-import com.cycsystems.heymebackend.common.Pais;
-import com.cycsystems.heymebackend.common.Region;
-import com.cycsystems.heymebackend.common.Role;
 import com.cycsystems.heymebackend.input.NotificacionRequest;
 import com.cycsystems.heymebackend.models.entity.Contacto;
 import com.cycsystems.heymebackend.models.entity.DetallePaquete;
@@ -100,7 +91,7 @@ public class NotificationController {
 				
 				notificacion.setEstado(
 						new com.cycsystems.heymebackend.models.entity.EstadoNotificacion(
-								Constants.ESTADO_NOTIFICACION_CANCELADA));
+								Constants.ESTADO_NOTIFICACION_CANCELADA, ""));
 				notificacion = this.notificacionService.save(notificacion);
 				
 				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
@@ -219,7 +210,7 @@ public class NotificationController {
 						notificacion.setCodigo(codigo);
 						notificacion.setEstado(
 								new com.cycsystems.heymebackend.models.entity.EstadoNotificacion(
-										Constants.ESTADO_NOTIFICACION_ENVIADA));
+										Constants.ESTADO_NOTIFICACION_ENVIADA, ""));
 						notificacion.setFechaEnvio(new Date());
 						notificacion = this.notificacionService.save(notificacion);
 						
@@ -241,7 +232,7 @@ public class NotificationController {
 						notificacion.setCodigo(codigo);
 						notificacion.setEstado(
 								new com.cycsystems.heymebackend.models.entity.EstadoNotificacion(
-										Constants.ESTADO_NOTIFICACION_ENVIADA));
+										Constants.ESTADO_NOTIFICACION_ENVIADA, ""));
 						notificacion.setFechaEnvio(new Date());
 						notificacion = this.notificacionService.save(notificacion);
 						
@@ -275,13 +266,13 @@ public class NotificationController {
 			output.setDescripcion(Response.ID_USUARIO_ERROR.getMessage());
 			output.setIndicador(Response.ID_USUARIO_ERROR.getIndicador());
 		} else if (input.getTipo() == null || input.getTipo() <= 0) {
-			output.setCodigo("0070");
-			output.setDescripcion("Debe enviar el id del estado del paquete asignado");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.PACKAGE_STATUS_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.PACKAGE_STATUS_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.PACKAGE_STATUS_NOT_EMPTY.getIndicador());
 		} else if (input.getFechaFin() == null){
-			output.setCodigo("0071");
-			output.setDescripcion("Debe enviar la fecha de finalizacion de vigencia de paquete");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.PACKAGE_END_DATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.PACKAGE_END_DATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.PACKAGE_END_DATE_NOT_EMPTY.getIndicador());
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 
@@ -306,9 +297,9 @@ public class NotificationController {
 				}
 			}
 			
-			output.setCodigo("0000");
-			output.setDescripcion("Notificaciones restantes obtenidas exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			output.setPaqueteActivo(notificacionesRestantes);
 		}		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -326,7 +317,7 @@ public class NotificationController {
 				usuario.getEmpresa().getIdEmpresa(), 
 				false,
 				Constants.ESTADO_NOTIFICACION_ENVIADA);
-		LOG.info("notificaciones obtenidas");
+
 		BigDecimal tarifa = new BigDecimal(
 				this.parametroService.findParameterByEmpresaAndName(
 						usuario.getEmpresa().getIdEmpresa(),
@@ -382,9 +373,9 @@ public class NotificationController {
 			}
 		}
 
-		output.setCodigo("0000");
-		output.setDescripcion("Datos obtenidos exitosamente");
-		output.setIndicador("SUCCESS");
+		output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+		output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+		output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 
@@ -486,9 +477,9 @@ public class NotificationController {
 		}
 
 		output.setSeries(graficas);
-		output.setCodigo("0000");
-		output.setDescripcion("Datos obtenidos exitosamente");
-		output.setIndicador("SUCCESS");
+		output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+		output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+		output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
@@ -505,17 +496,17 @@ public class NotificationController {
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getFechaInicio() == null) {
-			output.setCodigo("0035");
-			output.setDescripcion("Se debe enviar las fechas para consultar las notificaciones");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.START_DATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.START_DATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.START_DATE_NOT_EMPTY.getIndicador());
 		} else if (input.getFechaFin() == null) {
-			output.setCodigo("0036");
-			output.setDescripcion("Se debe enviar las fechas para consultar las notificaciones");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.END_DATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.END_DATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.END_DATE_NOT_EMPTY.getIndicador());
 		} else if (input.getFechaInicio().after(input.getFechaFin())) {
-			output.setCodigo("0037");
-			output.setDescripcion("La fecha inical debe ser menor a lafinal");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.START_DATE_BEFORE_END_DATE.getCodigo());
+			output.setDescripcion(Response.START_DATE_BEFORE_END_DATE.getMessage());
+			output.setIndicador(Response.START_DATE_BEFORE_END_DATE.getIndicador());
 		} else {
 			
 			Calendar calendar = Calendar.getInstance();
@@ -562,19 +553,19 @@ public class NotificationController {
 		Date fechaInicio = null;
 		Date fechaFin = null;
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-		
+
 		if (input.getFechaInicio() == null) {
-			output.setCodigo("0035");
-			output.setDescripcion("Se debe enviar las fechas para consultar las notificaciones");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.START_DATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.START_DATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.START_DATE_NOT_EMPTY.getIndicador());
 		} else if (input.getFechaFin() == null) {
-			output.setCodigo("0036");
-			output.setDescripcion("Se debe enviar las fechas para consultar las notificaciones");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.END_DATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.END_DATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.END_DATE_NOT_EMPTY.getIndicador());
 		} else if (input.getFechaInicio().after(input.getFechaFin())) {
-			output.setCodigo("0037");
-			output.setDescripcion("La fecha inical debe ser menor a lafinal");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.START_DATE_BEFORE_END_DATE.getCodigo());
+			output.setDescripcion(Response.START_DATE_BEFORE_END_DATE.getMessage());
+			output.setIndicador(Response.START_DATE_BEFORE_END_DATE.getIndicador());
 		} else {
 			
 			Calendar calendar = Calendar.getInstance();
@@ -623,9 +614,9 @@ public class NotificationController {
 		}
 
 		output.setNotificaciones(this.mapparLista(notificaciones));
-		output.setCodigo("0000");
-		output.setDescripcion("Notificaciones obtenidas exitosamente");
-		output.setIndicador("SUCCESS");
+		output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+		output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+		output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 	}
 
 	@Async
@@ -638,17 +629,17 @@ public class NotificationController {
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getNotificacion().getTitulo() == null || input.getNotificacion().getTitulo().isEmpty()) { 
-			output.setCodigo("0034");
-			output.setDescripcion("Se debe enviar el titulo para la busqueda");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.NOTIFICATION_TITLE_ERROR.getCodigo());
+			output.setDescripcion(Response.NOTIFICATION_TITLE_ERROR.getMessage());
+			output.setIndicador(Response.NOTIFICATION_TITLE_ERROR.getIndicador());
 		} else {
 			
 			List<Notificacion> notificaciones = this.notificacionService.findByTitle(input.getNotificacion().getTitulo(), input.getNotificacion().getEstado().getIdEstadoNotificacion(), usuario.getEmpresa().getIdEmpresa());
 			
 			output.setNotificaciones(this.mapparLista(notificaciones));
-			output.setCodigo("0000");
-			output.setDescripcion("Notificaciones obtenidas exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
@@ -664,14 +655,14 @@ public class NotificationController {
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getNombreUsuario() == null || input.getNombreUsuario().isEmpty()) {
-			output.setCodigo("0033");
-			output.setDescripcion("Se debe enviar el usuario para la busqueda");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.USER_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.USER_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.USER_NOT_EMPTY.getIndicador());
 		} else if (input.getNotificacion() == null ||
 				input.getNotificacion().getEstado() == null || input.getNotificacion().getEstado().getIdEstadoNotificacion() < 0) {
-			output.setCodigo("0060");
-			output.setDescripcion("Debe enviar el estado de la notificacion");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.NOTIFICATION_STATUS_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.NOTIFICATION_STATUS_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.NOTIFICATION_STATUS_NOT_EMPTY.getIndicador());
 		} else {
 			
 			List<Notificacion> notificaciones = new ArrayList<>();
@@ -683,9 +674,9 @@ public class NotificationController {
 			}
 			
 			output.setNotificaciones(this.mapparLista(notificaciones));			
-			output.setCodigo("0000");
-			output.setDescripcion("Notificaciones obtenidas exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -700,16 +691,16 @@ public class NotificationController {
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
 		if (input.getNotificacion().getEstado() == null || input.getNotificacion().getEstado().getIdEstadoNotificacion() <= 0) {
-			output.setCodigo("0060");
-			output.setDescripcion("Debe enviar el estado de la notificacion");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.NOTIFICATION_STATUS_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.NOTIFICATION_STATUS_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.NOTIFICATION_STATUS_NOT_EMPTY.getIndicador());
 		}
 		
 		List<Notificacion> notificaciones = this.notificacionService.findByStatus(input.getNotificacion().getEstado().getIdEstadoNotificacion(), usuario.getEmpresa().getIdEmpresa());
 		
-		output.setCodigo("0000");
-		output.setDescripcion("Notificaciones obtenidas exitosamente");
-		output.setIndicador("SUCCESS");
+		output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+		output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+		output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		output.setNotificaciones(this.mapparLista(notificaciones));
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -772,7 +763,7 @@ public class NotificationController {
 				canal.setIdCanal(input.getNotificacion().getCanal().getIdCanal());
 				
 				notificacion.setCanal(canal);
-				
+				LOG.info("Fecha de envio de notificacion: " + notificacion.getFechaEnvio() + ", Fecha programacion: " + notificacion.getFechaProgramacion());
 				this.notificacionService.save(notificacion);
 				
 				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
@@ -895,18 +886,23 @@ public class NotificationController {
 			modelo.setEmail(contacto.getEmail());
 			modelo.setEstado(contacto.getEstado());
 			modelo.setTelefono(contacto.getTelefono());
-			
-			modelo.setProvincia(new com.cycsystems.heymebackend.common.Provincia(
-					contacto.getProvincia().getIdProvincia(),
-					contacto.getProvincia().getNombre(),
-					new Region(
-							contacto.getProvincia().getRegion().getIdRegion(),
-							contacto.getProvincia().getRegion().getNombre(),
-							new Pais(
-									contacto.getProvincia().getRegion().getPais().getIdPais(),
-									contacto.getProvincia().getRegion().getPais().getNombre(),
-									contacto.getProvincia().getRegion().getPais().getCodigo(),
-									contacto.getProvincia().getRegion().getPais().getEstado()))));
+
+			if (contacto.getProvincia() != null) {
+				modelo.setProvincia(new com.cycsystems.heymebackend.common.Provincia(
+						contacto.getProvincia().getIdProvincia(),
+						contacto.getProvincia().getNombre(),
+						new Region(
+								contacto.getProvincia().getRegion().getIdRegion(),
+								contacto.getProvincia().getRegion().getNombre(),
+								new Pais(
+										contacto.getProvincia().getRegion().getPais().getIdPais(),
+										contacto.getProvincia().getRegion().getPais().getNombre(),
+										contacto.getProvincia().getRegion().getPais().getCodigo(),
+										contacto.getProvincia().getRegion().getPais().getEstado()))));
+			} else {
+				modelo.setProvincia(new Provincia(0, "", new Region(0, "", new Pais())));
+			}
+
 			modelos.add(modelo);
 			
 		}
