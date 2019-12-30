@@ -1,10 +1,17 @@
 package com.cycsystems.heymebackend.models.entity;
 
+import lombok.*;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
 @Table(name="estadoNotificacion")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 public class EstadoNotificacion implements Serializable {
 
 	@Id
@@ -14,40 +21,6 @@ public class EstadoNotificacion implements Serializable {
 	@Column(nullable=false)
 	private String descripcion;
 
-	public EstadoNotificacion(Integer idEstadoNotificacion, String descripcion) {
-		this.idEstadoNotificacion = idEstadoNotificacion;
-		this.descripcion = descripcion;
-	}
-	
-	public EstadoNotificacion(Integer idEstadoNotificacion) {
-		this.idEstadoNotificacion = idEstadoNotificacion;
-	}
-
-	public EstadoNotificacion() {
-	}
-
-	public Integer getIdEstadoNotificacion() {
-		return idEstadoNotificacion;
-	}
-
-	public void setIdEstadoNotificacion(Integer idEstadoNotificacion) {
-		this.idEstadoNotificacion = idEstadoNotificacion;
-	}
-
-	public String getDescripcion() {
-		return descripcion;
-	}
-
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
-
-	@Override
-	public String toString() {
-		return "EstadoNotificacion [idEstadoNotificacion=" + idEstadoNotificacion + ", descripcion=" + descripcion
-				+ "]";
-	}
-	
 	/**
 	 * 
 	 */

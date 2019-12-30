@@ -29,6 +29,10 @@ public class Contacto implements Serializable {
 	
 	@Column(name="apellido", nullable=false)
 	private String apellido;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "idPais", nullable = false)
+	private Pais pais;
 	
 	@Column(name="telefono", nullable=false)
 	private String telefono;
@@ -37,7 +41,7 @@ public class Contacto implements Serializable {
 	private String email;
 	
 	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="idProvincia")
+	@JoinColumn(name="idProvincia", nullable = true)
 	private Provincia provincia;
 	
 	@Column(name="direccion", nullable=false)
@@ -50,7 +54,7 @@ public class Contacto implements Serializable {
 	private Date fechaCreacion;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="idUsuario")
+	@JoinColumn(name="idUsuario", nullable = false)
 	private Usuario usuario;
 	
 	@PrePersist

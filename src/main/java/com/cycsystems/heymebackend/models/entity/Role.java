@@ -21,10 +21,6 @@ import java.util.List;
 @ToString
 public class Role implements Serializable {
 
-	public Role(Integer idRole) {
-		this.idRole = idRole;
-	}
-
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Integer idRole;
@@ -46,6 +42,10 @@ public class Role implements Serializable {
 	
 	@OneToMany(mappedBy = "puesto", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private List<Permiso> permisos;
+
+	public Role(Integer idRole) {
+		this.idRole = idRole;
+	}
 
 	/**
 	 * 

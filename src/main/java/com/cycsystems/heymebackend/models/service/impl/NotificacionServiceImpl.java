@@ -21,8 +21,7 @@ public class NotificacionServiceImpl implements INotificacionService {
 	
 	@Override
 	public Notificacion save(Notificacion entity) {
-		Notificacion response = this.repository.save(entity); 
-		return response;
+		return this.repository.save(entity);
 	}
 
 	@Override

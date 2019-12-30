@@ -9,6 +9,8 @@ import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.CambioContrasenaResponse;
 import com.cycsystems.heymebackend.output.UsuarioResponse;
 import com.cycsystems.heymebackend.util.Constants;
+import com.cycsystems.heymebackend.util.Response;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +55,6 @@ public class UsuarioController {
 		
 		
 		if (input.getDatos() == null) {
-			
 			output.setCodigo("0061");
 			output.setDescripcion("Debe enviar los datos de la notificacion");
 			output.setIndicador("ERROR");
@@ -71,8 +72,8 @@ public class UsuarioController {
 			Usuario usuario = this.usuarioService.findById(input.getDatos().getIdUsuario());
 			usuario.setEnabled(input.getDatos().getEnabled());
 						
-			output.setCodigo("0000");
-			output.setDescripcion("Usuarios obtenidos exitosamente");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 			output.setIndicador("SUCCESS");
 			output.setUsuario(this.mapUsuario(this.usuarioService.save(usuario)));
 		}
@@ -132,8 +133,8 @@ public class UsuarioController {
 		
 		if (input.getDatos() == null ||
 				input.getDatos().getNombres() == null || input.getDatos().getNombres().isEmpty()) {
-			output.setCodigo("0001");
-			output.setDescripcion("El nombre del usuario es obligatorio");
+			output.setCodigo(Response.NOMBRE_USUARIO_ERROR.getCodigo());
+			output.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
 			output.setIndicador("ERROR");
 		} else {
 			
@@ -217,8 +218,8 @@ public class UsuarioController {
 		UsuarioResponse response = new UsuarioResponse();
 		
 		if (input.getDatos().getUsername() == null || input.getDatos().getUsername().isEmpty()) {
-			response.setCodigo("0001");
-			response.setDescripcion("El nombre del usuario es obligatorio");
+			response.setCodigo(Response.NOMBRE_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
 			response.setIndicador("ERROR");
 		} else {
 			
@@ -236,36 +237,36 @@ public class UsuarioController {
 		UsuarioResponse response = new UsuarioResponse();
 		
 		if (input.getDatos().getNombres() == null || input.getDatos().getNombres().isEmpty()) {
-			response.setCodigo("0001");
-			response.setDescripcion("El nombre del usuario es obligatorio");
+			response.setCodigo(Response.NOMBRE_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
 			response.setIndicador("ERROR");
 		} else if (input.getDatos().getApellidos() == null || input.getDatos().getApellidos().isEmpty()) {
-			response.setCodigo("0002");
-			response.setDescripcion("El apellido del usuario es obligatorio");
+			response.setCodigo(Response.APELLIDO_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.APELLIDO_USUARIO_ERROR.getMessage());
 			response.setIndicador("ERROR");
 		} else if (input.getDatos().getDireccion() == null || input.getDatos().getDireccion().isEmpty()) {
-			response.setCodigo("0003");
-			response.setDescripcion("La direccion del usuario es obligatoria");
+			response.setCodigo(Response.DIRECCION_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.DIRECCION_USUARIO_ERROR.getMessage());
 			response.setIndicador("ERROR");
 		} else if (input.getDatos().getTelefono() == null || input.getDatos().getTelefono().isEmpty()) { 
-			response.setCodigo("0004");
-			response.setDescripcion("El telefono del usuario es obligatoria");
+			response.setCodigo(Response.TELEFONO_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.TELEFONO_USUARIO_ERROR.getMessage());
 			response.setIndicador("ERROR");
 		} else if (input.getDatos().getGenero() == null || input.getDatos().getGenero().getIdGenero() == null || input.getDatos().getGenero().getIdGenero() <= 0) {
-			response.setCodigo("0005");
-			response.setDescripcion("El genero del usuario es obligatorio");
+			response.setCodigo(Response.GENERO_ERROR.getCodigo());
+			response.setDescripcion(Response.GENERO_ERROR.getMessage());
 			response.setIndicador("ERROR");
 		} else if (input.getDatos().getRole() == null || input.getDatos().getRole().getIdRole() == null || input.getDatos().getRole().getIdRole() <= 0) {
-			response.setCodigo("0006");
-			response.setDescripcion("El role del usuario es obligatorio");
+			response.setCodigo(Response.ROLE_ERROR.getCodigo());
+			response.setDescripcion(Response.ROLE_ERROR.getMessage());
 			response.setIndicador("ERROR");
 		} else if (input.getDatos().getUsername() == null || input.getDatos().getUsername().isEmpty()) {
-			response.setCodigo("0007");
-			response.setDescripcion("El correo del usuario es obligatorio");
+			response.setCodigo(Response.CORREO_ERROR.getCodigo());
+			response.setDescripcion(Response.CORREO_ERROR.getMessage());
 			response.setIndicador("ERROR");
 		} else if (input.getDatos().getPassword() == null || input.getDatos().getPassword().isEmpty()) {
-			response.setCodigo("0008");
-			response.setDescripcion("La contrasena del usuario es obligatoria");
+			response.setCodigo(Response.PASSWORD_ERROR.getCodigo());
+			response.setDescripcion(Response.PASSWORD_ERROR.getMessage());
 			response.setIndicador("ERROR");
 		} else {
 			Usuario usuario = new Usuario();
@@ -281,7 +282,7 @@ public class UsuarioController {
 			usuario.setImg(input.getDatos().getImg());
 			usuario.setEnabled(input.getDatos().getEnabled());
 			
-			this.usuarioService.save(usuario);
+			usuario = this.usuarioService.save(usuario);
 			
 			response.setUsuario(mapUsuario(usuario));
 			
@@ -304,37 +305,38 @@ public class UsuarioController {
 		UsuarioResponse response = new UsuarioResponse();
 		
 		if (input.getDatos().getNombres() == null || input.getDatos().getNombres().isEmpty()) {
-			response.setCodigo("0001");
-			response.setDescripcion("El nombre del usuario es obligatorio");
-			response.setIndicador("ERROR");
+			response.setCodigo(Response.NOMBRE_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
+			response.setIndicador(Response.NOMBRE_USUARIO_ERROR.getIndicador());
 		} else if (input.getDatos().getApellidos() == null || input.getDatos().getApellidos().isEmpty()) {
-			response.setCodigo("0002");
-			response.setDescripcion("El apellido del usuario es obligatorio");
-			response.setIndicador("ERROR");
+			response.setCodigo(Response.APELLIDO_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.APELLIDO_USUARIO_ERROR.getMessage());
+			response.setIndicador(Response.APELLIDO_USUARIO_ERROR.getIndicador());
 		} else if (input.getDatos().getDireccion() == null || input.getDatos().getDireccion().isEmpty()) {
-			response.setCodigo("0003");
-			response.setDescripcion("La direccion del usuario es obligatoria");
-			response.setIndicador("ERROR");
+			response.setCodigo(Response.DIRECCION_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.DIRECCION_USUARIO_ERROR.getMessage());
+			response.setIndicador(Response.DIRECCION_USUARIO_ERROR.getIndicador());
 		} else if (input.getDatos().getTelefono() == null || input.getDatos().getTelefono().isEmpty()) { 
-			response.setCodigo("0004");
-			response.setDescripcion("El telefono del usuario es obligatoria");
-			response.setIndicador("ERROR");
+			response.setCodigo(Response.TELEFONO_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.TELEFONO_USUARIO_ERROR.getMessage());
+			response.setIndicador(Response.TELEFONO_USUARIO_ERROR.getIndicador());
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getDatos().getIdUsuario());
 			usuario.setNombres(input.getDatos().getNombres());
 			usuario.setApellidos(input.getDatos().getApellidos());
 			usuario.setTelefono(input.getDatos().getTelefono());
 			usuario.setDireccion(input.getDatos().getDireccion());
+			usuario.setRole(new Role(input.getDatos().getRole().getIdRole()));
 			
-			this.usuarioService.save(usuario);
+			usuario = this.usuarioService.save(usuario);
 			
 			response.setUsuario(mapUsuario(usuario));
 			
 			response.getUsuario().setPassword(":-)");
 			
-			response.setCodigo("0000");
-			response.setDescripcion("Usuario guardado exitosamente");
-			response.setIndicador("SUCCESS");
+			response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			
 		}
 				
@@ -349,17 +351,17 @@ public class UsuarioController {
 		CambioContrasenaResponse response = new CambioContrasenaResponse();
 		
 		if (request.getContrasenaActual() == null || request.getContrasenaActual().isEmpty()) {
-			response.setCodigo("0009");
-			response.setDescripcion("Debe enviar la contrasena para la validacion");
-			response.setIndicador("ERROR");
+			response.setCodigo(Response.PASSWORD_ERROR.getCodigo());
+			response.setDescripcion(Response.PASSWORD_ERROR.getMessage());
+			response.setIndicador(Response.PASSWORD_ERROR.getIndicador());
 		} else if (request.getNuevaContrasena() == null || request.getNuevaContrasena().isEmpty()) {
-			response.setCodigo("0010");
-			response.setDescripcion("Debe enviar la nueva contrasena para la validacion");
-			response.setIndicador("ERROR");
+			response.setCodigo(Response.PASSWORD_VALIDATION.getCodigo());
+			response.setDescripcion(Response.PASSWORD_VALIDATION.getMessage());
+			response.setIndicador(Response.PASSWORD_VALIDATION.getIndicador());
 		} else if (request.getIdUsuario() == null || request.getIdUsuario() <= 0) {
-			response.setCodigo("0011");
-			response.setDescripcion("Debe especificar el usuario");
-			response.setIndicador("ERROR");
+			response.setCodigo(Response.ID_USUARIO_ERROR.getCodigo());
+			response.setDescripcion(Response.ID_USUARIO_ERROR.getMessage());
+			response.setIndicador(Response.ID_USUARIO_ERROR.getIndicador());
 		} else {
 			
 			Usuario usuario = this.usuarioService.findById(request.getIdUsuario());
@@ -368,21 +370,21 @@ public class UsuarioController {
 				
 				if (this.passwordEncoder.matches(request.getContrasenaActual(), usuario.getPassword()) ) {
 					
-					usuario.setPassword(request.getNuevaContrasena());
+					usuario.setPassword(this.passwordEncoder.encode(request.getNuevaContrasena()));
 					this.usuarioService.save(usuario);
 					
-					response.setCodigo("0000");
-					response.setDescripcion("Contrasena actualizada exitosamente");
-					response.setIndicador("SUCCESS");
+					response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+					response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+					response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 				} else {
-					response.setCodigo("0012");
-					response.setDescripcion("La contrasena es incorrecta");
-					response.setIndicador("ERROR");
+					response.setCodigo(Response.PASSWORD_DONT_MATCH_ERROR.getCodigo());
+					response.setDescripcion(Response.PASSWORD_DONT_MATCH_ERROR.getMessage());
+					response.setIndicador(Response.PASSWORD_DONT_MATCH_ERROR.getIndicador());
 				}
 			} else {
-				response.setCodigo("0013");
-				response.setDescripcion("El usuario no existe");
-				response.setIndicador("ERROR");
+				response.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				response.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				response.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
 			}
 		}
 		

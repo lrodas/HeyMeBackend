@@ -1,10 +1,17 @@
 package com.cycsystems.heymebackend.models.entity;
 
+import lombok.*;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
 @Table(name="pais")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class Pais implements Serializable {
 
 	@Id
@@ -13,36 +20,11 @@ public class Pais implements Serializable {
 	
 	@Column(name="nombre", nullable=false)
 	private String nombre;
-	
-	public Pais(Integer idPais, String nombre) {
-		this.idPais = idPais;
-		this.nombre = nombre;
-	}
 
-	public Pais() {
-	}
+	@Column(name = "codigo", nullable = false)
+	private String codigo;
 
-	public Integer getIdPais() {
-		return idPais;
-	}
-
-	public void setIdPais(Integer idPais) {
-		this.idPais = idPais;
-	}
-
-	public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-
-	@Override
-	public String toString() {
-		return "Pais [idPais=" + idPais + ", nombre=" + nombre + "]";
-	}
-
-	private static final long serialVersionUID = 1L;
+	@Column(name = "estado", nullable = false, columnDefinition = " TINYINT DEFAULT 1")
+	private Boolean estado;
 
 }

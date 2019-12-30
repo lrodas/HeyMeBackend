@@ -1,11 +1,18 @@
 package com.cycsystems.heymebackend.models.entity;
 
+import lombok.*;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name="bitacora")
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 public class Bitacora implements Serializable {
 
 	@Id
@@ -33,79 +40,6 @@ public class Bitacora implements Serializable {
 	@PrePersist
 	public void prePersist() {
 		this.fecha = new Date();
-	}
-	
-	public Bitacora(Long idBitacora, Date fecha, String pagina, String metodo, String json) {
-		this.idBitacora = idBitacora;
-		this.fecha = fecha;
-		this.pagina = pagina;
-		this.metodo = metodo;
-		this.json = json;
-	}
-
-	public Bitacora() {
-	}
-
-	public Long getIdBitacora() {
-		return idBitacora;
-	}
-
-	public void setIdBitacora(Long idBitacora) {
-		this.idBitacora = idBitacora;
-	}
-
-	public Date getFecha() {
-		return fecha;
-	}
-
-	public void setFecha(Date fecha) {
-		this.fecha = fecha;
-	}
-
-	public String getPagina() {
-		return pagina;
-	}
-
-	public void setPagina(String pagina) {
-		this.pagina = pagina;
-	}
-
-	public String getMetodo() {
-		return metodo;
-	}
-
-	public void setMetodo(String metodo) {
-		this.metodo = metodo;
-	}
-
-	public TipoOperacion getTipoOperacion() {
-		return tipoOperacion;
-	}
-
-	public void setTipoOperacion(TipoOperacion tipoOperacion) {
-		this.tipoOperacion = tipoOperacion;
-	}
-
-	public String getJson() {
-		return json;
-	}
-
-	public void setJson(String json) {
-		this.json = json;
-	}
-
-	public String getError() {
-		return error;
-	}
-
-	public void setError(String error) {
-		this.error = error;
-	}
-
-	@Override
-	public String toString() {
-		return "Bitacora [idBitacora=" + idBitacora + ", fecha=" + fecha + ", pagina=" + pagina + ", metodo=" + metodo
-				+ ", json=" + json + ", tipoOperacion=" + tipoOperacion + ", error=" + error + "]";
 	}
 
 	private static final long serialVersionUID = 1L;

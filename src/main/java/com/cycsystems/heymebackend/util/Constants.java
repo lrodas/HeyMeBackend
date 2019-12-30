@@ -16,15 +16,25 @@ public class Constants {
 	public static final Integer ESTADO_NOTIFICACION_PROGRAMADA = 1;
 	public static final Integer ESTADO_NOTIFICACION_ENVIADA = 2;
 	public static final Integer ESTADO_NOTIFICACION_CREADA = 3;
+	public static final Integer ESTADO_NOTIFICACION_CANCELADA = 4;
 	
 	public static final Integer CANAL_SMS = 1;
 	public static final Integer CANAL_EMAIL = 2;
 	public static final Integer CANAL_WHATSAPP = 3;
+
+	public static final Integer ESTADO_PAQUETE_CONSUMO_ACTIVO = 1;
+	public static final Integer ESTADO_PAQUETE_CONSUMO_VENCIDO = 2;
+	public static final Integer ESTADO_PAQUETE_CONSUMO_INACTIVO = 3;
+	
+	public static final Integer ESTADO_PAQUETE_ACTIVO = 1;
+	public static final Integer ESTADO_PAQUETE_INACTIVO = 2;
+	public static final Integer ESTADO_PAQUETE_SUSPENDIDO = 3;
 
 	public static final String REMITENTE_CORREO = "mail.from";
 	public static final String ACCOUNT_SID = "twilio.account.sid";
 	public static final String AUTH_TOKEN = "twilio.account.auth.token";
 	public static final String SERVICE_ID = "twilio.account.service.id";
 	public static final String NOTIFICATION_RATE = "notificacion.tarifa";
+	public static final String IMAGES_URL = "images.url";
 	
 }

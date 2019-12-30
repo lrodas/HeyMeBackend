@@ -9,5 +9,5 @@ public interface IFileStorageService {
 
 	public abstract String storeFile(MultipartFile file, Integer IdUsuario) throws IOException;
 	
-	public Resource loadFileAsResource(String nombre);
+	public Resource loadFileAsResource(String nombre, Integer idUsuario);
 }

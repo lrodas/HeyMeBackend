@@ -74,8 +74,8 @@ public class RoleServiceImpl implements IRoleService {
 	}
 
 	@Override
-	public List<Role> findAll(Empresa empresa) {
-		return this.roleRepository.findByEmpresa(empresa);
+	public List<Role> findAll(Integer idEmpresa) {
+		return this.roleRepository.findByEmpresa_IdEmpresa(idEmpresa);
 	}
 
 }

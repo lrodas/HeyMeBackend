@@ -46,7 +46,7 @@ public class BitacoraAspect {
 					
 					Bitacora bitacora = new Bitacora();
 					bitacora.setMetodo(metodo);
-					bitacora.setTipoOperacion(new TipoOperacion(Constants.REQUEST_IN));
+					bitacora.setTipoOperacion(new TipoOperacion(Constants.REQUEST_IN, ""));
 					bitacora.setJson(objectMapper.writeValueAsString(signatureArgs[0]));
 					BaseInput base = (BaseInput) signatureArgs[0];
 					bitacora.setPagina(base.getPagina());
@@ -74,7 +74,7 @@ public class BitacoraAspect {
 						Bitacora bitacora = new Bitacora();
 						bitacora.setMetodo(metodo);
 						bitacora.setJson(objectMapper.writer().writeValueAsString(result.getBody()));
-						bitacora.setTipoOperacion(new TipoOperacion(Constants.REPLAY_OUT));
+						bitacora.setTipoOperacion(new TipoOperacion(Constants.REPLAY_OUT, ""));
 						bitacora.setPagina("");
 						bitacora.setError("");
 						this.bitacoraService.save(bitacora);
@@ -95,17 +95,19 @@ public class BitacoraAspect {
 		try {
 			
 			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+			LOG.info("METHOD: " + e.getClass().getSimpleName());
 			LOG.info("ERROR: " + e.getMessage());
 			Object[] signatureArgs = p.getArgs();
-			BaseInput input = (BaseInput) signatureArgs[0];
-			Bitacora bitacora = new Bitacora();
-			bitacora.setJson(objectMapper.writer().writeValueAsString(input));
-			bitacora.setMetodo(e.getClass().getSimpleName());
-			bitacora.setPagina(request.getRequestURI());
-			bitacora.setError(e.getMessage() + "\n" + e.getCause());
-			bitacora.setTipoOperacion(new TipoOperacion(Constants.ERROR_OUT));
-			this.bitacoraService.save(bitacora);
-			
+			if (!e.getClass().getSimpleName().equalsIgnoreCase("obtenerImagen")) {
+				BaseInput input = (BaseInput) signatureArgs[0];
+				Bitacora bitacora = new Bitacora();
+				bitacora.setJson(objectMapper.writer().writeValueAsString(input));
+				bitacora.setMetodo(e.getClass().getSimpleName());
+				bitacora.setPagina(request.getRequestURI());
+				bitacora.setError(e.getMessage() + "\n" + e.getCause());
+				bitacora.setTipoOperacion(new TipoOperacion(Constants.ERROR_OUT, ""));
+				this.bitacoraService.save(bitacora);
+			}
 			LOG.info("Error: " + e);
 		}
 		catch (Exception e1)

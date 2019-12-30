@@ -1,13 +1,18 @@
 package com.cycsystems.heymebackend.models.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
 @Table(name="genero")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 public class Genero implements Serializable {
 
 	@Id
@@ -15,35 +20,6 @@ public class Genero implements Serializable {
 	private Integer idGenero;
 	
 	private String descripcion;
-	
-	public Genero(Integer idGenero, String descripcion) {
-		this.idGenero = idGenero;
-		this.descripcion = descripcion;
-	}
-
-	public Genero() {
-	}
-
-	public Integer getIdGenero() {
-		return idGenero;
-	}
-
-	public void setIdGenero(Integer idGenero) {
-		this.idGenero = idGenero;
-	}
-
-	public String getDescripcion() {
-		return descripcion;
-	}
-
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
-
-	@Override
-	public String toString() {
-		return "Genero [idGenero=" + idGenero + ", descripcion=" + descripcion + "]";
-	}
 
 	/**
 	 * 

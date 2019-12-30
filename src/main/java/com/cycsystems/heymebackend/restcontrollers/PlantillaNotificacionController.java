@@ -1,10 +1,14 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
+import com.cycsystems.heymebackend.common.Canal;
 import com.cycsystems.heymebackend.input.PlantillaNotificacionRequest;
 import com.cycsystems.heymebackend.models.entity.PlantillaNotificacion;
+import com.cycsystems.heymebackend.models.entity.Usuario;
 import com.cycsystems.heymebackend.models.service.IPlantillaNotificacionService;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.PlantillaNotificacionResponse;
 import com.cycsystems.heymebackend.util.Constants;
+import com.cycsystems.heymebackend.util.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +30,8 @@ public class PlantillaNotificacionController {
 	
 	@Autowired
 	private IPlantillaNotificacionService service;
+	@Autowired
+	private IUsuarioService usuarioService;
 	
 	@PostMapping("/findById")
 	public ListenableFuture<ResponseEntity<?>> obtenerPlantillaPorId(
@@ -36,31 +42,25 @@ public class PlantillaNotificacionController {
 		PlantillaNotificacionResponse output = new PlantillaNotificacionResponse();
 		
 		if (input.getPlantilla().getIdPlantillaNotificacion() == null || input.getPlantilla().getIdPlantillaNotificacion() <= 0) {
-			output.setCodigo("0058");
-			output.setDescripcion("Debe enviar la plantilla");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.TEMPLATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.TEMPLATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.TEMPLATE_NOT_EMPTY.getIndicador());
 		} else {
 			
 			PlantillaNotificacion plantilla = this.service.findById(input.getPlantilla().getIdPlantillaNotificacion());
 			
 			if (plantilla == null) {
 				
-				output.setCodigo("0059");
-				output.setDescripcion("No se encuentra la plantilla con el identificador enviado");
-				output.setIndicador("SUCCESS");
+				output.setCodigo(Response.TEMPLATE_NOT_EXISTS.getCodigo());
+				output.setDescripcion(Response.TEMPLATE_NOT_EXISTS.getMessage());
+				output.setIndicador(Response.TEMPLATE_NOT_EXISTS.getIndicador());
 				
 			} else {
 				
-				output.setCodigo("0000");
-				output.setDescripcion("Plantilla obtenida exitosamente");
-				output.setIndicador("SUCCESS");
-				
-				com.cycsystems.heymebackend.common.PlantillaNotificacion modelo = new com.cycsystems.heymebackend.common.PlantillaNotificacion();
-				modelo.setIdPlantillaNotificacion(plantilla.getIdPlantillaNotificacion());
-				modelo.setPlantilla(plantilla.getPlantilla());
-				modelo.setTitulo(plantilla.getTitulo());
-				modelo.setEstado(plantilla.getEstado());
-				output.setPlantilla(modelo);
+				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+				output.setPlantilla(this.mapearModelo(plantilla));
 			}
 		}
 		
@@ -77,31 +77,25 @@ public class PlantillaNotificacionController {
 		PlantillaNotificacionResponse output = new PlantillaNotificacionResponse();
 		
 		if (input.getPlantilla() == null) {
-			output.setCodigo("0042");
-			output.setDescripcion("Debe enviar la plantilla");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.TEMPLATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.TEMPLATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.TEMPLATE_NOT_EMPTY.getIndicador());
 		} else if (input.getPlantilla().getEstado() == null) {
-			output.setCodigo("0044");
-			output.setDescripcion("Debe enviar el estado de la plantilla");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.TEMPLATE_STATUS_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.TEMPLATE_STATUS_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.TEMPLATE_STATUS_NOT_EMPTY.getIndicador());
 		} else {
 			
-			output.setCodigo("0000");
-			output.setDescripcion("Plantillas obtenidas exitosamente");
-			output.setIndicador("SUCCESS");
-			
-			List<PlantillaNotificacion> listaPlantillas = this.service.findByEstado(input.getPlantilla().getEstado());
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			List<PlantillaNotificacion> listaPlantillas = this.service.findByEstado(usuario.getEmpresa().getIdEmpresa(), input.getPlantilla().getEstado());
 			
 			if (listaPlantillas != null) {
 				for (PlantillaNotificacion plantilla: listaPlantillas) {
-					com.cycsystems.heymebackend.common.PlantillaNotificacion modelo = new com.cycsystems.heymebackend.common.PlantillaNotificacion();
-					
-					modelo.setIdPlantillaNotificacion(plantilla.getIdPlantillaNotificacion());
-					modelo.setTitulo(plantilla.getTitulo());
-					modelo.setPlantilla(plantilla.getPlantilla());
-					modelo.setEstado(plantilla.getEstado());
-					
-					output.getPlantillas().add(modelo);
+					output.getPlantillas().add(this.mapearModelo(plantilla));
 				}
 			}
 			
@@ -119,31 +113,25 @@ public class PlantillaNotificacionController {
 		PlantillaNotificacionResponse output = new PlantillaNotificacionResponse();
 		
 		if (input.getPlantilla() == null) {
-			output.setCodigo("0042");
-			output.setDescripcion("Debe enviar la plantilla");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.TEMPLATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.TEMPLATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.TEMPLATE_NOT_EMPTY.getIndicador());
 		} else if (input.getPlantilla().getTitulo() == null || input.getPlantilla().getTitulo().isEmpty()) {
-			output.setCodigo("0043");
-			output.setDescripcion("Debe enviar el titulo de la plantilla");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.TEMPLATE_TITLE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.TEMPLATE_TITLE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.TEMPLATE_TITLE_NOT_EMPTY.getIndicador());
 		} else {
 			
-			output.setCodigo("0000");
-			output.setDescripcion("Plantillas obtenidas exitosamente");
-			output.setIndicador("SUCCESS");
-			
-			List<PlantillaNotificacion> listaPlantillas = this.service.findByTitle(input.getPlantilla().getTitulo());
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			List<PlantillaNotificacion> listaPlantillas = this.service.findByTitle(usuario.getEmpresa().getIdEmpresa(), input.getPlantilla().getTitulo());
 			
 			if (listaPlantillas != null) {
 				for (PlantillaNotificacion plantilla: listaPlantillas) {
-					com.cycsystems.heymebackend.common.PlantillaNotificacion modelo = new com.cycsystems.heymebackend.common.PlantillaNotificacion();
-					
-					modelo.setIdPlantillaNotificacion(plantilla.getIdPlantillaNotificacion());
-					modelo.setTitulo(plantilla.getTitulo());
-					modelo.setPlantilla(plantilla.getPlantilla());
-					modelo.setEstado(plantilla.getEstado());
-					
-					output.getPlantillas().add(modelo);
+					output.getPlantillas().add(this.mapearModelo(plantilla));
 				}
 			}
 			
@@ -153,32 +141,25 @@ public class PlantillaNotificacionController {
 	}
 	
 	@PostMapping("/findAll")
-	public ListenableFuture<ResponseEntity<?>> obtenerPlantillas() {
+	public ListenableFuture<ResponseEntity<?>> obtenerPlantillas(@RequestBody PlantillaNotificacionRequest input) {
 		
-		LOG.info("METHOD: obtenerPlantillas()");
+		LOG.info("METHOD: obtenerPlantillas() --PARAMS: plantillaNotificacionRequest: " + input);
 		
 		PlantillaNotificacionResponse output = new PlantillaNotificacionResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+		output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+		output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+		output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		
-		output.setCodigo("0000");
-		output.setDescripcion("Plantillas obtenidas exitosamente");
-		output.setIndicador("SUCCESS");
-		
-		List<PlantillaNotificacion> listaPlantillas = this.service.findAll();
+		List<PlantillaNotificacion> listaPlantillas = this.service.findAll(usuario.getEmpresa().getIdEmpresa());
 		
 		if (listaPlantillas != null) {
 			for (PlantillaNotificacion plantilla: listaPlantillas) {
-				com.cycsystems.heymebackend.common.PlantillaNotificacion modelo = new com.cycsystems.heymebackend.common.PlantillaNotificacion();
-				
-				modelo.setIdPlantillaNotificacion(plantilla.getIdPlantillaNotificacion());
-				modelo.setTitulo(plantilla.getTitulo());
-				modelo.setPlantilla(plantilla.getPlantilla());
-				modelo.setEstado(plantilla.getEstado());
-				
-				output.getPlantillas().add(modelo);
+				output.getPlantillas().add(this.mapearModelo(plantilla));
 			}
 		}
 		
-		return new AsyncResult<ResponseEntity<?>>(ResponseEntity.ok(output));
+		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
 	@PostMapping("/save")
@@ -188,21 +169,21 @@ public class PlantillaNotificacionController {
 		PlantillaNotificacionResponse output = new PlantillaNotificacionResponse();
 		
 		if (input.getPlantilla() == null) {
-			output.setCodigo("0038");
-			output.setDescripcion("Debe ingresar los datos de la plantilla");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.TEMPLATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.TEMPLATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.TEMPLATE_NOT_EMPTY.getIndicador());
 		} else if (input.getPlantilla().getTitulo() == null || input.getPlantilla().getTitulo().isEmpty()) {
-			output.setCodigo("0039");
-			output.setDescripcion("Debe ingresar el titulo para la plantilla");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.TEMPLATE_TITLE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.TEMPLATE_TITLE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.TEMPLATE_TITLE_NOT_EMPTY.getIndicador());
 		} else if (input.getPlantilla().getPlantilla() == null || input.getPlantilla().getPlantilla().isEmpty()) {
-			output.setCodigo("0040");
-			output.setDescripcion("Debe ingresar el contenido para la plantilla");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.TEMPLATE_CONTENT_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.TEMPLATE_CONTENT_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.TEMPLATE_CONTENT_NOT_EMPTY.getIndicador());
 		} else if (input.getPlantilla().getEstado() == null) {
-			output.setCodigo("0041");
-			output.setDescripcion("Debe ingresar el estado de la plantilla");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.TEMPLATE_STATUS_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.TEMPLATE_STATUS_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.TEMPLATE_STATUS_NOT_EMPTY.getIndicador());
 		} else {
 			
 			PlantillaNotificacion plantilla = new PlantillaNotificacion();
@@ -210,21 +191,28 @@ public class PlantillaNotificacionController {
 			plantilla.setTitulo(input.getPlantilla().getTitulo());
 			plantilla.setPlantilla(input.getPlantilla().getPlantilla());
 			plantilla.setEstado(input.getPlantilla().getEstado());
+			plantilla.setCanal(new com.cycsystems.heymebackend.models.entity.Canal(input.getPlantilla().getCanal().getIdCanal(), ""));
 			
 			plantilla = this.service.save(plantilla);
 			
-			output.setCodigo("0000");
-			output.setDescripcion("Plantilla guardada exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			
-			com.cycsystems.heymebackend.common.PlantillaNotificacion modelo = new com.cycsystems.heymebackend.common.PlantillaNotificacion();
-			modelo.setIdPlantillaNotificacion(plantilla.getIdPlantillaNotificacion());
-			modelo.setTitulo(plantilla.getTitulo());
-			modelo.setPlantilla(plantilla.getPlantilla());
-			modelo.setEstado(plantilla.getEstado());
-			output.setPlantilla(modelo);
+
+			output.setPlantilla(this.mapearModelo(plantilla));
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+
+	private com.cycsystems.heymebackend.common.PlantillaNotificacion mapearModelo(PlantillaNotificacion entity) {
+		com.cycsystems.heymebackend.common.PlantillaNotificacion modelo = new com.cycsystems.heymebackend.common.PlantillaNotificacion();
+		modelo.setIdPlantillaNotificacion(entity.getIdPlantillaNotificacion());
+		modelo.setTitulo(entity.getTitulo());
+		modelo.setPlantilla(entity.getPlantilla());
+		modelo.setEstado(entity.getEstado());
+		modelo.setCanal(new Canal(entity.getCanal().getIdCanal(), entity.getCanal().getNombre()));
+		return modelo;
 	}
 }

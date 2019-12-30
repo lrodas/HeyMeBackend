@@ -92,15 +92,17 @@ public class RoleController {
 			output.setDescripcion("Es necesario enviar el estado del role");
 			output.setIndicador("ERROR");
 		} else {
-			
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 			Role role = new Role();
-			role.setIdRole(input.getRole().getIdRole());
+			if (input.getRole().getIdRole() != null && input.getRole().getIdRole() > 0) {
+				role = this.roleService.findById(input.getRole().getIdRole());
+			}
 			role.setNombre(input.getRole().getNombre());
 			role.setDescripcion(input.getRole().getDescripcion());
 			role.setEstado(input.getRole().getEstado());
+			role.setEmpresa(usuario.getEmpresa());
 			role.setPermisos(this.mapPermisos(input.getRole().getPermisos()));
-			
-			
 			role = this.roleService.save(role);
 			
 			output.setCodigo("0000");
@@ -116,7 +118,7 @@ public class RoleController {
 	@PostMapping("/findAll")
 	public ListenableFuture<ResponseEntity<?>> obtenerTodos(@RequestBody RoleRequest input) {
 		
-		LOG.info("METHOD: obtenerTodos()");
+		LOG.info("METHOD: obtenerTodos() --PARAMS: roleRequest: " + input);
 		RoleResponse output = new RoleResponse();
 		
 		if (input.getIdUsuario() == null || input.getIdUsuario() <= 0) {
@@ -127,7 +129,7 @@ public class RoleController {
 		} else {
 			
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-			List<Role> roles = this.roleService.findAll(usuario.getEmpresa());
+			List<Role> roles = this.roleService.findAll(usuario.getEmpresa().getIdEmpresa());
 			for (Role role: roles) {
 				output.getRoles().add(this.mapRole(role));
 			}
@@ -136,7 +138,6 @@ public class RoleController {
 			output.setDescripcion("Roles obtenidos exitosamente");
 			output.setIndicador("SUCCESS");
 		}
-		
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}

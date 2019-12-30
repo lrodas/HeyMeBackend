@@ -1,6 +1,5 @@
 package com.cycsystems.heymebackend.models.service;
 
-import com.cycsystems.heymebackend.models.entity.Empresa;
 import com.cycsystems.heymebackend.models.entity.Role;
 
 import java.util.List;
@@ -14,7 +13,7 @@ public interface IRoleService {
 
 	public List<Role> findAll();
 	
-	public List<Role> findAll(Empresa empresa);
+	public List<Role> findAll(Integer idEmpresa);
 
 	public long count();
 	

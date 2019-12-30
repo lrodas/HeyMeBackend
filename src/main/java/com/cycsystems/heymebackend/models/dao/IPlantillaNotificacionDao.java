@@ -9,8 +9,10 @@ import java.util.List;
 @Repository
 public interface IPlantillaNotificacionDao extends JpaRepository<PlantillaNotificacion, Integer> {
 
-	public abstract List<PlantillaNotificacion> findByTituloLikeIgnoreCase(String titulo);
+	public abstract List<PlantillaNotificacion> findByEmpresa_IdEmpresaAndTituloLikeIgnoreCase(Integer idEmpresa, String titulo);
 	
-	public abstract List<PlantillaNotificacion> findByEstadoEquals(Boolean estado);
+	public abstract List<PlantillaNotificacion> findByEmpresa_IdEmpresaAndEstadoEquals(Integer idEmpresa, Boolean estado);
+
+	public abstract List<PlantillaNotificacion> findByEmpresa_IdEmpresa(Integer idEmpresa);
 	
 }

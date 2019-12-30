@@ -1,6 +1,11 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
+import com.cycsystems.heymebackend.models.entity.Usuario;
 import com.cycsystems.heymebackend.models.service.IFileStorageService;
+import com.cycsystems.heymebackend.models.service.IParametroService;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
+import com.cycsystems.heymebackend.util.Constants;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,9 +28,10 @@ public class FileStorageServiceImpl implements IFileStorageService {
 		
 	@Autowired
 	private ResourceLoader resourceLoader;
-	
-	//@Value("${images.url}")
-	private String URL;	
+	@Autowired
+	private IParametroService parametroService;
+	@Autowired
+	private IUsuarioService usuarioService;
 	
 	@Override
 	public String storeFile(MultipartFile file, Integer idUsuario) throws IOException {
@@ -42,7 +48,11 @@ public class FileStorageServiceImpl implements IFileStorageService {
 		imagen = idUsuario + "-" + System.currentTimeMillis() % 1000 + "." + extension;
 		LOG.info("Creamos el nuevo nombre de la imagen: " + imagen);
 		
-		directorioRecursos = Paths.get(this.URL);
+		Usuario usuario = this.usuarioService.findById(idUsuario);
+		
+		directorioRecursos = Paths.get(this.parametroService.findParameterByEmpresaAndName(
+				usuario.getEmpresa().getIdEmpresa(),
+				Constants.IMAGES_URL).getValor());
 		
 		String rootPath = directorioRecursos.toFile().getAbsolutePath();
 		LOG.info("Posterior a crear la ruta obtener el path absoluto: " + rootPath);
@@ -80,16 +90,19 @@ public class FileStorageServiceImpl implements IFileStorageService {
 	}
 
 	@Override
-	public Resource loadFileAsResource(String nombre) {
+	public Resource loadFileAsResource(String nombre, Integer idUsuario) {
 		
 		LOG.info("METHOD: loadFileAsResource() --PARAMS: nombre: " + nombre);
-		
+
 		String path = "";
-		String rutaBasica = this.URL;
-		
+		Usuario usuario = this.usuarioService.findById(idUsuario);
+		String rutaBasica = this.parametroService.findParameterByEmpresaAndName(
+				usuario.getEmpresa().getIdEmpresa(),
+				Constants.IMAGES_URL).getValor();
+
 		path = Paths.get(rutaBasica, nombre).toString();
-		
-		File imagen = new File(path);			
+
+		File imagen = new File(path);
 		if (!imagen.exists()) {
 			path = Paths.get(rutaBasica, "no-img.png").toString();
 		}

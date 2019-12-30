@@ -88,7 +88,9 @@ public class ProvinciaController {
 					provincia.getRegion().getNombre(),
 					new Pais(
 							provincia.getRegion().getPais().getIdPais(),
-							provincia.getRegion().getPais().getNombre()
+							provincia.getRegion().getPais().getNombre(),
+							provincia.getRegion().getPais().getCodigo(),
+							provincia.getRegion().getPais().getEstado()
 							)
 					));
 			modelos.add(modelo);
