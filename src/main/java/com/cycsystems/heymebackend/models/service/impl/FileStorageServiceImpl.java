@@ -92,7 +92,7 @@ public class FileStorageServiceImpl implements IFileStorageService {
 	@Override
 	public Resource loadFileAsResource(String nombre, Integer idUsuario) {
 		
-		LOG.info("METHOD: loadFileAsResource() --PARAMS: nombre: " + nombre);
+		LOG.info("METHOD: loadFileAsResource() --PARAMS: nombre: " + nombre + ", idUsuario: " + idUsuario);
 
 		String path = "";
 		Usuario usuario = this.usuarioService.findById(idUsuario);

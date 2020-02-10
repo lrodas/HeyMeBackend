@@ -38,11 +38,31 @@ public class SMSServiceImpl {
 		return message.getSid();
 	}
 
+	public String sendWhatsapp(Integer idEmpresa, String to, String txtMessage) {
+		String accountSid = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.ACCOUNT_SID).getValor();
+		String authToken = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.AUTH_TOKEN).getValor();
+		String serviceId = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.SERVICE_ID).getValor();
+
+		LOG.info("USER: " + accountSid + ", PASS: " + authToken);
+
+		Twilio.init(accountSid, authToken);
+
+		Message message = Message.creator(
+				new PhoneNumber("whatsapp:" + to),
+				serviceId,
+				txtMessage)
+				.create();
+
+		LOG.info("Mensaje: " + message.getStatus());
+		return message.getSid();
+	}
+
 	public static void main(String[] args) {
 		Twilio.init("AC32599858daab272963667e14e797b929", "1260ba2b54f7fe5fd27ba5a6a816a5d7");
 
+
 		Message message = Message.creator(
-				new PhoneNumber("+50255742084"),
+				new PhoneNumber("whatsapp:+50255742084"),
 				"MGca0f5a07c33c3663c04e712b687b1d80",
 				"ESTO ES otra GRAN PRUEBA")
 				.create();

@@ -185,14 +185,15 @@ public class PlantillaNotificacionController {
 			output.setDescripcion(Response.TEMPLATE_STATUS_NOT_EMPTY.getMessage());
 			output.setIndicador(Response.TEMPLATE_STATUS_NOT_EMPTY.getIndicador());
 		} else {
-			
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 			PlantillaNotificacion plantilla = new PlantillaNotificacion();
 			plantilla.setIdPlantillaNotificacion(input.getPlantilla().getIdPlantillaNotificacion());
 			plantilla.setTitulo(input.getPlantilla().getTitulo());
 			plantilla.setPlantilla(input.getPlantilla().getPlantilla());
 			plantilla.setEstado(input.getPlantilla().getEstado());
 			plantilla.setCanal(new com.cycsystems.heymebackend.models.entity.Canal(input.getPlantilla().getCanal().getIdCanal(), ""));
-			
+			plantilla.setEmpresa(usuario.getEmpresa());
 			plantilla = this.service.save(plantilla);
 			
 			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());

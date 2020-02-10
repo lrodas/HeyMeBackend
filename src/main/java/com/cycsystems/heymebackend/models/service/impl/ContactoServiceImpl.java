@@ -33,7 +33,7 @@ public class ContactoServiceImpl implements IContactoService {
 
 	@Override
 	public List<Contacto> findAll(Integer idEmpresa) {
-		return this.repository.findByUsuario_Empresa_IdEmpresa(idEmpresa);
+		return this.repository.findByEmpresa_IdEmpresa(idEmpresa);
 	}
 
 	@Override
@@ -43,17 +43,17 @@ public class ContactoServiceImpl implements IContactoService {
 
 	@Override
 	public List<Contacto> findByName(Integer idEmpresa, String name) {
-		return this.repository.findByUsuario_Empresa_IdEmpresaAndNombreLikeIgnoreCaseOrApellidoLikeIgnoreCase(idEmpresa, "%" + name + "%", "%" + name + "%");
+		return this.repository.findByEmpresa_IdEmpresaAndNombreLikeIgnoreCaseOrApellidoLikeIgnoreCase(idEmpresa, "%" + name + "%", "%" + name + "%");
 	}
 
 	@Override
 	public List<Contacto> findByCreationDate(Integer idEmpresa, Date fechaInicio, Date fechaFin) {
-		return this.repository.findByUsuario_Empresa_IdEmpresaAndFechaCreacionBetween(idEmpresa, fechaInicio, fechaFin);
+		return this.repository.findByEmpresa_IdEmpresaAndFechaCreacionBetween(idEmpresa, fechaInicio, fechaFin);
 	}
 
 	@Override
 	public List<Contacto> findByStatus(Integer idEmpresa, Boolean status) {
-		return this.repository.findByUsuario_Empresa_IdEmpresaAndEstadoEquals(idEmpresa, status);
+		return this.repository.findByEmpresa_IdEmpresaAndEstadoEquals(idEmpresa, status);
 	}
 
 }

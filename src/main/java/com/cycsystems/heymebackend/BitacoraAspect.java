@@ -98,7 +98,8 @@ public class BitacoraAspect {
 			LOG.info("METHOD: " + e.getClass().getSimpleName());
 			LOG.info("ERROR: " + e.getMessage());
 			Object[] signatureArgs = p.getArgs();
-			if (!e.getClass().getSimpleName().equalsIgnoreCase("obtenerImagen")) {
+			if (!e.getClass().getSimpleName().equalsIgnoreCase("obtenerImagen") &&
+					!e.getClass().getSimpleName().equalsIgnoreCase("NullPointerException")) {
 				BaseInput input = (BaseInput) signatureArgs[0];
 				Bitacora bitacora = new Bitacora();
 				bitacora.setJson(objectMapper.writer().writeValueAsString(input));

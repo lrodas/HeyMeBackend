@@ -56,6 +56,10 @@ public class Contacto implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="idUsuario", nullable = false)
 	private Usuario usuario;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "idEmpresa", nullable = false)
+	private Empresa empresa;
 	
 	@PrePersist
 	private void prePersist() {

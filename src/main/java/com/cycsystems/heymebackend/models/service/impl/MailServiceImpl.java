@@ -20,6 +20,6 @@ public class MailServiceImpl {
         mail.setSubject(subject);
         mail.setText(body);
 
-        sender.send(mail);
+        this.sender.send(mail);
     }
 }

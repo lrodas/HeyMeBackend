@@ -87,11 +87,12 @@ public class UsuarioController {
 		
 		LOG.info("METHOD: obtenerUsuario() --PARAMS: input: " + input);
 		UsuarioResponse output = new UsuarioResponse();
+		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 		
-		List<Usuario> usuarios = this.usuarioService.findAll();
+		List<Usuario> usuarios = this.usuarioService.findAll(usuario.getEmpresa().getIdEmpresa());
 		
-		for (Usuario usuario: usuarios) {
-			output.getUsuarios().add(this.mapUsuario(usuario));
+		for (Usuario usuarioDB: usuarios) {
+			output.getUsuarios().add(this.mapUsuario(usuarioDB));
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -109,11 +110,10 @@ public class UsuarioController {
 			output.setDescripcion("El nombre del usuario es obligatorio");
 			output.setIndicador("ERROR");
 		} else {
-			
-			com.cycsystems.heymebackend.common.Usuario usuario = new com.cycsystems.heymebackend.common.Usuario();
+
 			Usuario usuariosDB = this.usuarioService.findByUsername(input.getDatos().getUsername());
-			
-			usuario = this.mapUsuario(usuariosDB);
+
+			com.cycsystems.heymebackend.common.Usuario usuario = this.mapUsuario(usuariosDB);
 			
 			output.setUsuario(usuario);
 			output.setCodigo("0000");
@@ -137,12 +137,12 @@ public class UsuarioController {
 			output.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
 			output.setIndicador("ERROR");
 		} else {
-			
-			List<Usuario> usuarios = this.usuarioService.findByName(input.getDatos().getNombres());
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			List<Usuario> usuarios = this.usuarioService.findByName(usuario.getEmpresa().getIdEmpresa(), input.getDatos().getNombres());
 			List<com.cycsystems.heymebackend.common.Usuario> modelos = new ArrayList<>();
 			
-			for (Usuario usuario: usuarios) {
-				modelos.add(this.mapUsuario(usuario));
+			for (Usuario usuarioDB: usuarios) {
+				modelos.add(this.mapUsuario(usuarioDB));
 			}
 			
 			output.setUsuarios(modelos);
@@ -192,12 +192,13 @@ public class UsuarioController {
 		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
 		    
 		    fechaFin = calendar.getTime();
+		    Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 			
-			List<Usuario> usuarios = this.usuarioService.findByStartDate(fechaInicio, fechaFin);
+			List<Usuario> usuarios = this.usuarioService.findByStartDate(usuario.getEmpresa().getIdEmpresa(), fechaInicio, fechaFin);
 			List<com.cycsystems.heymebackend.common.Usuario> modelos = new ArrayList<>();
 			
-			for (Usuario usuario: usuarios) {
-				modelos.add(this.mapUsuario(usuario));
+			for (Usuario usuarioDB: usuarios) {
+				modelos.add(this.mapUsuario(usuarioDB));
 			}
 			
 			output.setUsuarios(modelos);

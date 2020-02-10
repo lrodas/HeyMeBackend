@@ -197,6 +197,7 @@ public class ContactoController {
 		LOG.info("METHOD: obtenerContacto() --PARAMS: ContactoRequest: " + input);
 		ContactoResponse output = new ContactoResponse();
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+		LOG.info("Usuario obtenido: " + usuario);
 		
 		if (input.getContacto().getNombre() == null || input.getContacto().getNombre().isEmpty()) {
 			output.setCodigo(Response.CONTACT_NAME_NOT_EMPTY.getCodigo());
@@ -205,7 +206,15 @@ public class ContactoController {
 		} else {
 			
 			List<Contacto> contactos = this.contactoService.findByName(usuario.getEmpresa().getIdEmpresa(), input.getContacto().getNombre());
-			
+
+			if (contactos != null && !contactos.isEmpty()) {
+				for (Contacto contacto: contactos) {
+					if (contacto.getEmpresa().getIdEmpresa().compareTo(usuario.getEmpresa().getIdEmpresa()) != 0) {
+						contactos.remove(contacto);
+					}
+				}
+			}
+
 			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
@@ -274,6 +283,7 @@ public class ContactoController {
 
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 			contacto.setUsuario(usuario);
+			contacto.setEmpresa(usuario.getEmpresa());
 
 			contacto = this.contactoService.save(contacto);
 

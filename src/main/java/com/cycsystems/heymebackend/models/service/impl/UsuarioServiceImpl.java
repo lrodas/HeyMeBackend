@@ -31,8 +31,8 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
-	public List<Usuario> findAll() {
-		return (List<Usuario>) this.usuarioRepository.findAll();
+	public List<Usuario> findAll(Integer idEmpresa) {
+		return this.usuarioRepository.findByEmpresa_IdEmpresa(idEmpresa);
 	}
 
 	@Override
@@ -41,18 +41,22 @@ public class UsuarioServiceImpl implements IUsuarioService {
 	}
 
 	@Override
+	public Usuario findByEnterpriseAndUsername(Integer idEmpresa, String username) {
+		return this.usuarioRepository.findByEmpresa_IdEmpresaAndUsername(idEmpresa, username);
+	}
+
+	@Override
 	public Usuario findByUsername(String username) {
 		return this.usuarioRepository.findByUsername(username);
 	}
 
 	@Override
-	public List<Usuario> findByStartDate(Date fechaInicio, Date fechaFin) {
-		return this.usuarioRepository.findByFechaAltaBetween(fechaInicio, fechaFin);
+	public List<Usuario> findByStartDate(Integer idEmpresa, Date fechaInicio, Date fechaFin) {
+		return this.usuarioRepository.findByEmpresa_IdEmpresaAndFechaAltaBetween(idEmpresa, fechaInicio, fechaFin);
 	}
 
 	@Override
-	public List<Usuario> findByName(String nombres) {
-		return this.usuarioRepository.findByNombresLikeIgnoreCaseOrApellidosLikeIgnoreCase("%" + nombres + "%","%" + nombres + "%");
+	public List<Usuario> findByName(Integer idEmpresa, String nombres) {
+		return this.usuarioRepository.findByEmpresa_IdEmpresaAndNombresLikeIgnoreCaseOrApellidosLikeIgnoreCase(idEmpresa, "%" + nombres + "%","%" + nombres + "%");
 	}
-
 }
