@@ -55,7 +55,11 @@ public enum Response {
 	COUNTRY_NOT_EMPTY("0050", "El pais del numero telefonico es obligatorio", "ERROR"),
 	PACKAGE_STATUS_NOT_EMPTY("0051", "Debe enviar el estado del paquete", "ERROR"),
 	PACKAGE_END_DATE_NOT_EMPTY("0052", "Debe enviar la fecha de finalizacion de vigencia del paquete", "ERROR"),
-	NOTIFICATION_STATUS_NOT_EMPTY("0053", "Debe enviar el titulo de la notificacion", "ERROR");
+	NOTIFICATION_STATUS_NOT_EMPTY("0053", "Debe enviar el titulo de la notificacion", "ERROR"),
+	USER_ERROR_REGISTER("0054", "No hemos podido registrarte en HeyMe por favor intenta nuevamente", "ERROR"),
+	USER_ERROR_COMPANY_NOT_EXIST("0055", "No hemos podido registrarte en HeyMe la empresa especificada no existe", "ERROR"),
+	COMPANY_NOT_EMPTY_ERROR("0056", "Los datos de la empresa son obligatorios", "ERROR"),
+	USER_STATUS_NOT_EMPTY_ERROR("0057", "El estado del usuario es obligatorio", "ERROR");
 
 	private String codigo;
 	private String message;

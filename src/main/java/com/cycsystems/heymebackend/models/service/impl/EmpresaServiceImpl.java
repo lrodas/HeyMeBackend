@@ -44,4 +44,10 @@ public class EmpresaServiceImpl implements IEmpresaService {
     public List<Empresa> findByName(String name) {
         return null;
     }
+
+    @Override
+    public void removeEmpresa(Empresa empresa) {
+        this.empresaDao.delete(empresa);
+    }
+
 }

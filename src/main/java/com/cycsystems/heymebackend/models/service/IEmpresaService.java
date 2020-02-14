@@ -17,4 +17,6 @@ public interface IEmpresaService {
     public long count();
 
     public List<Empresa> findByName(String name);
+
+    public void removeEmpresa(Empresa empresa);
 }

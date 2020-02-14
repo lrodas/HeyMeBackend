@@ -45,6 +45,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter{
 		http.authorizeRequests()
 		.antMatchers(HttpMethod.GET, "/api/" + Constants.VERSION + "/image/**").permitAll()
 		.antMatchers(HttpMethod.POST, "/api/" + Constants.VERSION + "/image/**").permitAll()
+		.antMatchers(HttpMethod.POST, "/api/" + Constants.VERSION + "/user/save/**").permitAll()
 		.anyRequest().authenticated()		
 		.and()
 		.addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtService))

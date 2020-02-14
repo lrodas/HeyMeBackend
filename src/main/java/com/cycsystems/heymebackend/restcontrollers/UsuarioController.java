@@ -2,9 +2,11 @@ package com.cycsystems.heymebackend.restcontrollers;
 
 import com.cycsystems.heymebackend.input.CambioContrasenaRequest;
 import com.cycsystems.heymebackend.input.UsuarioRequest;
+import com.cycsystems.heymebackend.models.entity.Empresa;
 import com.cycsystems.heymebackend.models.entity.Genero;
 import com.cycsystems.heymebackend.models.entity.Role;
 import com.cycsystems.heymebackend.models.entity.Usuario;
+import com.cycsystems.heymebackend.models.service.IEmpresaService;
 import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.CambioContrasenaResponse;
 import com.cycsystems.heymebackend.output.UsuarioResponse;
@@ -39,7 +41,10 @@ public class UsuarioController {
 	
 	@Autowired
 	private IUsuarioService usuarioService;
-	
+
+	@Autowired
+	private IEmpresaService empresaService;
+
 	// @Autowired
     // private MessageSource messageSource;
 	
@@ -55,26 +60,24 @@ public class UsuarioController {
 		
 		
 		if (input.getDatos() == null) {
-			output.setCodigo("0061");
-			output.setDescripcion("Debe enviar los datos de la notificacion");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.USER_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.USER_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.USER_NOT_EMPTY.getIndicador());
 		} else if (input.getDatos().getIdUsuario() == null || input.getDatos().getIdUsuario() <= 0) {
-			
-			output.setCodigo("0062");
-			output.setDescripcion("Debe enviar el id del usuario a cambiar el estado");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.ID_USUARIO_ERROR.getCodigo());
+			output.setDescripcion(Response.ID_USUARIO_ERROR.getMessage());
+			output.setIndicador(Response.ID_USUARIO_ERROR.getIndicador());
 		} else if (input.getDatos().getEnabled() == null) {
-			
-			output.setCodigo("0063");
-			output.setDescripcion("Debe enviar el nuevo estado del usuario");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.USER_STATUS_NOT_EMPTY_ERROR.getCodigo());
+			output.setDescripcion(Response.USER_STATUS_NOT_EMPTY_ERROR.getMessage());
+			output.setIndicador(Response.USER_STATUS_NOT_EMPTY_ERROR.getIndicador());
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getDatos().getIdUsuario());
 			usuario.setEnabled(input.getDatos().getEnabled());
 						
 			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-			output.setIndicador("SUCCESS");
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			output.setUsuario(this.mapUsuario(this.usuarioService.save(usuario)));
 		}
 		
@@ -106,9 +109,9 @@ public class UsuarioController {
 		UsuarioResponse output = new UsuarioResponse();
 		
 		if (input.getDatos().getUsername() == null || input.getDatos().getUsername().isEmpty()) {
-			output.setCodigo("0001");
-			output.setDescripcion("El nombre del usuario es obligatorio");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.NOMBRE_USUARIO_ERROR.getCodigo());
+			output.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
+			output.setIndicador(Response.NOMBRE_USUARIO_ERROR.getIndicador());
 		} else {
 
 			Usuario usuariosDB = this.usuarioService.findByUsername(input.getDatos().getUsername());
@@ -116,9 +119,9 @@ public class UsuarioController {
 			com.cycsystems.heymebackend.common.Usuario usuario = this.mapUsuario(usuariosDB);
 			
 			output.setUsuario(usuario);
-			output.setCodigo("0000");
-			output.setDescripcion("Usuario obtenido exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -135,7 +138,7 @@ public class UsuarioController {
 				input.getDatos().getNombres() == null || input.getDatos().getNombres().isEmpty()) {
 			output.setCodigo(Response.NOMBRE_USUARIO_ERROR.getCodigo());
 			output.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
-			output.setIndicador("ERROR");
+			output.setIndicador(Response.NOMBRE_USUARIO_ERROR.getIndicador());
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 			List<Usuario> usuarios = this.usuarioService.findByName(usuario.getEmpresa().getIdEmpresa(), input.getDatos().getNombres());
@@ -146,9 +149,9 @@ public class UsuarioController {
 			}
 			
 			output.setUsuarios(modelos);
-			output.setCodigo("0000");
-			output.setDescripcion("Usuarios obtenidos exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			
 		}
 		
@@ -164,10 +167,14 @@ public class UsuarioController {
 		Date fechaInicio = null;
 		Date fechaFin = null;
 		
-		if (input.getFechaFin() == null || input.getFechaInicio() == null) {
-			output.setCodigo("0063");
-			output.setDescripcion("Debes enviar una fecha de inicio y una fecha de fin");
-			output.setIndicador("ERROR");
+		if (input.getFechaFin() == null) {
+			output.setCodigo(Response.END_DATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.END_DATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.END_DATE_NOT_EMPTY.getIndicador());
+		} else if (input.getFechaInicio() == null) {
+			output.setCodigo(Response.START_DATE_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.START_DATE_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.START_DATE_NOT_EMPTY.getIndicador());
 		} else {
 			
 			Calendar calendar = Calendar.getInstance();
@@ -202,9 +209,9 @@ public class UsuarioController {
 			}
 			
 			output.setUsuarios(modelos);
-			output.setCodigo("0000");
-			output.setDescripcion("Usuarios obtenidos exitosamente");
-			output.setIndicador("SUCCESS");
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			
 		}
 		
@@ -221,7 +228,7 @@ public class UsuarioController {
 		if (input.getDatos().getUsername() == null || input.getDatos().getUsername().isEmpty()) {
 			response.setCodigo(Response.NOMBRE_USUARIO_ERROR.getCodigo());
 			response.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
-			response.setIndicador("ERROR");
+			response.setIndicador(Response.NOMBRE_USUARIO_ERROR.getIndicador());
 		} else {
 			
 			// mailService.sendMail(MAIL_FROM, input.getUsername(), subject, body);
@@ -240,36 +247,41 @@ public class UsuarioController {
 		if (input.getDatos().getNombres() == null || input.getDatos().getNombres().isEmpty()) {
 			response.setCodigo(Response.NOMBRE_USUARIO_ERROR.getCodigo());
 			response.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
-			response.setIndicador("ERROR");
+			response.setIndicador(Response.NOMBRE_USUARIO_ERROR.getIndicador());
 		} else if (input.getDatos().getApellidos() == null || input.getDatos().getApellidos().isEmpty()) {
 			response.setCodigo(Response.APELLIDO_USUARIO_ERROR.getCodigo());
 			response.setDescripcion(Response.APELLIDO_USUARIO_ERROR.getMessage());
-			response.setIndicador("ERROR");
+			response.setIndicador(Response.APELLIDO_USUARIO_ERROR.getIndicador());
 		} else if (input.getDatos().getDireccion() == null || input.getDatos().getDireccion().isEmpty()) {
 			response.setCodigo(Response.DIRECCION_USUARIO_ERROR.getCodigo());
 			response.setDescripcion(Response.DIRECCION_USUARIO_ERROR.getMessage());
-			response.setIndicador("ERROR");
+			response.setIndicador(Response.DIRECCION_USUARIO_ERROR.getIndicador());
 		} else if (input.getDatos().getTelefono() == null || input.getDatos().getTelefono().isEmpty()) { 
 			response.setCodigo(Response.TELEFONO_USUARIO_ERROR.getCodigo());
 			response.setDescripcion(Response.TELEFONO_USUARIO_ERROR.getMessage());
-			response.setIndicador("ERROR");
+			response.setIndicador(Response.TELEFONO_USUARIO_ERROR.getIndicador());
 		} else if (input.getDatos().getGenero() == null || input.getDatos().getGenero().getIdGenero() == null || input.getDatos().getGenero().getIdGenero() <= 0) {
 			response.setCodigo(Response.GENERO_ERROR.getCodigo());
 			response.setDescripcion(Response.GENERO_ERROR.getMessage());
-			response.setIndicador("ERROR");
+			response.setIndicador(Response.GENERO_ERROR.getIndicador());
 		} else if (input.getDatos().getRole() == null || input.getDatos().getRole().getIdRole() == null || input.getDatos().getRole().getIdRole() <= 0) {
 			response.setCodigo(Response.ROLE_ERROR.getCodigo());
 			response.setDescripcion(Response.ROLE_ERROR.getMessage());
-			response.setIndicador("ERROR");
+			response.setIndicador(Response.ROLE_ERROR.getIndicador());
 		} else if (input.getDatos().getUsername() == null || input.getDatos().getUsername().isEmpty()) {
 			response.setCodigo(Response.CORREO_ERROR.getCodigo());
 			response.setDescripcion(Response.CORREO_ERROR.getMessage());
-			response.setIndicador("ERROR");
+			response.setIndicador(Response.CORREO_ERROR.getIndicador());
 		} else if (input.getDatos().getPassword() == null || input.getDatos().getPassword().isEmpty()) {
 			response.setCodigo(Response.PASSWORD_ERROR.getCodigo());
 			response.setDescripcion(Response.PASSWORD_ERROR.getMessage());
-			response.setIndicador("ERROR");
+			response.setIndicador(Response.PASSWORD_ERROR.getIndicador());
+		} else if (input.getDatos().getEmpresa() == null) {
+			response.setCodigo(Response.COMPANY_NOT_EMPTY_ERROR.getCodigo());
+			response.setDescripcion(Response.COMPANY_NOT_EMPTY_ERROR.getMessage());
+			response.setIndicador(Response.COMPANY_NOT_EMPTY_ERROR.getIndicador());
 		} else {
+
 			Usuario usuario = new Usuario();
 			usuario.setIdUsuario(input.getDatos().getIdUsuario());
 			usuario.setNombres(input.getDatos().getNombres());
@@ -282,19 +294,53 @@ public class UsuarioController {
 			usuario.setPassword(this.passwordEncoder.encode(input.getDatos().getPassword()));
 			usuario.setImg(input.getDatos().getImg());
 			usuario.setEnabled(input.getDatos().getEnabled());
-			
-			usuario = this.usuarioService.save(usuario);
-			
-			response.setUsuario(mapUsuario(usuario));
-			
-			response.getUsuario().setPassword(":-)");
-			
-			response.setCodigo("0000");
-			response.setDescripcion("Usuarios obtenidos exitosamente");
-			response.setIndicador("SUCCESS");
-			
+
+			if (input.getDatos().getEmpresa().getIdEmpresa() == null || input.getDatos().getEmpresa().getIdEmpresa() <= 0) {
+				Empresa empresa = new Empresa();
+				empresa.setNombreEmpresa(input.getDatos().getEmpresa().getNombreEmpresa());
+				empresa.setTelefono(input.getDatos().getEmpresa().getTelefono());
+				empresa.setDireccion(input.getDatos().getEmpresa().getDireccion());
+
+				empresa = this.empresaService.save(empresa);
+
+				if (empresa != null && empresa.getIdEmpresa() != null && empresa.getIdEmpresa() > 0) {
+					usuario.setEmpresa(mapEmpresa(input.getDatos().getEmpresa()));
+					usuario = this.usuarioService.save(usuario);
+
+					if (usuario != null && usuario.getIdUsuario() != null && usuario.getIdUsuario() > 0) {
+						response.setUsuario(mapUsuario(usuario));
+						response.getUsuario().setPassword(":-)");
+						response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+						response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+						response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+					} else {
+						this.empresaService.removeEmpresa(empresa);
+						response.setCodigo(Response.USER_ERROR_REGISTER.getCodigo());
+						response.setDescripcion(Response.USER_ERROR_REGISTER.getMessage());
+						response.setIndicador(Response.USER_ERROR_REGISTER.getIndicador());
+					}
+				} else {
+					response.setCodigo(Response.USER_ERROR_REGISTER.getCodigo());
+					response.setDescripcion(Response.USER_ERROR_REGISTER.getMessage());
+					response.setIndicador(Response.USER_ERROR_REGISTER.getIndicador());
+				}
+			} else if (this.empresaService.findById(input.getDatos().getEmpresa().getIdEmpresa()) != null) {
+
+				usuario.setEmpresa(mapEmpresa(input.getDatos().getEmpresa()));
+				usuario = this.usuarioService.save(usuario);
+
+				response.setUsuario(mapUsuario(usuario));
+				response.getUsuario().setPassword(":-)");
+				response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+
+			} else {
+				response.setCodigo(Response.USER_ERROR_COMPANY_NOT_EXIST.getCodigo());
+				response.setDescripcion(Response.USER_ERROR_COMPANY_NOT_EXIST.getCodigo());
+				response.setIndicador(Response.USER_ERROR_COMPANY_NOT_EXIST.getIndicador());
+			}
 		}
-				
 		return new AsyncResult<>(ResponseEntity.ok(response));
 	}
 	
@@ -411,5 +457,14 @@ public class UsuarioController {
 		usuario.setUsername(entityUsuario.getUsername());
 		
 		return usuario;
+	}
+
+	private Empresa mapEmpresa (com.cycsystems.heymebackend.common.Empresa modelo) {
+		Empresa empresa = new Empresa();
+		empresa.setIdEmpresa(modelo.getIdEmpresa());
+		empresa.setNombreEmpresa(modelo.getNombreEmpresa());
+		empresa.setDireccion(modelo.getDireccion());
+		empresa.setTelefono(modelo.getTelefono());
+		return empresa;
 	}
 }
