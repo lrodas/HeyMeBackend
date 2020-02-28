@@ -32,4 +32,12 @@ public class Util {
                 return "";
         }
     }
+
+    public static int generateRandomCode() {
+        int min = 1000;
+        int max = 10000;
+        double random_double = Math.random() * (max - min + 1) + min;
+        int random_int = (int)(Math.random() * (max - min + 1) + min);
+        return random_int;
+    }
 }

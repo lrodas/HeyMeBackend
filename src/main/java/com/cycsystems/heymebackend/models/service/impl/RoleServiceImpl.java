@@ -27,10 +27,11 @@ public class RoleServiceImpl implements IRoleService {
 		
 		Role role = this.roleRepository.save(entity);
 		List<Permiso> permisos = entity.getPermisos();
-		
-		for (Permiso permiso: permisos) {
-			permiso.setPuesto(role);
-			this.permisoRepository.save(permiso);
+		if (permisos != null && permisos.size() > 0) {
+			for (Permiso permiso: permisos) {
+				permiso.setPuesto(role);
+				this.permisoRepository.save(permiso);
+			}
 		}
 		
 		role = this.roleRepository.findById(role.getIdRole()).get();

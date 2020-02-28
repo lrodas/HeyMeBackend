@@ -100,7 +100,8 @@ public class PaqueteController {
 						entity.getEmpresa().getIdEmpresa(),
 						entity.getEmpresa().getNombreEmpresa(),
 						entity.getEmpresa().getDireccion(),
-						entity.getEmpresa().getTelefono()));
+						entity.getEmpresa().getTelefono(),
+						entity.getEmpresa().getCodigo()));
 		model.setFechaFin(entity.getFechaFin());
 		model.setFechaInicio(entity.getFechaInicio());
 		model.setIdPaqueteConsumo(entity.getIdPaqueteConsumo());

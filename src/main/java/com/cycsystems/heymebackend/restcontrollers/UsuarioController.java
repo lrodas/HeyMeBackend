@@ -2,17 +2,14 @@ package com.cycsystems.heymebackend.restcontrollers;
 
 import com.cycsystems.heymebackend.input.CambioContrasenaRequest;
 import com.cycsystems.heymebackend.input.UsuarioRequest;
-import com.cycsystems.heymebackend.models.entity.Empresa;
-import com.cycsystems.heymebackend.models.entity.Genero;
-import com.cycsystems.heymebackend.models.entity.Role;
-import com.cycsystems.heymebackend.models.entity.Usuario;
-import com.cycsystems.heymebackend.models.service.IEmpresaService;
-import com.cycsystems.heymebackend.models.service.IUsuarioService;
+import com.cycsystems.heymebackend.models.entity.*;
+import com.cycsystems.heymebackend.models.service.*;
 import com.cycsystems.heymebackend.output.CambioContrasenaResponse;
 import com.cycsystems.heymebackend.output.UsuarioResponse;
 import com.cycsystems.heymebackend.util.Constants;
 import com.cycsystems.heymebackend.util.Response;
 
+import com.cycsystems.heymebackend.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/user")
@@ -44,6 +38,18 @@ public class UsuarioController {
 
 	@Autowired
 	private IEmpresaService empresaService;
+
+	@Autowired
+	private IRoleService roleService;
+
+	@Autowired
+	private IPermisoService permisoService;
+
+	@Autowired
+	private IOpcionService opcionService;
+
+	@Autowired
+	private IParametroService parametroService;
 
 	// @Autowired
     // private MessageSource messageSource;
@@ -295,16 +301,107 @@ public class UsuarioController {
 			usuario.setImg(input.getDatos().getImg());
 			usuario.setEnabled(input.getDatos().getEnabled());
 
-			if (input.getDatos().getEmpresa().getIdEmpresa() == null || input.getDatos().getEmpresa().getIdEmpresa() <= 0) {
+			if (input.getDatos().getEmpresa().getCodigo() == null || input.getDatos().getEmpresa().getCodigo().isEmpty()) {
+
+				String codigo = "";
+				Boolean existe = false;
+				do {
+					codigo = UUID.randomUUID().toString();
+					existe = this.empresaService.existsByCode(codigo);
+				} while (existe == true);
+
 				Empresa empresa = new Empresa();
 				empresa.setNombreEmpresa(input.getDatos().getEmpresa().getNombreEmpresa());
 				empresa.setTelefono(input.getDatos().getEmpresa().getTelefono());
 				empresa.setDireccion(input.getDatos().getEmpresa().getDireccion());
-
+				empresa.setCodigo(codigo);
 				empresa = this.empresaService.save(empresa);
 
 				if (empresa != null && empresa.getIdEmpresa() != null && empresa.getIdEmpresa() > 0) {
-					usuario.setEmpresa(mapEmpresa(input.getDatos().getEmpresa()));
+					Role roleAdmin = new Role();
+					roleAdmin.setDescripcion("ADMINISTRADOR");
+					roleAdmin.setEstado(true);
+					roleAdmin.setNombre("ROLE_ADMIN");
+					roleAdmin.setEmpresa(empresa);
+
+					roleAdmin = this.roleService.save(roleAdmin);
+
+					if (roleAdmin != null && roleAdmin.getIdRole() != null && roleAdmin.getIdRole() > 0) {
+
+						List<Opcion> opciones = this.opcionService.findAll();
+						List<Permiso> permisos = new ArrayList<>();
+
+						for (Opcion opcion: opciones) {
+							Permiso permiso = new Permiso ();
+							permiso.setAlta(true);
+							permiso.setBaja(true);
+							permiso.setCambio(true);
+							permiso.setImprimir(true);
+							permiso.setPuesto(roleAdmin);
+							permiso.setOpcion(opcion);
+
+							permisos.add(permiso);
+						}
+
+						this.permisoService.saveAll(permisos);
+					}
+
+					Role notRole = new Role();
+					notRole.setEmpresa(empresa);
+					notRole.setNombre("ROLE_SIN_ROLE");
+					notRole.setEstado(true);
+					notRole.setDescripcion("SIN PUESTO");
+
+					this.roleService.save(notRole);
+
+					List<Parametro> parametros = new ArrayList<>();
+
+					// cuenta para envio de mailing
+					Parametro mailParam = new Parametro();
+					mailParam.setEmpresa(empresa);
+					mailParam.setNombre("mail.from");
+					mailParam.setValor("info@cycsystemsgt.com");
+					parametros.add(mailParam);
+
+					// sid cuenta twillio
+					Parametro accountSid = new Parametro();
+					accountSid.setEmpresa(empresa);
+					accountSid.setNombre("twilio.account.sid");
+					accountSid.setValor("ACf4c7316cf61c006ee02cefb63932521d");
+					parametros.add(accountSid);
+
+					// token twillio
+					Parametro tokenParam = new Parametro();
+					tokenParam.setNombre("twilio.account.auth.token");
+					tokenParam.setValor("40123341ab22235aaaef8dc9019057b6");
+					tokenParam.setEmpresa(empresa);
+					parametros.add(tokenParam);
+
+					// Service twillio
+					Parametro serviceParam = new Parametro();
+					serviceParam.setEmpresa(empresa);
+					serviceParam.setNombre("twilio.account.service.id");
+					serviceParam.setValor("MG7c30aa41add51cfb9076b051603fb007");
+					parametros.add(serviceParam);
+
+					// Tarifa por mensaje
+					Parametro tarifaParam = new Parametro();
+					tarifaParam.setEmpresa(empresa);
+					tarifaParam.setNombre("notificacion.tarifa");
+					tarifaParam.setValor("0.50");
+					parametros.add(tarifaParam);
+
+					// Url para imagenes
+					Parametro urlParam = new Parametro();
+					urlParam.setEmpresa(empresa);
+					urlParam.setNombre("images.url");
+					urlParam.setValor("/Users/lrodas/Documents/images");
+					parametros.add(urlParam);
+
+					this.parametroService.save(parametros);
+
+					usuario.setEmpresa(empresa);
+					usuario.setRole(roleAdmin);
 					usuario = this.usuarioService.save(usuario);
 
 					if (usuario != null && usuario.getIdUsuario() != null && usuario.getIdUsuario() > 0) {
@@ -319,6 +416,7 @@ public class UsuarioController {
 						response.setDescripcion(Response.USER_ERROR_REGISTER.getMessage());
 						response.setIndicador(Response.USER_ERROR_REGISTER.getIndicador());
 					}
+
 				} else {
 					response.setCodigo(Response.USER_ERROR_REGISTER.getCodigo());
 					response.setDescripcion(Response.USER_ERROR_REGISTER.getMessage());
@@ -455,6 +553,7 @@ public class UsuarioController {
 				entityUsuario.getRole().getEstado()));
 		usuario.setTelefono(entityUsuario.getTelefono());
 		usuario.setUsername(entityUsuario.getUsername());
+		usuario.setEmpresa(this.mapEmpresaModelo(entityUsuario.getEmpresa()));
 		
 		return usuario;
 	}
@@ -465,6 +564,19 @@ public class UsuarioController {
 		empresa.setNombreEmpresa(modelo.getNombreEmpresa());
 		empresa.setDireccion(modelo.getDireccion());
 		empresa.setTelefono(modelo.getTelefono());
+		empresa.setCodigo(modelo.getCodigo());
+
 		return empresa;
+	}
+
+	private com.cycsystems.heymebackend.common.Empresa mapEmpresaModelo(Empresa empresa) {
+		com.cycsystems.heymebackend.common.Empresa modelo = new com.cycsystems.heymebackend.common.Empresa();
+		modelo.setIdEmpresa(empresa.getIdEmpresa());
+		modelo.setNombreEmpresa(empresa.getNombreEmpresa());
+		modelo.setDireccion(empresa.getDireccion());
+		modelo.setTelefono(empresa.getTelefono());
+		modelo.setCodigo(empresa.getCodigo());
+
+		return modelo;
 	}
 }

@@ -31,6 +31,11 @@ public class EmpresaServiceImpl implements IEmpresaService {
     }
 
     @Override
+    public boolean existsByCode(String code) {
+        return this.empresaDao.existsByCodigo(code);
+    }
+
+    @Override
     public List<Empresa> findAll() {
         return this.empresaDao.findAll();
     }

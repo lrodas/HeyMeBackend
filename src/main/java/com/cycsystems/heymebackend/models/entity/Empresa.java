@@ -21,6 +21,9 @@ public class Empresa implements Serializable {
     private String direccion;
     private String telefono;
 
+    @Column(nullable = false, unique = true)
+    private String codigo;
+
     /**
 	 * 
 	 */

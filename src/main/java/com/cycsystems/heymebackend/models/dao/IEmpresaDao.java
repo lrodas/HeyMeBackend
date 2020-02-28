@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IEmpresaDao extends JpaRepository<Empresa, Integer> {
+
+    public abstract Boolean existsByCodigo(String codigo);
 }

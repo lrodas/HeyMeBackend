@@ -12,6 +12,8 @@ public interface IEmpresaService {
 
     public boolean existsById(Integer id);
 
+    public boolean existsByCode(String code);
+
     public List<Empresa> findAll();
 
     public long count();
