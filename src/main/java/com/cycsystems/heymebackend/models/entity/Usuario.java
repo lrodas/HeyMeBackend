@@ -55,6 +55,15 @@ public class Usuario implements Serializable {
 	@JoinColumn(name = "idEmpresa")
 	private Empresa empresa;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "idEstadoUsuario")
+	private EstadoUsuario estadoUsuario;
+
+	@PrePersist
+	private void Prepersist() {
+		this.fechaAlta = new Date();
+	}
+
 	/**
 	 * 
 	 */

@@ -13,6 +13,8 @@ import com.cycsystems.heymebackend.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -53,9 +55,18 @@ public class UsuarioController {
 
 	// @Autowired
     // private MessageSource messageSource;
+
+	@Autowired
+	private Environment env;
 	
 	@Autowired
 	private BCryptPasswordEncoder passwordEncoder;
+
+	@Value("${status.user.lock}")
+	private Integer STATUS_USER_LOCK;
+
+	@Value("${status.user.active}")
+	private Integer STATUS_USER_ACTIVE;
 	
 	@Async
 	@PostMapping("/changeStatus")
@@ -270,10 +281,6 @@ public class UsuarioController {
 			response.setCodigo(Response.GENERO_ERROR.getCodigo());
 			response.setDescripcion(Response.GENERO_ERROR.getMessage());
 			response.setIndicador(Response.GENERO_ERROR.getIndicador());
-		} else if (input.getDatos().getRole() == null || input.getDatos().getRole().getIdRole() == null || input.getDatos().getRole().getIdRole() <= 0) {
-			response.setCodigo(Response.ROLE_ERROR.getCodigo());
-			response.setDescripcion(Response.ROLE_ERROR.getMessage());
-			response.setIndicador(Response.ROLE_ERROR.getIndicador());
 		} else if (input.getDatos().getUsername() == null || input.getDatos().getUsername().isEmpty()) {
 			response.setCodigo(Response.CORREO_ERROR.getCodigo());
 			response.setDescripcion(Response.CORREO_ERROR.getMessage());
@@ -288,155 +295,170 @@ public class UsuarioController {
 			response.setIndicador(Response.COMPANY_NOT_EMPTY_ERROR.getIndicador());
 		} else {
 
-			Usuario usuario = new Usuario();
-			usuario.setIdUsuario(input.getDatos().getIdUsuario());
-			usuario.setNombres(input.getDatos().getNombres());
-			usuario.setApellidos(input.getDatos().getApellidos());
-			usuario.setTelefono(input.getDatos().getTelefono());
-			usuario.setDireccion(input.getDatos().getDireccion());
-			usuario.setGenero(new Genero(input.getDatos().getGenero().getIdGenero(), input.getDatos().getGenero().getDescripcion()));
-			usuario.setRole(new Role(input.getDatos().getRole().getIdRole()));
-			usuario.setUsername(input.getDatos().getUsername());
-			usuario.setPassword(this.passwordEncoder.encode(input.getDatos().getPassword()));
-			usuario.setImg(input.getDatos().getImg());
-			usuario.setEnabled(input.getDatos().getEnabled());
+			Usuario username = this.usuarioService.findByUsername(input.getDatos().getUsername());
 
-			if (input.getDatos().getEmpresa().getCodigo() == null || input.getDatos().getEmpresa().getCodigo().isEmpty()) {
+			if (username != null) {
+				response.setCodigo(Response.USER_NAME_EXIST.getCodigo());
+				response.setDescripcion(Response.USER_NAME_EXIST.getMessage());
+				response.setIndicador(Response.USER_NAME_EXIST.getIndicador());
+			} else {
+				Usuario usuario = new Usuario();
+				usuario.setIdUsuario(input.getDatos().getIdUsuario());
+				usuario.setNombres(input.getDatos().getNombres());
+				usuario.setApellidos(input.getDatos().getApellidos());
+				usuario.setTelefono(input.getDatos().getTelefono());
+				usuario.setDireccion(input.getDatos().getDireccion());
+				usuario.setGenero(new Genero(input.getDatos().getGenero().getIdGenero(), input.getDatos().getGenero().getDescripcion()));
+				usuario.setUsername(input.getDatos().getUsername());
+				usuario.setPassword(this.passwordEncoder.encode(input.getDatos().getPassword()));
+				usuario.setImg(input.getDatos().getImg());
+				usuario.setEnabled(input.getDatos().getEnabled());
+				usuario.setEnabled(true);
 
-				String codigo = "";
-				Boolean existe = false;
-				do {
-					codigo = UUID.randomUUID().toString();
-					existe = this.empresaService.existsByCode(codigo);
-				} while (existe == true);
+				if (input.getDatos().getEmpresa().getCodigo() == null || input.getDatos().getEmpresa().getCodigo().isEmpty()) {
+					String codigo = "";
+					Boolean existe = false;
+					do {
+						codigo = UUID.randomUUID().toString();
+						existe = this.empresaService.existsByCode(codigo);
+					} while (existe == true);
 
-				Empresa empresa = new Empresa();
-				empresa.setNombreEmpresa(input.getDatos().getEmpresa().getNombreEmpresa());
-				empresa.setTelefono(input.getDatos().getEmpresa().getTelefono());
-				empresa.setDireccion(input.getDatos().getEmpresa().getDireccion());
-				empresa.setCodigo(codigo);
-				empresa = this.empresaService.save(empresa);
+					usuario.setEstadoUsuario(new EstadoUsuario(this.STATUS_USER_ACTIVE));
 
-				if (empresa != null && empresa.getIdEmpresa() != null && empresa.getIdEmpresa() > 0) {
-					Role roleAdmin = new Role();
-					roleAdmin.setDescripcion("ADMINISTRADOR");
-					roleAdmin.setEstado(true);
-					roleAdmin.setNombre("ROLE_ADMIN");
-					roleAdmin.setEmpresa(empresa);
+					Empresa empresa = new Empresa();
+					empresa.setNombreEmpresa(input.getDatos().getEmpresa().getNombreEmpresa());
+					empresa.setTelefono(input.getDatos().getEmpresa().getTelefono());
+					empresa.setDireccion(input.getDatos().getEmpresa().getDireccion());
+					empresa.setCodigo(codigo);
+					empresa = this.empresaService.save(empresa);
 
-					roleAdmin = this.roleService.save(roleAdmin);
+					if (empresa != null && empresa.getIdEmpresa() != null && empresa.getIdEmpresa() > 0) {
+						Role roleAdmin = new Role();
+						roleAdmin.setDescripcion("ADMINISTRADOR");
+						roleAdmin.setEstado(true);
+						roleAdmin.setNombre("ROLE_ADMIN");
+						roleAdmin.setEmpresa(empresa);
 
-					if (roleAdmin != null && roleAdmin.getIdRole() != null && roleAdmin.getIdRole() > 0) {
+						roleAdmin = this.roleService.save(roleAdmin);
 
-						List<Opcion> opciones = this.opcionService.findAll();
-						List<Permiso> permisos = new ArrayList<>();
+						if (roleAdmin != null && roleAdmin.getIdRole() != null && roleAdmin.getIdRole() > 0) {
 
-						for (Opcion opcion: opciones) {
-							Permiso permiso = new Permiso ();
-							permiso.setAlta(true);
-							permiso.setBaja(true);
-							permiso.setCambio(true);
-							permiso.setImprimir(true);
-							permiso.setPuesto(roleAdmin);
-							permiso.setOpcion(opcion);
+							List<Opcion> opciones = this.opcionService.findAll();
+							List<Permiso> permisos = new ArrayList<>();
 
-							permisos.add(permiso);
+							for (Opcion opcion: opciones) {
+								Permiso permiso = new Permiso ();
+								permiso.setAlta(true);
+								permiso.setBaja(true);
+								permiso.setCambio(true);
+								permiso.setImprimir(true);
+								permiso.setPuesto(roleAdmin);
+								permiso.setOpcion(opcion);
+
+								permisos.add(permiso);
+							}
+
+							this.permisoService.saveAll(permisos);
 						}
 
-						this.permisoService.saveAll(permisos);
-					}
+						Role notRole = new Role();
+						notRole.setEmpresa(empresa);
+						notRole.setNombre("ROLE_SIN_ROLE");
+						notRole.setEstado(true);
+						notRole.setDescripcion("SIN PUESTO");
 
-					Role notRole = new Role();
-					notRole.setEmpresa(empresa);
-					notRole.setNombre("ROLE_SIN_ROLE");
-					notRole.setEstado(true);
-					notRole.setDescripcion("SIN PUESTO");
+						this.roleService.save(notRole);
 
-					this.roleService.save(notRole);
+						List<Parametro> parametros = new ArrayList<>();
 
-					List<Parametro> parametros = new ArrayList<>();
+						// cuenta para envio de mailing
+						Parametro mailParam = new Parametro();
+						mailParam.setEmpresa(empresa);
+						mailParam.setNombre("mail.from");
+						mailParam.setValor(env.getProperty("parametro.mail"));
+						parametros.add(mailParam);
 
-					// cuenta para envio de mailing
-					Parametro mailParam = new Parametro();
-					mailParam.setEmpresa(empresa);
-					mailParam.setNombre("mail.from");
-					mailParam.setValor("info@cycsystemsgt.com");
-					parametros.add(mailParam);
+						// sid cuenta twillio
+						Parametro accountSid = new Parametro();
+						accountSid.setEmpresa(empresa);
+						accountSid.setNombre("twilio.account.sid");
+						accountSid.setValor(env.getProperty("parametro.twilio.account.sid"));
+						parametros.add(accountSid);
 
-					// sid cuenta twillio
-					Parametro accountSid = new Parametro();
-					accountSid.setEmpresa(empresa);
-					accountSid.setNombre("twilio.account.sid");
-					accountSid.setValor("ACf4c7316cf61c006ee02cefb63932521d");
-					parametros.add(accountSid);
+						// token twillio
+						Parametro tokenParam = new Parametro();
+						tokenParam.setNombre("twilio.account.auth.token");
+						tokenParam.setValor(env.getProperty("parametro.twilio.account.auth.token"));
+						tokenParam.setEmpresa(empresa);
+						parametros.add(tokenParam);
 
-					// token twillio
-					Parametro tokenParam = new Parametro();
-					tokenParam.setNombre("twilio.account.auth.token");
-					tokenParam.setValor("40123341ab22235aaaef8dc9019057b6");
-					tokenParam.setEmpresa(empresa);
-					parametros.add(tokenParam);
+						// Service twillio
+						Parametro serviceParam = new Parametro();
+						serviceParam.setEmpresa(empresa);
+						serviceParam.setNombre("twilio.account.service.id");
+						serviceParam.setValor(env.getProperty("parametro.twilio.account.service.id"));
+						parametros.add(serviceParam);
 
-					// Service twillio
-					Parametro serviceParam = new Parametro();
-					serviceParam.setEmpresa(empresa);
-					serviceParam.setNombre("twilio.account.service.id");
-					serviceParam.setValor("MG7c30aa41add51cfb9076b051603fb007");
-					parametros.add(serviceParam);
+						// Tarifa por mensaje
+						Parametro tarifaParam = new Parametro();
+						tarifaParam.setEmpresa(empresa);
+						tarifaParam.setNombre("notificacion.tarifa");
+						tarifaParam.setValor(env.getProperty("parametro.notificacion.tarifa"));
+						parametros.add(tarifaParam);
 
-					// Tarifa por mensaje
-					Parametro tarifaParam = new Parametro();
-					tarifaParam.setEmpresa(empresa);
-					tarifaParam.setNombre("notificacion.tarifa");
-					tarifaParam.setValor("0.50");
-					parametros.add(tarifaParam);
+						// Url para imagenes
+						Parametro urlParam = new Parametro();
+						urlParam.setEmpresa(empresa);
+						urlParam.setNombre("images.url");
+						urlParam.setValor(env.getProperty("parametro.images.url"));
+						parametros.add(urlParam);
 
-					// Url para imagenes
-					Parametro urlParam = new Parametro();
-					urlParam.setEmpresa(empresa);
-					urlParam.setNombre("images.url");
-					urlParam.setValor("/Users/lrodas/Documents/images");
-					parametros.add(urlParam);
+						this.parametroService.save(parametros);
 
-					this.parametroService.save(parametros);
+						usuario.setEmpresa(empresa);
+						usuario.setRole(roleAdmin);
+						usuario = this.usuarioService.save(usuario);
 
-					usuario.setEmpresa(empresa);
-					usuario.setRole(roleAdmin);
-					usuario = this.usuarioService.save(usuario);
+						if (usuario != null && usuario.getIdUsuario() != null && usuario.getIdUsuario() > 0) {
+							response.setUsuario(mapUsuario(usuario));
+							response.getUsuario().setPassword(":-)");
+							response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+							response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+							response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+						} else {
+							this.empresaService.removeEmpresa(empresa);
+							response.setCodigo(Response.USER_ERROR_REGISTER.getCodigo());
+							response.setDescripcion(Response.USER_ERROR_REGISTER.getMessage());
+							response.setIndicador(Response.USER_ERROR_REGISTER.getIndicador());
+						}
 
-					if (usuario != null && usuario.getIdUsuario() != null && usuario.getIdUsuario() > 0) {
-						response.setUsuario(mapUsuario(usuario));
-						response.getUsuario().setPassword(":-)");
-						response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-						response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-						response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 					} else {
-						this.empresaService.removeEmpresa(empresa);
 						response.setCodigo(Response.USER_ERROR_REGISTER.getCodigo());
 						response.setDescripcion(Response.USER_ERROR_REGISTER.getMessage());
 						response.setIndicador(Response.USER_ERROR_REGISTER.getIndicador());
 					}
+				} else if (this.empresaService.existsByCode(input.getDatos().getEmpresa().getCodigo())) {
+					Empresa empresa = this.empresaService.findByCode(input.getDatos().getEmpresa().getCodigo());
+
+					usuario.setEstadoUsuario(new EstadoUsuario(this.STATUS_USER_LOCK));
+					usuario.setEmpresa(empresa);
+
+					Role role = this.roleService.findByNombre(usuario.getEmpresa().getIdEmpresa(), "ROLE_SIN_ROLE");
+					LOG.info("Role obtenido: " + role);
+					usuario.setRole(role);
+					usuario = this.usuarioService.save(usuario);
+
+					response.setUsuario(mapUsuario(usuario));
+					response.getUsuario().setPassword(":-)");
+					response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+					response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+					response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 
 				} else {
-					response.setCodigo(Response.USER_ERROR_REGISTER.getCodigo());
-					response.setDescripcion(Response.USER_ERROR_REGISTER.getMessage());
-					response.setIndicador(Response.USER_ERROR_REGISTER.getIndicador());
+					response.setCodigo(Response.USER_ERROR_COMPANY_NOT_EXIST.getCodigo());
+					response.setDescripcion(Response.USER_ERROR_COMPANY_NOT_EXIST.getCodigo());
+					response.setIndicador(Response.USER_ERROR_COMPANY_NOT_EXIST.getIndicador());
 				}
-			} else if (this.empresaService.findById(input.getDatos().getEmpresa().getIdEmpresa()) != null) {
-
-				usuario.setEmpresa(mapEmpresa(input.getDatos().getEmpresa()));
-				usuario = this.usuarioService.save(usuario);
-
-				response.setUsuario(mapUsuario(usuario));
-				response.getUsuario().setPassword(":-)");
-				response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-				response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-				response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-
-			} else {
-				response.setCodigo(Response.USER_ERROR_COMPANY_NOT_EXIST.getCodigo());
-				response.setDescripcion(Response.USER_ERROR_COMPANY_NOT_EXIST.getCodigo());
-				response.setIndicador(Response.USER_ERROR_COMPANY_NOT_EXIST.getIndicador());
 			}
 		}
 		return new AsyncResult<>(ResponseEntity.ok(response));

@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface IEmpresaDao extends JpaRepository<Empresa, Integer> {
 
     public abstract Boolean existsByCodigo(String codigo);
+
+    public abstract Empresa findByCodigo(String codigo);
 }

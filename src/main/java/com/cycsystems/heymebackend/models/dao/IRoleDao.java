@@ -16,4 +16,6 @@ public interface IRoleDao extends JpaRepository<Role, Integer> {
 	public abstract List<Role> findByEmpresa_IdEmpresaAndDescripcionLikeIgnoreCase(Integer idEmpresa, String nombre);
 	
 	public abstract List<Role> findByEmpresa_IdEmpresa(Integer idEmpresa);
+
+	public abstract Role findByEmpresa_IdEmpresaAndNombre(Integer idEmpresa, String nombre);
 }

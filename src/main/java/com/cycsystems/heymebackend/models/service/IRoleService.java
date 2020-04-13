@@ -22,4 +22,6 @@ public interface IRoleService {
 	public List<Role> findByTitle(Integer idEmpresa, String title);
 	
 	public List<Role> findByNombreLike(Integer idEmpresa, String nombre);
+
+	public Role findByNombre(Integer idEmpresa, String nombre);
 }

@@ -21,4 +21,7 @@ public interface IEmpresaService {
     public List<Empresa> findByName(String name);
 
     public void removeEmpresa(Empresa empresa);
+
+    public Empresa findByCode(String code);
+
 }

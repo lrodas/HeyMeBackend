@@ -55,4 +55,9 @@ public class EmpresaServiceImpl implements IEmpresaService {
         this.empresaDao.delete(empresa);
     }
 
+    @Override
+    public Empresa findByCode(String code) {
+        return this.empresaDao.findByCodigo(code);
+    }
+
 }
