@@ -437,8 +437,8 @@ public class UsuarioController {
 						response.setDescripcion(Response.USER_ERROR_REGISTER.getMessage());
 						response.setIndicador(Response.USER_ERROR_REGISTER.getIndicador());
 					}
-				} else if (this.empresaService.existsByCode(input.getDatos().getEmpresa().getCodigo())) {
-					Empresa empresa = this.empresaService.findByCode(input.getDatos().getEmpresa().getCodigo());
+				} else if (this.empresaService.existsByCode(input.getDatos().getEmpresa().getCodigo().trim())) {
+					Empresa empresa = this.empresaService.findByCode(input.getDatos().getEmpresa().getCodigo().trim());
 
 					usuario.setEstadoUsuario(new EstadoUsuario(this.STATUS_USER_LOCK));
 					usuario.setEmpresa(empresa);
