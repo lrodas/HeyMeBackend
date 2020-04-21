@@ -53,6 +53,9 @@ public class UsuarioController {
 	@Autowired
 	private IParametroService parametroService;
 
+	@Autowired
+	private ICaptchaService captchaService;
+
 	// @Autowired
     // private MessageSource messageSource;
 
@@ -260,8 +263,20 @@ public class UsuarioController {
 		
 		LOG.info("METHOD: guardarUsuario() --PARAMS: usuario: " + input);
 		UsuarioResponse response = new UsuarioResponse();
-		
-		if (input.getDatos().getNombres() == null || input.getDatos().getNombres().isEmpty()) {
+
+		if (input.getDatos() == null) {
+			response.setCodigo(Response.USER_NOT_EMPTY.getCodigo());
+			response.setDescripcion(Response.USER_NOT_EMPTY.getMessage());
+			response.setIndicador(Response.USER_NOT_EMPTY.getIndicador());
+		} else if (input.getRecaptchaResponse() == null || input.getRecaptchaResponse().isEmpty()) {
+			response.setCodigo(Response.RECAPTCHA_NOT_EMPTY.getCodigo());
+			response.setDescripcion(Response.RECAPTCHA_NOT_EMPTY.getMessage());
+			response.setIndicador(Response.RECAPTCHA_NOT_EMPTY.getIndicador());
+		} else if (!this.captchaService.verify(input.getRecaptchaResponse())) {
+			response.setCodigo(Response.RECAPTCHA_NOT_VALID.getCodigo());
+			response.setDescripcion(Response.RECAPTCHA_NOT_VALID.getMessage());
+			response.setIndicador(Response.RECAPTCHA_NOT_VALID.getIndicador());
+		} else if (input.getDatos().getNombres() == null || input.getDatos().getNombres().isEmpty()) {
 			response.setCodigo(Response.NOMBRE_USUARIO_ERROR.getCodigo());
 			response.setDescripcion(Response.NOMBRE_USUARIO_ERROR.getMessage());
 			response.setIndicador(Response.NOMBRE_USUARIO_ERROR.getIndicador());
@@ -456,7 +471,7 @@ public class UsuarioController {
 
 				} else {
 					response.setCodigo(Response.USER_ERROR_COMPANY_NOT_EXIST.getCodigo());
-					response.setDescripcion(Response.USER_ERROR_COMPANY_NOT_EXIST.getCodigo());
+					response.setDescripcion(Response.USER_ERROR_COMPANY_NOT_EXIST.getMessage());
 					response.setIndicador(Response.USER_ERROR_COMPANY_NOT_EXIST.getIndicador());
 				}
 			}

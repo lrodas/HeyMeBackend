@@ -60,7 +60,9 @@ public enum Response {
 	USER_ERROR_COMPANY_NOT_EXIST("0055", "No hemos podido registrarte en HeyMe la empresa especificada no existe", "ERROR"),
 	COMPANY_NOT_EMPTY_ERROR("0056", "Los datos de la empresa son obligatorios", "ERROR"),
 	USER_STATUS_NOT_EMPTY_ERROR("0057", "El estado del usuario es obligatorio", "ERROR"),
-	USER_NAME_EXIST("0058", "El correo ingresado ya existe", "ERROR");
+	USER_NAME_EXIST("0058", "El correo ingresado ya existe", "ERROR"),
+	RECAPTCHA_NOT_EMPTY("0059", "La respuesta de la verficiacion del recaptcha no puede ser vacio", "ERROR"),
+	RECAPTCHA_NOT_VALID("0060", "El recaptcha no es valido", "ERROR");
 
 	private String codigo;
 	private String message;

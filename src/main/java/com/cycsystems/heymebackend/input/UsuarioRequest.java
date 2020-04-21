@@ -16,4 +16,5 @@ public class UsuarioRequest extends BaseInput {
 	private Usuario datos;
 	private Date fechaInicio;
 	private Date fechaFin;
+	private String recaptchaResponse;
 }
