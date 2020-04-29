@@ -10,4 +10,5 @@ import lombok.*;
 public class Canal {
 	private Integer idCanal;
 	private String nombre;
+	private Boolean estado;
 }

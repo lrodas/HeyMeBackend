@@ -284,18 +284,6 @@ public class UsuarioController {
 			response.setCodigo(Response.APELLIDO_USUARIO_ERROR.getCodigo());
 			response.setDescripcion(Response.APELLIDO_USUARIO_ERROR.getMessage());
 			response.setIndicador(Response.APELLIDO_USUARIO_ERROR.getIndicador());
-		} else if (input.getDatos().getDireccion() == null || input.getDatos().getDireccion().isEmpty()) {
-			response.setCodigo(Response.DIRECCION_USUARIO_ERROR.getCodigo());
-			response.setDescripcion(Response.DIRECCION_USUARIO_ERROR.getMessage());
-			response.setIndicador(Response.DIRECCION_USUARIO_ERROR.getIndicador());
-		} else if (input.getDatos().getTelefono() == null || input.getDatos().getTelefono().isEmpty()) { 
-			response.setCodigo(Response.TELEFONO_USUARIO_ERROR.getCodigo());
-			response.setDescripcion(Response.TELEFONO_USUARIO_ERROR.getMessage());
-			response.setIndicador(Response.TELEFONO_USUARIO_ERROR.getIndicador());
-		} else if (input.getDatos().getGenero() == null || input.getDatos().getGenero().getIdGenero() == null || input.getDatos().getGenero().getIdGenero() <= 0) {
-			response.setCodigo(Response.GENERO_ERROR.getCodigo());
-			response.setDescripcion(Response.GENERO_ERROR.getMessage());
-			response.setIndicador(Response.GENERO_ERROR.getIndicador());
 		} else if (input.getDatos().getUsername() == null || input.getDatos().getUsername().isEmpty()) {
 			response.setCodigo(Response.CORREO_ERROR.getCodigo());
 			response.setDescripcion(Response.CORREO_ERROR.getMessage());
@@ -321,13 +309,8 @@ public class UsuarioController {
 				usuario.setIdUsuario(input.getDatos().getIdUsuario());
 				usuario.setNombres(input.getDatos().getNombres());
 				usuario.setApellidos(input.getDatos().getApellidos());
-				usuario.setTelefono(input.getDatos().getTelefono());
-				usuario.setDireccion(input.getDatos().getDireccion());
-				usuario.setGenero(new Genero(input.getDatos().getGenero().getIdGenero(), input.getDatos().getGenero().getDescripcion()));
 				usuario.setUsername(input.getDatos().getUsername());
 				usuario.setPassword(this.passwordEncoder.encode(input.getDatos().getPassword()));
-				usuario.setImg(input.getDatos().getImg());
-				usuario.setEnabled(input.getDatos().getEnabled());
 				usuario.setEnabled(true);
 
 				if (input.getDatos().getEmpresa().getCodigo() == null || input.getDatos().getEmpresa().getCodigo().isEmpty()) {
@@ -581,7 +564,7 @@ public class UsuarioController {
 		usuario.setApellidos(entityUsuario.getApellidos());
 		usuario.setDireccion(entityUsuario.getDireccion());
 		usuario.setEnabled(entityUsuario.getEnabled());
-		usuario.setGenero(new com.cycsystems.heymebackend.common.Genero(entityUsuario.getGenero().getIdGenero(), entityUsuario.getGenero().getDescripcion()));
+		if (entityUsuario.getGenero() != null) usuario.setGenero(new com.cycsystems.heymebackend.common.Genero(entityUsuario.getGenero().getIdGenero(), entityUsuario.getGenero().getDescripcion()));
 		usuario.setImg(entityUsuario.getImg());
 		usuario.setRole(new com.cycsystems.heymebackend.common.Role(
 				entityUsuario.getRole().getIdRole(),

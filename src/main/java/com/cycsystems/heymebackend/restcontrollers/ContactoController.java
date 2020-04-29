@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/contact")
@@ -207,13 +208,10 @@ public class ContactoController {
 			
 			List<Contacto> contactos = this.contactoService.findByName(usuario.getEmpresa().getIdEmpresa(), input.getContacto().getNombre());
 
-			if (contactos != null && !contactos.isEmpty()) {
-				for (Contacto contacto: contactos) {
-					if (contacto.getEmpresa().getIdEmpresa().compareTo(usuario.getEmpresa().getIdEmpresa()) != 0) {
-						contactos.remove(contacto);
-					}
-				}
-			}
+			contactos = contactos
+					.stream()
+					.filter(contacto -> usuario.getEmpresa().getIdEmpresa().compareTo(contacto.getEmpresa().getIdEmpresa()) == 0)
+					.collect(Collectors.toList());
 
 			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());

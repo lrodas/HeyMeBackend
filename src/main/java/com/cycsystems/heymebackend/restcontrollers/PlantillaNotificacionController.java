@@ -1,6 +1,7 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
 import com.cycsystems.heymebackend.common.Canal;
+import com.cycsystems.heymebackend.convert.CCanal;
 import com.cycsystems.heymebackend.input.PlantillaNotificacionRequest;
 import com.cycsystems.heymebackend.models.entity.PlantillaNotificacion;
 import com.cycsystems.heymebackend.models.entity.Usuario;
@@ -192,7 +193,7 @@ public class PlantillaNotificacionController {
 			plantilla.setTitulo(input.getPlantilla().getTitulo());
 			plantilla.setPlantilla(input.getPlantilla().getPlantilla());
 			plantilla.setEstado(input.getPlantilla().getEstado());
-			plantilla.setCanal(new com.cycsystems.heymebackend.models.entity.Canal(input.getPlantilla().getCanal().getIdCanal(), ""));
+			plantilla.setCanal(new com.cycsystems.heymebackend.models.entity.Canal(input.getPlantilla().getCanal().getIdCanal(), "", null));
 			plantilla.setEmpresa(usuario.getEmpresa());
 			plantilla = this.service.save(plantilla);
 			
@@ -213,7 +214,7 @@ public class PlantillaNotificacionController {
 		modelo.setTitulo(entity.getTitulo());
 		modelo.setPlantilla(entity.getPlantilla());
 		modelo.setEstado(entity.getEstado());
-		modelo.setCanal(new Canal(entity.getCanal().getIdCanal(), entity.getCanal().getNombre()));
+		modelo.setCanal(CCanal.EntityToModel(entity.getCanal()));
 		return modelo;
 	}
 }

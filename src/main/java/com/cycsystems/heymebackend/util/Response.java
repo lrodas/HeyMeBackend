@@ -62,7 +62,13 @@ public enum Response {
 	USER_STATUS_NOT_EMPTY_ERROR("0057", "El estado del usuario es obligatorio", "ERROR"),
 	USER_NAME_EXIST("0058", "El correo ingresado ya existe", "ERROR"),
 	RECAPTCHA_NOT_EMPTY("0059", "La respuesta de la verficiacion del recaptcha no puede ser vacio", "ERROR"),
-	RECAPTCHA_NOT_VALID("0060", "El recaptcha no es valido", "ERROR");
+	RECAPTCHA_NOT_VALID("0060", "El recaptcha no es valido", "ERROR"),
+	MEDIUM_DATA_NOT_EMPTY("0061", "Es necesario enviar la información del canal" , "ERROR"),
+	MEDIUM_ID_NOT_EMPTY("0062", "Es necesario enviar el identificador del canal", "ERROR"),
+	MEDIUM_NOT_EXIST("0063", "El canal consultado no existe, por favor verifique", "ERROR"),
+	MEDIUM_STATUS_NOT_EMPTY("0064", "Es necesario enviar el estado del canal", "ERRPR"),
+	MEDIUM_NAME_NOT_EMPTY("0065", "Es necesario enviar el nombre del canal", "ERROR"),
+	MEDIUM_SAVE_ERROR("0066", "Ha ocurrido un error al guardar el canal, por favor intenta mas tarde", "ERROR");
 
 	private String codigo;
 	private String message;

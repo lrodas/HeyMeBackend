@@ -35,7 +35,7 @@ public class Usuario implements Serializable {
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name="idRole")
 	private Role role;
-	
+
 	@Column(length = 30, unique = true)
 	private String username;
 

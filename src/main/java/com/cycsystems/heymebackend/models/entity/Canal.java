@@ -19,6 +19,9 @@ public class Canal implements Serializable {
 	private Integer idCanal;
 	private String nombre;
 
+	@Column(name = "estado")
+	private Boolean estado;
+
 	private static final long serialVersionUID = 1L;
 
 }
