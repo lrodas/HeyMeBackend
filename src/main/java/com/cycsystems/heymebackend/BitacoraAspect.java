@@ -29,9 +29,13 @@ public class BitacoraAspect {
 	private static Logger LOG = LogManager.getLogger(BitacoraAspect.class);
 	private ObjectMapper objectMapper = new ObjectMapper();
 	
+	private final IBitacoraService bitacoraService;
+
 	@Autowired
-	private IBitacoraService bitacoraService;
-	
+	public BitacoraAspect(IBitacoraService bitacoraService) {
+		this.bitacoraService = bitacoraService;
+	}
+
 	@Before("within(com.cycsystems.heymebackend.restcontrollers..*)")
 	public void endpointBefore(JoinPoint p) {
 		
@@ -73,6 +77,7 @@ public class BitacoraAspect {
 					if (signatureArgs.length > 0 && signatureArgs[0] != null) {
 						Bitacora bitacora = new Bitacora();
 						bitacora.setMetodo(metodo);
+						assert result != null;
 						bitacora.setJson(objectMapper.writer().writeValueAsString(result.getBody()));
 						bitacora.setTipoOperacion(new TipoOperacion(Constants.REPLAY_OUT, ""));
 						bitacora.setPagina("");
@@ -85,9 +90,7 @@ public class BitacoraAspect {
 				}
 			}
 			LOG.info(p.getTarget().getClass().getSimpleName() + " " + metodo + " END");
-		}, error -> {
-			LOG.error("Error en endpointAfterReturning", error);
-		});
+		}, error -> LOG.error("Error en endpointAfterReturning", error));
 	}
 	
 	@AfterThrowing(value = ("within(com.cycsystems.heymebackend.restcontrollers..*)"), throwing = "e")
