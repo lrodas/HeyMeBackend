@@ -1,5 +1,6 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
+import com.cycsystems.heymebackend.convert.CUsuario;
 import com.cycsystems.heymebackend.input.CambioContrasenaRequest;
 import com.cycsystems.heymebackend.input.UsuarioRequest;
 import com.cycsystems.heymebackend.models.entity.*;
@@ -25,9 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/user")
@@ -35,42 +35,46 @@ public class UsuarioController {
 
 	private Logger LOG = LogManager.getLogger(UsuarioController.class);
 	
-	@Autowired
-	private IUsuarioService usuarioService;
+	private final IUsuarioService usuarioService;
 
-	@Autowired
-	private IEmpresaService empresaService;
+	private final IEmpresaService empresaService;
 
-	@Autowired
-	private IRoleService roleService;
+	private final IRoleService roleService;
 
-	@Autowired
-	private IPermisoService permisoService;
+	private final IPermisoService permisoService;
 
-	@Autowired
-	private IOpcionService opcionService;
+	private final IOpcionService opcionService;
 
-	@Autowired
-	private IParametroService parametroService;
+	private final IParametroService parametroService;
 
-	@Autowired
-	private ICaptchaService captchaService;
+	private final ICaptchaService captchaService;
 
 	// @Autowired
     // private MessageSource messageSource;
 
-	@Autowired
-	private Environment env;
+	private final Environment env;
 	
-	@Autowired
-	private BCryptPasswordEncoder passwordEncoder;
+	private final BCryptPasswordEncoder passwordEncoder;
 
 	@Value("${status.user.lock}")
 	private Integer STATUS_USER_LOCK;
 
 	@Value("${status.user.active}")
 	private Integer STATUS_USER_ACTIVE;
-	
+
+	@Autowired
+	public UsuarioController(IUsuarioService usuarioService, IEmpresaService empresaService, IRoleService roleService, IPermisoService permisoService, IOpcionService opcionService, IParametroService parametroService, ICaptchaService captchaService, Environment env, BCryptPasswordEncoder passwordEncoder) {
+		this.usuarioService = usuarioService;
+		this.empresaService = empresaService;
+		this.roleService = roleService;
+		this.permisoService = permisoService;
+		this.opcionService = opcionService;
+		this.parametroService = parametroService;
+		this.captchaService = captchaService;
+		this.env = env;
+		this.passwordEncoder = passwordEncoder;
+	}
+
 	@Async
 	@PostMapping("/changeStatus")
 	public ListenableFuture<ResponseEntity<?>> cambiarEstado(@RequestBody UsuarioRequest input) {
@@ -93,12 +97,19 @@ public class UsuarioController {
 			output.setIndicador(Response.USER_STATUS_NOT_EMPTY_ERROR.getIndicador());
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getDatos().getIdUsuario());
-			usuario.setEnabled(input.getDatos().getEnabled());
-						
-			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-			output.setUsuario(this.mapUsuario(this.usuarioService.save(usuario)));
+
+			if (usuario == null) {
+				output.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				output.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				output.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+			} else {
+				usuario.setEnabled(input.getDatos().getEnabled());
+
+				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+				output.setUsuario(CUsuario.EntityToModel(this.usuarioService.save(usuario)));
+			}
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -106,18 +117,29 @@ public class UsuarioController {
 	
 	@Async
 	@PostMapping("/retrieveUsers")
-	public ListenableFuture<ResponseEntity<?>> obtenerUsuarios(@RequestBody UsuarioRequest input) {
+	public ListenableFuture<ResponseEntity<UsuarioResponse>> obtenerUsuarios(@RequestBody UsuarioRequest input) {
 		
 		LOG.info("METHOD: obtenerUsuario() --PARAMS: input: " + input);
 		UsuarioResponse output = new UsuarioResponse();
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-		
-		List<Usuario> usuarios = this.usuarioService.findAll(usuario.getEmpresa().getIdEmpresa());
-		
-		for (Usuario usuarioDB: usuarios) {
-			output.getUsuarios().add(this.mapUsuario(usuarioDB));
+
+		if (usuario == null) {
+			output.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+			output.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+			output.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+		} else {
+			List<com.cycsystems.heymebackend.common.Usuario> usuarios = this.usuarioService
+					.findAll(usuario.getEmpresa().getIdEmpresa())
+					.stream()
+					.map(CUsuario::EntityToModel)
+					.collect(Collectors.toList());
+
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+			output.setUsuarios(usuarios);
+
 		}
-		
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
@@ -134,14 +156,19 @@ public class UsuarioController {
 			output.setIndicador(Response.NOMBRE_USUARIO_ERROR.getIndicador());
 		} else {
 
-			Usuario usuariosDB = this.usuarioService.findByUsername(input.getDatos().getUsername());
+			Usuario usuario = this.usuarioService.findByUsername(input.getDatos().getUsername());
 
-			com.cycsystems.heymebackend.common.Usuario usuario = this.mapUsuario(usuariosDB);
-			
-			output.setUsuario(usuario);
-			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+			if (usuario == null) {
+				output.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				output.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				output.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+			} else {
+
+				output.setUsuario(CUsuario.EntityToModel(usuario));
+				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+			}
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -161,18 +188,24 @@ public class UsuarioController {
 			output.setIndicador(Response.NOMBRE_USUARIO_ERROR.getIndicador());
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-			List<Usuario> usuarios = this.usuarioService.findByName(usuario.getEmpresa().getIdEmpresa(), input.getDatos().getNombres());
-			List<com.cycsystems.heymebackend.common.Usuario> modelos = new ArrayList<>();
-			
-			for (Usuario usuarioDB: usuarios) {
-				modelos.add(this.mapUsuario(usuarioDB));
+
+			if (usuario == null) {
+				output.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				output.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				output.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+			} else {
+				List<com.cycsystems.heymebackend.common.Usuario> usuarios = this.usuarioService
+						.findByName(usuario.getEmpresa().getIdEmpresa(), input.getDatos().getNombres())
+						.stream()
+						.filter(usuario1 -> usuario1.getEmpresa().getIdEmpresa().compareTo(usuario.getEmpresa().getIdEmpresa()) == 0)
+						.map(CUsuario::EntityToModel)
+						.collect(Collectors.toList());
+
+				output.setUsuarios(usuarios);
+				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			}
-			
-			output.setUsuarios(modelos);
-			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-			
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -184,8 +217,6 @@ public class UsuarioController {
 		
 		LOG.info("METHOD: obtenerUsuariosPorFechas() --PARAMS: UsuarioRequest: " + input);
 		UsuarioResponse output = new UsuarioResponse();
-		Date fechaInicio = null;
-		Date fechaFin = null;
 		
 		if (input.getFechaFin() == null) {
 			output.setCodigo(Response.END_DATE_NOT_EMPTY.getCodigo());
@@ -196,43 +227,28 @@ public class UsuarioController {
 			output.setDescripcion(Response.START_DATE_NOT_EMPTY.getMessage());
 			output.setIndicador(Response.START_DATE_NOT_EMPTY.getIndicador());
 		} else {
-			
-			Calendar calendar = Calendar.getInstance();
-		    calendar.set(Calendar.HOUR_OF_DAY, 0);
-		    calendar.set(Calendar.MINUTE, 0);
-		    calendar.set(Calendar.SECOND, 0);
-		    calendar.set(Calendar.MILLISECOND, 0);
-		    
-		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getYear(),
-		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getMonthValue() - 1,
-		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaInicio())).getDayOfMonth() + 1);
-		    
-		    fechaInicio = calendar.getTime();
-		    
-		    calendar.set(Calendar.HOUR_OF_DAY, 23);
-		    calendar.set(Calendar.MINUTE, 59);
-		    calendar.set(Calendar.SECOND, 59);
-		    calendar.set(Calendar.MILLISECOND, 0);
-		    
-		    calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getYear(),
-		    		LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getMonthValue() - 1,
-		    LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(input.getFechaFin())).getDayOfMonth() + 1);
-		    
-		    fechaFin = calendar.getTime();
-		    Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-			
-			List<Usuario> usuarios = this.usuarioService.findByStartDate(usuario.getEmpresa().getIdEmpresa(), fechaInicio, fechaFin);
-			List<com.cycsystems.heymebackend.common.Usuario> modelos = new ArrayList<>();
-			
-			for (Usuario usuarioDB: usuarios) {
-				modelos.add(this.mapUsuario(usuarioDB));
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			if (usuario == null) {
+				output.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				output.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				output.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+			} else {
+
+				Date fechaInicio = Util.mapDate(input.getFechaInicio());
+				Date fechaFin = Util.mapDate(input.getFechaFin());
+
+				List<com.cycsystems.heymebackend.common.Usuario> usuarios = this.usuarioService
+						.findByStartDate(usuario.getEmpresa().getIdEmpresa(), fechaInicio, fechaFin)
+						.stream()
+						.map(CUsuario::EntityToModel)
+						.collect(Collectors.toList());
+
+				output.setUsuarios(usuarios);
+				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			}
-			
-			output.setUsuarios(modelos);
-			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-			
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -314,12 +330,12 @@ public class UsuarioController {
 				usuario.setEnabled(true);
 
 				if (input.getDatos().getEmpresa().getCodigo() == null || input.getDatos().getEmpresa().getCodigo().isEmpty()) {
-					String codigo = "";
-					Boolean existe = false;
+					String codigo;
+					boolean existe;
 					do {
 						codigo = UUID.randomUUID().toString();
 						existe = this.empresaService.existsByCode(codigo);
-					} while (existe == true);
+					} while (existe);
 
 					usuario.setEstadoUsuario(new EstadoUsuario(this.STATUS_USER_ACTIVE));
 
@@ -418,7 +434,7 @@ public class UsuarioController {
 						usuario = this.usuarioService.save(usuario);
 
 						if (usuario != null && usuario.getIdUsuario() != null && usuario.getIdUsuario() > 0) {
-							response.setUsuario(mapUsuario(usuario));
+							response.setUsuario(CUsuario.EntityToModel(usuario));
 							response.getUsuario().setPassword(":-)");
 							response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 							response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
@@ -442,12 +458,10 @@ public class UsuarioController {
 					usuario.setEmpresa(empresa);
 
 					Role role = this.roleService.findByNombre(usuario.getEmpresa().getIdEmpresa(), "ROLE_SIN_ROLE");
-					LOG.info("Role obtenido: " + role);
 					usuario.setRole(role);
 					usuario = this.usuarioService.save(usuario);
 
-					response.setUsuario(mapUsuario(usuario));
-					response.getUsuario().setPassword(":-)");
+					response.setUsuario(CUsuario.EntityToModel(usuario));
 					response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 					response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 					response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
@@ -494,11 +508,8 @@ public class UsuarioController {
 			usuario.setRole(new Role(input.getDatos().getRole().getIdRole()));
 			
 			usuario = this.usuarioService.save(usuario);
-			
-			response.setUsuario(mapUsuario(usuario));
-			
-			response.getUsuario().setPassword(":-)");
-			
+
+			response.setUsuario(CUsuario.EntityToModel(usuario));
 			response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 			response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 			response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
@@ -554,49 +565,5 @@ public class UsuarioController {
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(response));
-	}
-	
-	private com.cycsystems.heymebackend.common.Usuario mapUsuario(Usuario entityUsuario) {
-		
-		com.cycsystems.heymebackend.common.Usuario usuario = new com.cycsystems.heymebackend.common.Usuario();
-		usuario.setIdUsuario(entityUsuario.getIdUsuario());
-		usuario.setNombres(entityUsuario.getNombres());
-		usuario.setApellidos(entityUsuario.getApellidos());
-		usuario.setDireccion(entityUsuario.getDireccion());
-		usuario.setEnabled(entityUsuario.getEnabled());
-		if (entityUsuario.getGenero() != null) usuario.setGenero(new com.cycsystems.heymebackend.common.Genero(entityUsuario.getGenero().getIdGenero(), entityUsuario.getGenero().getDescripcion()));
-		usuario.setImg(entityUsuario.getImg());
-		usuario.setRole(new com.cycsystems.heymebackend.common.Role(
-				entityUsuario.getRole().getIdRole(),
-				entityUsuario.getRole().getNombre(),
-				entityUsuario.getRole().getDescripcion(),
-				entityUsuario.getRole().getEstado()));
-		usuario.setTelefono(entityUsuario.getTelefono());
-		usuario.setUsername(entityUsuario.getUsername());
-		usuario.setEmpresa(this.mapEmpresaModelo(entityUsuario.getEmpresa()));
-		
-		return usuario;
-	}
-
-	private Empresa mapEmpresa (com.cycsystems.heymebackend.common.Empresa modelo) {
-		Empresa empresa = new Empresa();
-		empresa.setIdEmpresa(modelo.getIdEmpresa());
-		empresa.setNombreEmpresa(modelo.getNombreEmpresa());
-		empresa.setDireccion(modelo.getDireccion());
-		empresa.setTelefono(modelo.getTelefono());
-		empresa.setCodigo(modelo.getCodigo());
-
-		return empresa;
-	}
-
-	private com.cycsystems.heymebackend.common.Empresa mapEmpresaModelo(Empresa empresa) {
-		com.cycsystems.heymebackend.common.Empresa modelo = new com.cycsystems.heymebackend.common.Empresa();
-		modelo.setIdEmpresa(empresa.getIdEmpresa());
-		modelo.setNombreEmpresa(empresa.getNombreEmpresa());
-		modelo.setDireccion(empresa.getDireccion());
-		modelo.setTelefono(empresa.getTelefono());
-		modelo.setCodigo(empresa.getCodigo());
-
-		return modelo;
 	}
 }

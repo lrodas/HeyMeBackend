@@ -60,6 +60,10 @@ public class Contacto implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idEmpresa", nullable = false)
 	private Empresa empresa;
+
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(name = "idGrupo")
+	private Grupo grupo;
 	
 	@PrePersist
 	private void prePersist() {

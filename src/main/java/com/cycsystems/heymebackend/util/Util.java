@@ -1,5 +1,10 @@
 package com.cycsystems.heymebackend.util;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
+
 public class Util {
 
     public static String convertIntMonthToStringMonth(Integer month) {
@@ -39,5 +44,19 @@ public class Util {
         double random_double = Math.random() * (max - min + 1) + min;
         int random_int = (int)(Math.random() * (max - min + 1) + min);
         return random_int;
+    }
+
+    public static Date mapDate(Date fecha) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.set(LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(fecha)).getYear(),
+                LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(fecha)).getMonthValue() - 1,
+                LocalDate.parse(new SimpleDateFormat("yyyy-MM-dd").format(fecha)).getDayOfMonth() + 1);
+
+        return calendar.getTime();
     }
 }

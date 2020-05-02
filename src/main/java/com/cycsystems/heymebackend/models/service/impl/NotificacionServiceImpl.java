@@ -26,7 +26,11 @@ public class NotificacionServiceImpl implements INotificacionService {
 
 	@Override
 	public Notificacion findById(Long id) {
-		return this.repository.findById(id).get();
+		if (this.repository.findById(id).isPresent()) {
+			return this.repository.findById(id).get();
+		} else {
+			return null;
+		}
 	}
 
 	@Override

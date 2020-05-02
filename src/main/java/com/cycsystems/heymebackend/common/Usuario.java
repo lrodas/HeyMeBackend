@@ -1,6 +1,13 @@
 package com.cycsystems.heymebackend.common;
 
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+import java.util.Date;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,4 +28,6 @@ public class Usuario {
 	private Genero genero;
 	private Boolean enabled;
 	private Empresa empresa;
+	private EstadoUsuario estadoUsuario;
+	private Date fechaAlta;
 }

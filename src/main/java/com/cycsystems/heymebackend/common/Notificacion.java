@@ -17,6 +17,7 @@ import lombok.ToString;
 public class Notificacion {
 
 	private Long idNotificaciones;
+	private String codigo;
 	private String titulo;
 	private Date fechaEnvio;
 	private Date fechaProgramacion;
@@ -26,4 +27,5 @@ public class Notificacion {
 	private Usuario usuario;
 	private Canal canal;
 	private Boolean estadoPago;
+	private Empresa empresa;
 }

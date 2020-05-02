@@ -22,7 +22,11 @@ public class UsuarioServiceImpl implements IUsuarioService {
 
 	@Override
 	public Usuario findById(Integer id) {
-		return this.usuarioRepository.findById(id).get();
+		if (this.usuarioRepository.findById(id).isPresent()) {
+			return this.usuarioRepository.findById(id).get();
+		} else {
+			return null;
+		}
 	}
 
 	@Override

@@ -23,6 +23,9 @@ public class Opcion {
 	private boolean evento;
 	private String icono;
 
+	@Column(name = "mostrar", nullable = false, columnDefinition = "TINYINT DEFAULT 1")
+	private boolean mostrar;
+
 	public Opcion(Integer idOpcion) {
 		this.idOpcion = idOpcion;
 	}

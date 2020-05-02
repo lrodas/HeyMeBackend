@@ -6,19 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-public class Role {
+public class Grupo {
 
-	private Integer idRole;
-	private String descripcion;
-	private String nombre;
-	private Boolean estado;
-	private Empresa empresa;
-	private List<Permiso> permisos;
+    private Integer idGrupo;
+    private String nombre;
+    private Empresa empresa;
 }

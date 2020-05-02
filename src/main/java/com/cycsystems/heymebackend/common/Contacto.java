@@ -18,4 +18,7 @@ public class Contacto {
 	private String direccion;
 	private Boolean estado;
 	private Pais pais;
+	private Empresa empresa;
+	private Grupo grupo;
+	private Usuario usuario;
 }

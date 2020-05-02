@@ -26,7 +26,11 @@ public class PaisServiceImpl implements IPaisService {
 
     @Override
     public Pais findCountryById(Integer id) {
-        return this.paisRepository.findById(id).get();
+        if (this.paisRepository.findById(id).isPresent()) {
+            return this.paisRepository.findById(id).get();
+        } else {
+            return null;
+        }
     }
 
     @Override

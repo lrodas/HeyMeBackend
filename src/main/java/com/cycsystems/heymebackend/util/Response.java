@@ -68,7 +68,14 @@ public enum Response {
 	MEDIUM_NOT_EXIST("0063", "El canal consultado no existe, por favor verifique", "ERROR"),
 	MEDIUM_STATUS_NOT_EMPTY("0064", "Es necesario enviar el estado del canal", "ERRPR"),
 	MEDIUM_NAME_NOT_EMPTY("0065", "Es necesario enviar el nombre del canal", "ERROR"),
-	MEDIUM_SAVE_ERROR("0066", "Ha ocurrido un error al guardar el canal, por favor intenta mas tarde", "ERROR");
+	MEDIUM_SAVE_ERROR("0066", "Ha ocurrido un error al guardar el canal, por favor intenta mas tarde", "ERROR"),
+	GROUP_NOT_EMPTY("0067", "Es necesario enviar los datos del grupo", "ERROR"),
+	GROUP_NAME_NOT_EMPTY("0068", "Es necesario enviar el nombre del grupo", "ERROR"),
+	GROUP_ID_NOT_EMPTY("0069", "Es necesario enviar el codigo del grupo", "ERROR"),
+	GROUP_NOT_EXIST("0070", "El grupo especificado no existe", "ERROR"),
+	GROUP_SAVE_ERROR("0071", "Ha ocurrido un error al guardar el grupo, por favor intenta mas tarde", "ERROR"),
+	NOTIFICATION_CONTACTS_NOT_EMPTY("0072", "La notificacion debe contener por lo menos un destinatario para ser enviada", "ERROR"),
+	NOTIFICATION_ALREADY_CANCELED("0073", "La notificacion ya ha sido cancelada", "ERROR");
 
 	private String codigo;
 	private String message;

@@ -18,7 +18,7 @@ public class SMSServiceImpl {
 	@Autowired
 	private IParametroService parametroService;
 	
-	public String sendSMS(Integer idEmpresa, String to, String smsMessage) {
+	public Message sendSMS(Integer idEmpresa, String to, String smsMessage) {
 		
 		String accountSid = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.ACCOUNT_SID).getValor();
 		String authToken = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.AUTH_TOKEN).getValor();
@@ -35,7 +35,7 @@ public class SMSServiceImpl {
             .create();
 
 		LOG.info("Mensaje: " + message.getStatus());
-		return message.getSid();
+		return message;
 	}
 
 	public String sendWhatsapp(Integer idEmpresa, String to, String txtMessage) {

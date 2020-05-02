@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.cycsystems.heymebackend.models.entity.*;
+import com.twilio.rest.api.v2010.account.Message;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,22 +26,26 @@ public class TareasProgramadas {
 	
 	// private Logger LOG = LogManager.getLogger(TareasProgramadas.class);
 	
-	@Autowired
-	private INotificacionService notificationService;
-	@Autowired
-	private SMSServiceImpl smsService;
-	@Autowired
-	private MailServiceImpl mailService;
-	@Autowired
-	private IEmpresaService empresaService;
-	@Autowired
-	private IParametroService parametroService;
-	@Autowired
-	private IPaqueteConsumoService paqueteConsumoService;
-	@Autowired
-	private IDetallePaqueteService detallePaqueteService;
+	private final INotificacionService notificationService;
+	private final SMSServiceImpl smsService;
+	private final MailServiceImpl mailService;
+	private final IEmpresaService empresaService;
+	private final IParametroService parametroService;
+	private final IPaqueteConsumoService paqueteConsumoService;
+	private final IDetallePaqueteService detallePaqueteService;
 
 	private Logger LOG = LogManager.getLogger(TareasProgramadas.class);
+
+	@Autowired
+	public TareasProgramadas(INotificacionService notificationService, SMSServiceImpl smsService, MailServiceImpl mailService, IEmpresaService empresaService, IParametroService parametroService, IPaqueteConsumoService paqueteConsumoService, IDetallePaqueteService detallePaqueteService) {
+		this.notificationService = notificationService;
+		this.smsService = smsService;
+		this.mailService = mailService;
+		this.empresaService = empresaService;
+		this.parametroService = parametroService;
+		this.paqueteConsumoService = paqueteConsumoService;
+		this.detallePaqueteService = detallePaqueteService;
+	}
 
 	@Scheduled(fixedDelay = 60000)
 	// @Scheduled(fixedDelay = 60000)
@@ -79,29 +84,36 @@ public class TareasProgramadas {
 				String mailFrom = this.parametroService.findParameterByEmpresaAndName(empresa.getIdEmpresa(), Constants.REMITENTE_CORREO).getValor();
 				LOG.info("Notificaciones: " + notificaciones.size());
 				for (Notificacion notificacion : notificaciones) {
-					String codigo = "";
 					for (Contacto contacto : notificacion.getDestinatarios()) {
 						if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_SMS) == 0) {
 							
-							if (smsRestantes.compareTo(0) > 0) {								
-								codigo = this.smsService.sendSMS(empresa.getIdEmpresa(), contacto.getPais().getCodigo() + contacto.getTelefono(), notificacion.getNotificacion());
+							if (smsRestantes.compareTo(0) > 0) {
+								Message message = this.smsService.sendSMS(empresa.getIdEmpresa(),
+										contacto.getPais().getCodigo() + contacto.getTelefono(),
+										notificacion.getNotificacion());
 								listaPaquetes.get(0).setConsumoSMS(listaPaquetes.get(0).getConsumoSMS() + 1);
+								notificacion.setCodigo(message.getSid());
+								notificacion.setEstado(new EstadoNotificacion(Constants.ESTADO_NOTIFICACION_ENVIADA, ""));
 							}
 						} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_EMAIL) == 0) {
 							
 							if (mailRestantes.compareTo(0) > 0) {								
 								this.mailService.sendMail(mailFrom, contacto.getEmail(), notificacion.getTitulo(), notificacion.getNotificacion());
+								notificacion.setEstado(new EstadoNotificacion(Constants.ESTADO_NOTIFICACION_ENVIADA, ""));
 							}
 						
 						} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_WHATSAPP) == 0) {
 						
 							if (whatsappRestantes.compareTo(0) > 0) {
-								
+								Message message = this.smsService.sendSMS(empresa.getIdEmpresa(),
+										"whatsapp:" + contacto.getPais().getCodigo() + contacto.getTelefono(),
+										notificacion.getNotificacion());
+								listaPaquetes.get(0).setConsumoWhatsapp(listaPaquetes.get(0).getConsumoWhatsapp() + 1);
+								notificacion.setCodigo(message.getSid());
+								notificacion.setEstado(new EstadoNotificacion(Constants.ESTADO_NOTIFICACION_ENVIADA, ""));
 							}
 						}
 					}
-					notificacion.setCodigo(codigo);
-					notificacion.setEstado(new EstadoNotificacion(Constants.ESTADO_NOTIFICACION_ENVIADA, ""));
 					this.notificationService.save(notificacion);
 				}
 				
