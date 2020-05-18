@@ -794,6 +794,7 @@ public class NotificationController {
 					notificacion.setDestinatarios(contactos);
 					notificacion.setUsuario(usuario);
 					notificacion.setEstadoPago(false);
+					notificacion.setEmpresa(usuario.getEmpresa());
 
 					notificacion = this.notificacionService.save(notificacion);
 

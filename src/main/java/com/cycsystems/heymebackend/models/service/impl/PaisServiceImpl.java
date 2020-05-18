@@ -37,4 +37,9 @@ public class PaisServiceImpl implements IPaisService {
     public List<Pais> findCountryByCodeAndEstado(String code, Boolean estado) {
         return this.paisRepository.findByCodigoLikeIgnoreCaseAndEstado("%" + code + "%", estado);
     }
+
+    @Override
+    public Boolean existById(Integer idPais) {
+        return this.paisRepository.existsById(idPais);
+    }
 }

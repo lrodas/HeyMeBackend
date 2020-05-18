@@ -2,6 +2,7 @@ package com.cycsystems.heymebackend.restcontrollers;
 
 import java.util.Calendar;
 
+import com.cycsystems.heymebackend.convert.CConsumo;
 import com.cycsystems.heymebackend.util.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,53 +64,45 @@ public class PaqueteController {
 		} else {
 			
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-			PaqueteConsumo entity = new PaqueteConsumo();
-			Calendar calendar = Calendar.getInstance();
-			Paquete paquete = this.paqueteService.findById(input.getPaquete().getIdPaquete());
-			
-			entity.setConsumoMAIL(0);
-			entity.setConsumoSMS(0);
-			entity.setConsumoWhatsapp(0);
-			entity.setEmpresa(usuario.getEmpresa());
-			entity.setEstado(new EstadoPaqueteConsumo(Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO));
-			calendar.set(Calendar.DATE, 1);
-			entity.setFechaInicio(calendar.getTime());
-			calendar.set(Calendar.DATE, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-			calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH)); 
-			entity.setFechaFin(calendar.getTime());
-			entity.setPaquete(paquete);
-			
-			entity = this.consumoService.save(entity);
-			
-			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-			output.setConsumo(this.mapModel(entity));
-			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+
+			if (usuario == null) {
+				output.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				output.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				output.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+			} else {
+				PaqueteConsumo entity = new PaqueteConsumo();
+				Calendar calendar = Calendar.getInstance();
+				Paquete paquete = this.paqueteService.findById(input.getPaquete().getIdPaquete());
+
+				if (paquete == null) {
+					output.setCodigo(Response.PACKAGE_NOT_EXIST.getCodigo());
+					output.setDescripcion(Response.PACKAGE_NOT_EXIST.getMessage());
+					output.setIndicador(Response.PACKAGE_NOT_EXIST.getIndicador());
+				} else {
+					entity.setConsumoMAIL(0);
+					entity.setConsumoSMS(0);
+					entity.setConsumoWhatsapp(0);
+					entity.setEmpresa(usuario.getEmpresa());
+					entity.setEstado(new EstadoPaqueteConsumo(Constants.ESTADO_PAQUETE_CONSUMO_ACTIVO));
+					calendar.set(Calendar.DATE, 1);
+					entity.setFechaInicio(calendar.getTime());
+					calendar.set(Calendar.DATE, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+					calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
+					entity.setFechaFin(calendar.getTime());
+					entity.setPaquete(paquete);
+
+					entity = this.consumoService.save(entity);
+
+					output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+					output.setConsumo(CConsumo.EntityToModel(entity));
+					output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+					output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+				}
+			}
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
-	private Consumo mapModel(PaqueteConsumo entity) {
-		Consumo model = new Consumo();
-		model.setConsumoEmail(entity.getConsumoMAIL());
-		model.setConsumoSMS(entity.getConsumoSMS());
-		model.setConsumoWhatsapp(entity.getConsumoWhatsapp());
-		model.setEmpresa(
-				new Empresa(
-						entity.getEmpresa().getIdEmpresa(),
-						entity.getEmpresa().getNombreEmpresa(),
-						entity.getEmpresa().getDireccion(),
-						entity.getEmpresa().getTelefono(),
-						entity.getEmpresa().getCodigo()));
-		model.setFechaFin(entity.getFechaFin());
-		model.setFechaInicio(entity.getFechaInicio());
-		model.setIdPaqueteConsumo(entity.getIdPaqueteConsumo());
-		model.setPaquete(
-				new com.cycsystems.heymebackend.common.Paquete(
-						entity.getPaquete().getIdPaquete(),
-						entity.getPaquete().getNombre(),
-						entity.getPaquete().getPrecio()));
-		return model;
-	}
+
 }

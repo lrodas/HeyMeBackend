@@ -37,7 +37,7 @@ public class Contacto implements Serializable {
 	@Column(name="telefono", nullable=false)
 	private String telefono;
 	
-	@Column(name="email", nullable=false)
+	@Column(name="email")
 	private String email;
 	
 	@ManyToOne(fetch=FetchType.LAZY)

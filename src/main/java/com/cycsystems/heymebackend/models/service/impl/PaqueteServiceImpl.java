@@ -21,7 +21,11 @@ public class PaqueteServiceImpl implements IPaqueteService {
 
     @Override
     public Paquete findById(Integer idPaquete) {
-        return this.paqueteRepository.findById(idPaquete).get();
+        if (this.paqueteRepository.findById(idPaquete).isPresent()) {
+            return this.paqueteRepository.findById(idPaquete).get();
+        } else {
+            return null;
+        }
     }
 
     @Override

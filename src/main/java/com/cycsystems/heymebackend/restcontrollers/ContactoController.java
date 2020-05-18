@@ -1,7 +1,8 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
 import com.cycsystems.heymebackend.convert.CContacto;
-import com.cycsystems.heymebackend.convert.CGrupo;
+import com.cycsystems.heymebackend.convert.CPais;
+import com.cycsystems.heymebackend.convert.CProvincia;
 import com.cycsystems.heymebackend.input.ContactoRequest;
 import com.cycsystems.heymebackend.models.entity.Contacto;
 import com.cycsystems.heymebackend.models.entity.Grupo;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -249,7 +251,132 @@ public class ContactoController {
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
-	
+
+	@Async
+	@PostMapping("/saveAll")
+	public ListenableFuture<ResponseEntity<ContactoResponse>> guardarContactos(@RequestBody ContactoRequest input) {
+
+		LOG.info("METHOD: guardarContactos() --PARAMS: ContactoRequest:" + input);
+		ContactoResponse output = new ContactoResponse();
+
+		if (input.getContactos() == null || input.getContactos().isEmpty()) {
+			output.setCodigo(Response.CONTACT_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.CONTACT_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.CONTACT_NOT_EMPTY.getIndicador());
+		} else {
+			List<String> errores = new ArrayList<>();
+			for (com.cycsystems.heymebackend.common.Contacto contactoModel: input.getContactos()) {
+				if (contactoModel.getNombre() == null || contactoModel.getNombre().isEmpty()) {
+					errores.add(Response.CONTACT_NAME_NOT_EMPTY.getMessage());
+				}
+				if (contactoModel.getApellido() == null || contactoModel.getApellido().isEmpty()) {
+					errores.add(Response.CONTACT_LAST_NAME_NOT_EMPTY.getMessage());
+				}
+				if (contactoModel.getDireccion() == null || contactoModel.getDireccion().isEmpty()) {
+					errores.add(Response.CONTACT_ADDRESS_NOT_EMPTY.getMessage());
+				}
+				if (contactoModel.getTelefono() == null || contactoModel.getTelefono().isEmpty()) {
+					errores.add(Response.CONTACT_PHONE_NOT_EMPTY.getMessage());
+				}
+				if (contactoModel.getPais() == null || contactoModel.getPais().getIdPais() == null ||
+						contactoModel.getPais().getIdPais() <= 0) {
+					errores.add(Response.COUNTRY_ID_EMPTY.getMessage());
+				}
+				if (contactoModel.getProvincia() != null && contactoModel.getProvincia().getIdProvincia() != null) {
+					if (!this.provinciaService.existsById(contactoModel.getProvincia().getIdProvincia())) {
+						errores.add(Response.CONTACT_REGION_NOT_EXIST.getMessage());
+					}
+				}
+				if (contactoModel.getPais() != null &&
+						contactoModel.getPais().getIdPais() != null &&
+						!this.paisService.existById(contactoModel.getPais().getIdPais())) {
+					errores.add(Response.COUNTRY_NOT_EXIST.getMessage());
+				}
+
+				if (contactoModel.getGrupo() != null &&
+						contactoModel.getGrupo().getIdGrupo() != null &&
+						!this.grupoService.existById(contactoModel.getGrupo().getIdGrupo())) {
+					errores.add(Response.GROUP_NOT_EXIST.getMessage());
+				}
+
+				if (contactoModel.getGrupo() != null) {
+					if (contactoModel.getGrupo().getIdGrupo() != null) {
+						if (!this.grupoService.existById(contactoModel.getGrupo().getIdGrupo())) {
+							errores.add(Response.GROUP_NOT_EXIST.getMessage());
+						}
+					} else {
+						if (contactoModel.getGrupo().getNombre() == null || contactoModel.getGrupo().getNombre().trim().isEmpty()) {
+							errores.add(Response.GROUP_NAME_NOT_EMPTY.getMessage());
+						}
+					}
+				}
+			}
+
+			if (!errores.isEmpty()) {
+				output.setCodigo(Response.CONTACT_SAVE_ERRORS.getCodigo());
+				output.setDescripcion(errores.toString());
+				output.setIndicador(Response.CONTACT_SAVE_ERRORS.getIndicador());
+			} else {
+				Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+
+				if (usuario == null) {
+					output.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+					output.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+					output.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+				} else {
+
+					List<Contacto> contactos = new ArrayList<>();
+					for (com.cycsystems.heymebackend.common.Contacto contactoModel: input.getContactos()) {
+						Contacto contacto = new Contacto();
+
+						if (contactoModel.getProvincia() != null && contactoModel.getProvincia().getIdProvincia() != null) {
+							contacto.setProvincia(CProvincia.ModelToEntity(contactoModel.getProvincia()));
+						}
+						contacto.setPais(CPais.ModelToEntity(contactoModel.getPais()));
+						contacto.setNombre(contactoModel.getNombre());
+						contacto.setApellido(contactoModel.getApellido());
+						contacto.setDireccion(contactoModel.getDireccion());
+						contacto.setEmail(contactoModel.getEmail());
+						contacto.setTelefono(contactoModel.getTelefono());
+						contacto.setEstado(contactoModel.getEstado());
+						contacto.setUsuario(usuario);
+						contacto.setEmpresa(usuario.getEmpresa());
+
+						if (contactoModel.getGrupo() != null) {
+							if (contactoModel.getGrupo().getIdGrupo() != null) {
+
+								Grupo grupo = this.grupoService.findById(contactoModel.getGrupo().getIdGrupo());
+								contacto.setGrupo(grupo);
+							} else {
+								if (contactoModel.getGrupo().getNombre() != null && !contactoModel.getGrupo().getNombre().trim().isEmpty()) {
+									Grupo grupo = new Grupo();
+									grupo.setNombre(contactoModel.getGrupo().getNombre());
+									grupo.setEmpresa(usuario.getEmpresa());
+									contacto.setGrupo(grupo);
+								}
+							}
+						} else {
+							contacto.setGrupo(null);
+						}
+						contactos.add(contacto);
+					}
+					LOG.info(contactos);
+					contactos = this.contactoService.saveAll(contactos);
+
+					output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+					output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+					output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+					output.setContactos(contactos
+						.stream()
+						.map(CContacto::EntityToModel)
+						.collect(Collectors.toList()));
+				}
+			}
+		}
+
+		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+
 	@Async
 	@PostMapping("/save")
 	public ListenableFuture<ResponseEntity<ContactoResponse>> guardarContacto(@RequestBody ContactoRequest input) {
@@ -351,7 +478,7 @@ public class ContactoController {
 						}
 					}
 				}
-
+				LOG.info(contacto);
 				contacto = this.contactoService.save(contacto);
 
 				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
@@ -362,5 +489,85 @@ public class ContactoController {
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
+	}
+
+	@Async
+	@PostMapping("/findByGroupName")
+	public ListenableFuture<ResponseEntity<ContactoResponse>> obtenerContactosPorNombreGrupo(@RequestBody ContactoRequest input) {
+		LOG.info("METHOD: obtenerContacotsPorNombreGrupo() --PARAMS: " + input);
+		ContactoResponse response = new ContactoResponse();
+
+		if (input.getContacto() == null ||
+				input.getContacto().getGrupo() == null ||
+				input.getContacto().getGrupo().getNombre() == null ||
+				input.getContacto().getGrupo().getNombre().isEmpty()) {
+			response.setCodigo(Response.GROUP_NAME_NOT_EMPTY.getCodigo());
+			response.setDescripcion(Response.GROUP_NAME_NOT_EMPTY.getMessage());
+			response.setIndicador(Response.GROUP_NAME_NOT_EMPTY.getIndicador());
+		} else {
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+			if (usuario == null) {
+				response.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				response.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				response.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+			} else {
+
+				List<Contacto> contactos = this.contactoService.findByGroupName(usuario.getEmpresa().getIdEmpresa(), input.getContacto().getGrupo().getNombre());
+				response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+				response.setContactos(contactos
+						.stream()
+						.map(CContacto::EntityToModel)
+						.collect(Collectors.toList()));
+			}
+		}
+		return new AsyncResult<>(ResponseEntity.ok(response));
+	}
+
+	@Async
+	@PostMapping("/findByGroup")
+	public ListenableFuture<ResponseEntity<ContactoResponse>> obtenerContactosPorGrupo(@RequestBody ContactoRequest input) {
+		LOG.info("METHOD: obtenerContactosPorGrupo() --PARAMS: " + input);
+		ContactoResponse response = new ContactoResponse();
+
+		if (input.getContacto() == null ||
+				input.getContacto().getGrupo() == null ||
+				input.getContacto().getGrupo().getIdGrupo() == null ||
+				input.getContacto().getGrupo().getIdGrupo() <= 0) {
+			response.setCodigo(Response.GROUP_ID_NOT_EMPTY.getCodigo());
+			response.setDescripcion(Response.GROUP_ID_NOT_EMPTY.getMessage());
+			response.setIndicador(Response.GROUP_ID_NOT_EMPTY.getIndicador());
+		} else {
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+
+			if (usuario == null) {
+				response.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				response.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				response.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+			} else {
+				Grupo grupo = this.grupoService.findById(input.getContacto().getGrupo().getIdGrupo());
+
+				if (grupo == null) {
+					response.setCodigo(Response.GROUP_NOT_EXIST.getCodigo());
+					response.setDescripcion(Response.GROUP_NOT_EXIST.getMessage());
+					response.setIndicador(Response.GROUP_NOT_EXIST.getIndicador());
+				} else {
+
+					List<Contacto> contactos = this.contactoService.findByGroup(usuario.getEmpresa().getIdEmpresa(), input.getContacto().getGrupo().getIdGrupo());
+
+					response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+					response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+					response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+					response.setContactos(contactos
+						.stream()
+						.map(CContacto::EntityToModel)
+						.collect(Collectors.toList()));
+				}
+			}
+		}
+		return new AsyncResult<>(ResponseEntity.ok(response));
 	}
 }

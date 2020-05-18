@@ -2,42 +2,25 @@ package com.cycsystems.heymebackend.input;
 
 import com.cycsystems.heymebackend.common.BaseInput;
 import com.cycsystems.heymebackend.common.Contacto;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Date;
+import java.util.List;
 
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
 public class ContactoRequest extends BaseInput {
 
 	private Contacto contacto;
+	private List<Contacto> contactos;
 	private Date fechaInicio;
 	private Date fechaFin;
 
-	public Contacto getContacto() {
-		return contacto;
-	}
-
-	public void setContacto(Contacto contacto) {
-		this.contacto = contacto;
-	}
-
-	public Date getFechaInicio() {
-		return fechaInicio;
-	}
-
-	public void setFechaInicio(Date fechaInicio) {
-		this.fechaInicio = fechaInicio;
-	}
-
-	public Date getFechaFin() {
-		return fechaFin;
-	}
-
-	public void setFechaFin(Date fechaFin) {
-		this.fechaFin = fechaFin;
-	}
-
-	@Override
-	public String toString() {
-		return "ContactoRequest [contacto=" + contacto + ", fechaInicio=" + fechaInicio + ", fechaFin=" + fechaFin
-				+ ", toString()=" + super.toString() + "]";
-	}
 }

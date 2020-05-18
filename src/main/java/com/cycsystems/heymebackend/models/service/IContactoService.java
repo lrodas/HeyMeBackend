@@ -22,4 +22,10 @@ public interface IContactoService {
 	public List<Contacto> findByCreationDate(Integer idEmpresa, Date fechaInicio, Date fechaFin);
 	
 	public List<Contacto> findByStatus(Integer idEmpresa, Boolean status);
+
+	public List<Contacto> findByGroupName(Integer idEmpresa, String name);
+
+	public List<Contacto> findByGroup(Integer idEmpresa, Integer idGrupo);
+
+	public List<Contacto> saveAll(List<Contacto> entities);
 }

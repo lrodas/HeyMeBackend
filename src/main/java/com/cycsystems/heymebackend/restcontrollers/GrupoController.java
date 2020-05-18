@@ -167,7 +167,7 @@ public class GrupoController {
                 List<com.cycsystems.heymebackend.common.Grupo> grupos = this.grupoService
                         .findByName(request.getGrupo().getNombre(), usuario.getEmpresa().getIdEmpresa())
                         .stream()
-                        .filter(grupo -> grupo.getEmpresa().getIdEmpresa() == request.getGrupo().getEmpresa().getIdEmpresa())
+                        .filter(grupo -> grupo.getEmpresa().getIdEmpresa() == usuario.getEmpresa().getIdEmpresa())
                         .map(grupo -> CGrupo.EntityToModel(grupo))
                         .collect(Collectors.toList());
 

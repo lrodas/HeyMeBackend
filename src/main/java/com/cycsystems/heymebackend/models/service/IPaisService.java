@@ -9,5 +9,6 @@ public interface IPaisService {
     public List<Pais> findCountryByNameAndEstado(String nombre, Boolean estado);
     public Pais findCountryById(Integer id);
     public List<Pais> findCountryByCodeAndEstado(String code, Boolean estado);
+    public Boolean existById(Integer idPais);
 
 }

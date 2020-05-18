@@ -24,7 +24,7 @@ public class SMSServiceImpl {
 		String authToken = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.AUTH_TOKEN).getValor();
 		String serviceId = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.SERVICE_ID).getValor();
 		
-		LOG.info("USER: " + accountSid + ", PASS: " + authToken);
+		LOG.info("USER: " + accountSid + ", PASS: " + authToken + ", to: " + to + ", Message: " + smsMessage);
 
 		Twilio.init(accountSid, authToken);
 
@@ -41,15 +41,15 @@ public class SMSServiceImpl {
 	public String sendWhatsapp(Integer idEmpresa, String to, String txtMessage) {
 		String accountSid = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.ACCOUNT_SID).getValor();
 		String authToken = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.AUTH_TOKEN).getValor();
-		String serviceId = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.SERVICE_ID).getValor();
+		// String serviceId = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.SERVICE_ID).getValor();
 
 		LOG.info("USER: " + accountSid + ", PASS: " + authToken);
 
 		Twilio.init(accountSid, authToken);
 
 		Message message = Message.creator(
+				new PhoneNumber("whatsapp:+17033489896"),
 				new PhoneNumber("whatsapp:" + to),
-				serviceId,
 				txtMessage)
 				.create();
 
@@ -64,7 +64,7 @@ public class SMSServiceImpl {
 		Message message = Message.creator(
 				new PhoneNumber("whatsapp:+50255742084"),
 				"MGca0f5a07c33c3663c04e712b687b1d80",
-				"ESTO ES otra GRAN PRUEBA")
+				"Su código c y c systems guatemala es 12345")
 				.create();
 		System.out.println(message.getStatus().toString());
 	}

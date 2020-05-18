@@ -56,4 +56,19 @@ public class ContactoServiceImpl implements IContactoService {
 		return this.repository.findByEmpresa_IdEmpresaAndEstadoEquals(idEmpresa, status);
 	}
 
+	@Override
+	public List<Contacto> findByGroupName(Integer idEmpresa, String grupo) {
+		return this.repository.findByEmpresa_IdEmpresaAndGrupo_NombreLikeIgnoreCase(idEmpresa, "%" + grupo + "%");
+	}
+
+	@Override
+	public List<Contacto> findByGroup(Integer idEmpresa, Integer idGrupo) {
+		return this.repository.findByEmpresa_IdEmpresaAndGrupo_IdGrupo(idEmpresa, idGrupo);
+	}
+
+	@Override
+	public List<Contacto> saveAll(List<Contacto> entities) {
+		return this.repository.saveAll(entities);
+	}
+
 }
