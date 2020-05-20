@@ -45,7 +45,7 @@ public class ReportNotificationController {
 	
 	@Autowired
 	private IUsuarioService usuarioService;
-	
+
 	@Async
 	@PostMapping("/notificationReportExcel")
 	public ListenableFuture<ResponseEntity<?>> notificationReportExcel(@RequestBody NotificacionRequest input) {
@@ -53,11 +53,6 @@ public class ReportNotificationController {
 		LOG.info("METHOD: notificationReportExcel() --PARAMS: notificacionesRequest: " + input);
 		List<Notificacion> notificaciones = new ArrayList<>();
 		Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
-		
-//		output.setCodigo("0060");
-//		output.setDescripcion("Debe enviar el estado de la notificacion");
-//		output.setIndicador("ERROR");
-//		return new AsyncResult<>(ResponseEntity.ok(output));
 		
 		Calendar calendar = Calendar.getInstance();
 		

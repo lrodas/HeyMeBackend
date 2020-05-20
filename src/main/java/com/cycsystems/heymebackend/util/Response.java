@@ -77,7 +77,12 @@ public enum Response {
 	NOTIFICATION_CONTACTS_NOT_EMPTY("0072", "La notificacion debe contener por lo menos un destinatario para ser enviada", "ERROR"),
 	NOTIFICATION_ALREADY_CANCELED("0073", "La notificacion ya ha sido cancelada", "ERROR"),
 	PACKAGE_NOT_EXIST("0074", "El paquete especificado no existe","ERROR"),
-	CONTACT_SAVE_ERRORS("0075", "No hemos podido guardar los contactos, por favor verifica el detalle", "ERRORS");
+	CONTACT_SAVE_ERRORS("0075", "No hemos podido guardar los contactos, por favor verifica el detalle", "ERRORS"),
+	ROLE_NAME_NOT_EMPTY("0076", "Es necesario enviar el nombre del puesto", "ERROR"),
+	ROLE_ID_NOT_EMPTY("0077", "Es necesario enviar el identificador del role", "ERROR"),
+	ROLE_STATUS_NOT_EMPTY("0078", "Es necesario enviar el estado del role", "ERROR"),
+	ROLE_DESCRIPTION_NOT_EMPTY("0079", "Es necesario enviar la descripcion del role", "ERROR"),
+	ROLE_NOT_EXIST("0080", "El rol especificado no existe", "ERROR");
 
 	private String codigo;
 	private String message;
