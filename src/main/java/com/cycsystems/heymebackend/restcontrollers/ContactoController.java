@@ -465,12 +465,7 @@ public class ContactoController {
 							return new AsyncResult<>(ResponseEntity.ok(output));
 						}
 					} else {
-						if (input.getContacto().getGrupo().getNombre() == null || input.getContacto().getGrupo().getNombre().trim().isEmpty()) {
-							output.setCodigo(Response.GROUP_NAME_NOT_EMPTY.getCodigo());
-							output.setDescripcion(Response.GROUP_NAME_NOT_EMPTY.getMessage());
-							output.setIndicador(Response.GROUP_NAME_NOT_EMPTY.getIndicador());
-							return new AsyncResult<>(ResponseEntity.ok(output));
-						} else {
+						if (input.getContacto().getGrupo().getNombre() != null && !input.getContacto().getGrupo().getNombre().trim().isEmpty()) {
 							Grupo grupo = new Grupo();
 							grupo.setNombre(input.getContacto().getGrupo().getNombre());
 							grupo.setEmpresa(usuario.getEmpresa());
