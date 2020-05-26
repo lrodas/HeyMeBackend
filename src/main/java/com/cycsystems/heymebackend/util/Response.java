@@ -82,7 +82,15 @@ public enum Response {
 	ROLE_ID_NOT_EMPTY("0077", "Es necesario enviar el identificador del role", "ERROR"),
 	ROLE_STATUS_NOT_EMPTY("0078", "Es necesario enviar el estado del role", "ERROR"),
 	ROLE_DESCRIPTION_NOT_EMPTY("0079", "Es necesario enviar la descripcion del role", "ERROR"),
-	ROLE_NOT_EXIST("0080", "El rol especificado no existe", "ERROR");
+	ROLE_NOT_EXIST("0080", "El rol especificado no existe", "ERROR"),
+	COMPANY_ID_NOT_EMPTY("0081", "Es necesario enviar el identificador de la empresa", "ERROR"),
+	COMPANY_NAME_NOT_EMPTY("0082", "Es necesario enviar el nombre de la empresa", "ERROR"),
+	COMPANY_ADDRESS_NOT_EMPTY("0083", "Es necesario enviar la direccion de la empresa", "ERROR"),
+	COMPANY_PHONE_NOT_EMPTY("0084", "Es necesario enviar el telefono de la empresa", "ERROR"),
+	OPCION_NOT_EMPTY("0085", "Es necesario enviar los datos de la opcion", "ERROR"),
+	ROLE_NOT_EMPTY("0086", "Es necesario enviar los datos del role", "ERROR"),
+	PERMISSION_LIST_NOT_EMPTY("0087", "La lista de permisos no puede estar vacia", "ERROR"),
+	PERMISSION_TYPE_ACCESS("0088", "Debe especificar el tipo de acceso que tendra el rol sobre la opcion", "ERROR");
 
 	private String codigo;
 	private String message;

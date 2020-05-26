@@ -22,7 +22,11 @@ public class EmpresaServiceImpl implements IEmpresaService {
 
     @Override
     public Empresa findById(Integer id) {
-        return this.empresaDao.findById(id).get();
+        if (this.empresaDao.findById(id).isPresent()) {
+            return this.empresaDao.findById(id).get();
+        } else {
+            return null;
+        }
     }
 
     @Override

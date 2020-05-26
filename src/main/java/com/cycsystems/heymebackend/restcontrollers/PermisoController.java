@@ -1,12 +1,14 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
 import com.cycsystems.heymebackend.common.Permiso;
+import com.cycsystems.heymebackend.convert.CPermiso;
 import com.cycsystems.heymebackend.input.PermisoRequest;
 import com.cycsystems.heymebackend.models.entity.Opcion;
 import com.cycsystems.heymebackend.models.entity.Role;
 import com.cycsystems.heymebackend.models.service.IPermisoService;
 import com.cycsystems.heymebackend.output.PermisoResponse;
 import com.cycsystems.heymebackend.util.Constants;
+import com.cycsystems.heymebackend.util.Response;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/permission")
@@ -39,17 +42,20 @@ public class PermisoController {
 		PermisoResponse output = new PermisoResponse();
 		
 		if (input.getIdRole() == null || input.getIdRole() <= 0) {
-			output.setCodigo("0065");
-			output.setDescripcion("Es necesario enviar el id del role");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.ROLE_ID_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.ROLE_ID_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.ROLE_ID_NOT_EMPTY.getIndicador());
 		} else {
 			
 			List<com.cycsystems.heymebackend.models.entity.Permiso> permisos = this.permisoService.findByRole(input.getIdRole());
 			
-			output.setCodigo("0000");
-			output.setDescripcion("Permisos obtenidos exitosamente");
-			output.setIndicador("SUCCESS");
-			output.setPermisos(this.mapPermisoEntity(permisos));
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+			output.setPermisos(permisos
+				.stream()
+				.map(CPermiso::EntityToModel)
+				.collect(Collectors.toList()));
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
@@ -63,9 +69,9 @@ public class PermisoController {
 		boolean hayError = false;
 		
 		if (input.getPermisos() == null || input.getPermisos().isEmpty()) {
-			output.setCodigo("0050");
-			output.setDescripcion("Es necesario enviar algunos permisos");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.PERMISSION_LIST_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.PERMISSION_LIST_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.PERMISSION_LIST_NOT_EMPTY.getIndicador());
 		} else {
 			
 			List<com.cycsystems.heymebackend.models.entity.Permiso> permisos = new ArrayList<>();
@@ -75,27 +81,27 @@ public class PermisoController {
 				if (modelo.getOpcion() == null || 
 						modelo.getOpcion().getIdOpcion() == null ||
 						modelo.getOpcion().getIdOpcion() <= 0) {
-					output.setCodigo("0051");
-					output.setDescripcion("Es necesario enviar la opcion para asignar el permiso");
-					output.setIndicador("ERROR");
+					output.setCodigo(Response.OPCION_NOT_EMPTY.getCodigo());
+					output.setDescripcion(Response.OPCION_NOT_EMPTY.getMessage());
+					output.setIndicador(Response.OPCION_NOT_EMPTY.getIndicador());
 					
 					hayError = true;
 					break;
 				} else if (modelo.getPuesto() == null ||
 						modelo.getPuesto().getIdRole() == null ||
 						modelo.getPuesto().getIdRole() <= 0) {
-					output.setCodigo("0052");
-					output.setDescripcion("Es necesario enviar el role para asignar el permiso");
-					output.setIndicador("ERROR");
+					output.setCodigo(Response.ROLE_NOT_EMPTY.getCodigo());
+					output.setDescripcion(Response.ROLE_NOT_EMPTY.getMessage());
+					output.setIndicador(Response.ROLE_NOT_EMPTY.getIndicador());
 					
 					hayError = true;
 					break;
 				} else if (modelo.isAlta() == null || 
 						modelo.isBaja() == null || modelo.isCambio() == null ||
 						modelo.isImprimir() == null) {
-					output.setCodigo("0053");
-					output.setDescripcion("Es necesario indicar los permisos que tendra el role");
-					output.setIndicador("ERROR");
+					output.setCodigo(Response.PERMISSION_TYPE_ACCESS.getCodigo());
+					output.setDescripcion(Response.PERMISSION_TYPE_ACCESS.getMessage());
+					output.setIndicador(Response.PERMISSION_TYPE_ACCESS.getIndicador());
 					
 					hayError = true;
 					break;
@@ -119,9 +125,9 @@ public class PermisoController {
 			if(!hayError ) {
 				this.permisoService.saveAll(permisos);
 				
-				output.setCodigo("0000");
-				output.setDescripcion("Permisos guardados exitosamente");
-				output.setIndicador("SUCCESS");
+				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 			}
 		}
 		
@@ -131,60 +137,29 @@ public class PermisoController {
 	@PostMapping("/findByRole")
 	public ListenableFuture<ResponseEntity<?>> obtenerPermisosPorRole(@RequestBody PermisoRequest input) {
 		
-		LOG.info("METHOD: obtenerPermisosPorRole() --PARAMS: ");
+		LOG.info("METHOD: obtenerPermisosPorRole() --PARAMS: " + input);
 		PermisoResponse output = new PermisoResponse();
 		
 		if (input.getRole() == null || input.getRole().isEmpty()) {
-			output.setCodigo("0054");
-			output.setDescripcion("Es necesario ingresar el nombre del role");
-			output.setIndicador("ERROR");
+			output.setCodigo(Response.ROLE_NAME_NOT_EMPTY.getCodigo());
+			output.setDescripcion(Response.ROLE_NAME_NOT_EMPTY.getMessage());
+			output.setIndicador(Response.ROLE_NAME_NOT_EMPTY.getIndicador());
 		} else {
 			
 			
 			List<com.cycsystems.heymebackend.models.entity.Permiso> permisos = this.permisoService.findByRole(input.getRole());
 			
-			output.setCodigo("0000");
-			output.setDescripcion("Permisos obtenidos exitosamente");
-			output.setIndicador("SUCCESS");
-			output.setPermisos(this.mapPermisoEntity(permisos));
+			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+			output.setPermisos(permisos
+				.stream()
+				.map(CPermiso::EntityToModel)
+				.collect(Collectors.toList()));
 		}
 		
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
-	private List<Permiso> mapPermisoEntity(List<com.cycsystems.heymebackend.models.entity.Permiso> permisos) {
-		List<Permiso> modelos = new ArrayList<>();
-		
-		for(com.cycsystems.heymebackend.models.entity.Permiso permiso: permisos) {
-			if (permiso.isAlta() || permiso.isBaja() || permiso.isCambio() || permiso.isImprimir()) {				
-				Permiso modelo = new Permiso();
-				
-				modelo.setAlta(permiso.isAlta());
-				modelo.setBaja(permiso.isBaja());
-				modelo.setCambio(permiso.isCambio());
-				modelo.setImprimir(permiso.isImprimir());
-				modelo.setIdPermiso(permiso.getIdPermiso());
-				
-				com.cycsystems.heymebackend.common.Opcion opcion = new com.cycsystems.heymebackend.common.Opcion();
-				opcion.setIdOpcion(permiso.getOpcion().getIdOpcion());
-				opcion.setDescripcion(permiso.getOpcion().getDescripcion());
-				opcion.setEvento(permiso.getOpcion().isEvento());
-				opcion.setIcono(permiso.getOpcion().getIcono());
-				opcion.setOrden(permiso.getOpcion().getOrden());
-				opcion.setUrl(permiso.getOpcion().getUrl());
-				modelo.setOpcion(opcion);
-				
-				com.cycsystems.heymebackend.common.Role role = new com.cycsystems.heymebackend.common.Role();
-				role.setIdRole(permiso.getPuesto().getIdRole());
-				role.setNombre(permiso.getPuesto().getNombre());
-				role.setDescripcion(permiso.getPuesto().getDescripcion());
-				role.setEstado(permiso.getPuesto().getEstado());
-				modelo.setPuesto(role);
-				
-				modelos.add(modelo);				
-			}
-		}
-		
-		return modelos;
-	}
+
 }
