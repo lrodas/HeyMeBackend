@@ -5,6 +5,7 @@ import com.cycsystems.heymebackend.input.CambioContrasenaRequest;
 import com.cycsystems.heymebackend.input.UsuarioRequest;
 import com.cycsystems.heymebackend.models.entity.*;
 import com.cycsystems.heymebackend.models.service.*;
+import com.cycsystems.heymebackend.models.service.impl.MailServiceImpl;
 import com.cycsystems.heymebackend.output.CambioContrasenaResponse;
 import com.cycsystems.heymebackend.output.UsuarioResponse;
 import com.cycsystems.heymebackend.util.Constants;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,14 +58,37 @@ public class UsuarioController {
 	
 	private final BCryptPasswordEncoder passwordEncoder;
 
+	private final MailServiceImpl mailService;
+
+	private final IFileStorageService fileStorageService;
+
 	@Value("${status.user.lock}")
 	private Integer STATUS_USER_LOCK;
 
 	@Value("${status.user.active}")
 	private Integer STATUS_USER_ACTIVE;
 
+	@Value("${spring.mail.username}")
+	private String MAIL_FROM;
+
+	@Value("${subject.mail.activate.user}")
+	private String SUBJECT_MAIL;
+
+	@Value("${mail.template.confirm}")
+	private String MAIL_TEMPLATE_CONFIRM;
+
 	@Autowired
-	public UsuarioController(IUsuarioService usuarioService, IEmpresaService empresaService, IRoleService roleService, IPermisoService permisoService, IOpcionService opcionService, IParametroService parametroService, ICaptchaService captchaService, Environment env, BCryptPasswordEncoder passwordEncoder) {
+	public UsuarioController(IUsuarioService usuarioService,
+							 IEmpresaService empresaService,
+							 IRoleService roleService,
+							 IPermisoService permisoService,
+							 IOpcionService opcionService,
+							 IParametroService parametroService,
+							 ICaptchaService captchaService,
+							 Environment env,
+							 BCryptPasswordEncoder passwordEncoder,
+							 MailServiceImpl mailService,
+							 IFileStorageService fileStorageService) {
 		this.usuarioService = usuarioService;
 		this.empresaService = empresaService;
 		this.roleService = roleService;
@@ -73,6 +98,8 @@ public class UsuarioController {
 		this.captchaService = captchaService;
 		this.env = env;
 		this.passwordEncoder = passwordEncoder;
+		this.mailService = mailService;
+		this.fileStorageService = fileStorageService;
 	}
 
 	@Async
@@ -91,7 +118,9 @@ public class UsuarioController {
 			output.setCodigo(Response.ID_USUARIO_ERROR.getCodigo());
 			output.setDescripcion(Response.ID_USUARIO_ERROR.getMessage());
 			output.setIndicador(Response.ID_USUARIO_ERROR.getIndicador());
-		} else if (input.getDatos().getEnabled() == null) {
+		} else if (input.getDatos().getEstadoUsuario() == null &&
+				input.getDatos().getEstadoUsuario().getIdEstadoUsuario() == null &&
+				input.getDatos().getEstadoUsuario().getIdEstadoUsuario() <= 0) {
 			output.setCodigo(Response.USER_STATUS_NOT_EMPTY_ERROR.getCodigo());
 			output.setDescripcion(Response.USER_STATUS_NOT_EMPTY_ERROR.getMessage());
 			output.setIndicador(Response.USER_STATUS_NOT_EMPTY_ERROR.getIndicador());
@@ -103,8 +132,7 @@ public class UsuarioController {
 				output.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
 				output.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
 			} else {
-				usuario.setEnabled(input.getDatos().getEnabled());
-
+				usuario.setEstadoUsuario(new EstadoUsuario(input.getDatos().getEstadoUsuario().getIdEstadoUsuario()));
 				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
@@ -145,7 +173,7 @@ public class UsuarioController {
 	
 	@Async
 	@PostMapping("/retrieveUserByUserName")
-	public ListenableFuture<ResponseEntity<?>> obtenerUsuarioPorCorreo(@RequestBody UsuarioRequest input) {
+	public ListenableFuture<ResponseEntity<UsuarioResponse>> obtenerUsuarioPorCorreo(@RequestBody UsuarioRequest input) {
 	
 		LOG.info("METHOD: obtenerUsuarioPorCorreo() --PARAMS: input: " + input);
 		UsuarioResponse output = new UsuarioResponse();
@@ -176,7 +204,7 @@ public class UsuarioController {
 	
 	@Async
 	@PostMapping("/retrieveUsersByName")
-	public ListenableFuture<ResponseEntity<?>> obtenerUsuariosPorNombres(@RequestBody UsuarioRequest input) {
+	public ListenableFuture<ResponseEntity<UsuarioResponse>> obtenerUsuariosPorNombres(@RequestBody UsuarioRequest input) {
 		
 		LOG.info("METHOD: otenerUsuariosPorNombres() --PARAMS: usuarioRequest: " + input);
 		UsuarioResponse output = new UsuarioResponse();
@@ -213,7 +241,7 @@ public class UsuarioController {
 	
 	@Async
 	@PostMapping("/retrieveUsersByDate")
-	public ListenableFuture<ResponseEntity<?>> obtenerUsuariosPorFechas(@RequestBody UsuarioRequest input) {
+	public ListenableFuture<ResponseEntity<UsuarioResponse>> obtenerUsuariosPorFechas(@RequestBody UsuarioRequest input) {
 		
 		LOG.info("METHOD: obtenerUsuariosPorFechas() --PARAMS: UsuarioRequest: " + input);
 		UsuarioResponse output = new UsuarioResponse();
@@ -256,7 +284,7 @@ public class UsuarioController {
 	
 	@Async
 	@PostMapping("/resetPassword")
-	public ListenableFuture<ResponseEntity<?>> restablecerContasena(@RequestBody UsuarioRequest input) {
+	public ListenableFuture<ResponseEntity<UsuarioResponse>> restablecerContasena(@RequestBody UsuarioRequest input) {
 		
 		LOG.info("METHOD: restablecerContrasena() --PARAMS: usuarioRequest: " + input);
 		UsuarioResponse response = new UsuarioResponse();
@@ -270,12 +298,12 @@ public class UsuarioController {
 			// mailService.sendMail(MAIL_FROM, input.getUsername(), subject, body);
 		}
 		
-		return new AsyncResult<>(ResponseEntity.ok("")); 
+		return new AsyncResult<>(ResponseEntity.ok(response));
 	}
 	
 	@Async
 	@PostMapping("/save")
-	public ListenableFuture<ResponseEntity<?>> guardarUsuario(@RequestBody UsuarioRequest input) {
+	public ListenableFuture<ResponseEntity<UsuarioResponse>> guardarUsuario(@RequestBody UsuarioRequest input) throws IOException {
 		
 		LOG.info("METHOD: guardarUsuario() --PARAMS: usuario: " + input);
 		UsuarioResponse response = new UsuarioResponse();
@@ -327,7 +355,7 @@ public class UsuarioController {
 				usuario.setApellidos(input.getDatos().getApellidos());
 				usuario.setUsername(input.getDatos().getUsername());
 				usuario.setPassword(this.passwordEncoder.encode(input.getDatos().getPassword()));
-				usuario.setEnabled(true);
+				usuario.setEnabled(false);
 
 				if (input.getDatos().getEmpresa().getCodigo() == null || input.getDatos().getEmpresa().getCodigo().isEmpty()) {
 					String codigo;
@@ -451,7 +479,8 @@ public class UsuarioController {
 						response.setDescripcion(Response.USER_ERROR_REGISTER.getMessage());
 						response.setIndicador(Response.USER_ERROR_REGISTER.getIndicador());
 					}
-				} else if (this.empresaService.existsByCode(input.getDatos().getEmpresa().getCodigo().trim())) {
+				}
+				else if (this.empresaService.existsByCode(input.getDatos().getEmpresa().getCodigo().trim())) {
 					Empresa empresa = this.empresaService.findByCode(input.getDatos().getEmpresa().getCodigo().trim());
 
 					usuario.setEstadoUsuario(new EstadoUsuario(this.STATUS_USER_LOCK));
@@ -472,13 +501,21 @@ public class UsuarioController {
 					response.setIndicador(Response.USER_ERROR_COMPANY_NOT_EXIST.getIndicador());
 				}
 			}
+
+			if (response.getUsuario() != null && response.getUsuario().getIdUsuario() != null && response.getUsuario().getIdUsuario().compareTo(0) > 0) {
+				String jsonData = "{\"username\":\"" + response.getUsuario().getUsername() + "\", \"date\":\"" + new Date() + "\"}";
+				String hash = Base64.getEncoder().encodeToString(jsonData.getBytes());
+				String textTemplate = this.fileStorageService.loadFileAsString(this.MAIL_TEMPLATE_CONFIRM).replace("{token}", hash);
+				mailService.sendMail(this.MAIL_FROM, response.getUsuario().getUsername(), this.SUBJECT_MAIL, textTemplate);
+
+			}
 		}
 		return new AsyncResult<>(ResponseEntity.ok(response));
 	}
 	
 	@Async
 	@PostMapping("/update")
-	public ListenableFuture<ResponseEntity<?>> actualizarUsuario(@RequestBody UsuarioRequest input) {
+	public ListenableFuture<ResponseEntity<UsuarioResponse>> actualizarUsuario(@RequestBody UsuarioRequest input) {
 		
 		LOG.info("METHOD: guardarUsuario() --PARAMS: usuario: " + input);
 		UsuarioResponse response = new UsuarioResponse();
@@ -491,14 +528,6 @@ public class UsuarioController {
 			response.setCodigo(Response.APELLIDO_USUARIO_ERROR.getCodigo());
 			response.setDescripcion(Response.APELLIDO_USUARIO_ERROR.getMessage());
 			response.setIndicador(Response.APELLIDO_USUARIO_ERROR.getIndicador());
-		} else if (input.getDatos().getDireccion() == null || input.getDatos().getDireccion().isEmpty()) {
-			response.setCodigo(Response.DIRECCION_USUARIO_ERROR.getCodigo());
-			response.setDescripcion(Response.DIRECCION_USUARIO_ERROR.getMessage());
-			response.setIndicador(Response.DIRECCION_USUARIO_ERROR.getIndicador());
-		} else if (input.getDatos().getTelefono() == null || input.getDatos().getTelefono().isEmpty()) { 
-			response.setCodigo(Response.TELEFONO_USUARIO_ERROR.getCodigo());
-			response.setDescripcion(Response.TELEFONO_USUARIO_ERROR.getMessage());
-			response.setIndicador(Response.TELEFONO_USUARIO_ERROR.getIndicador());
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getDatos().getIdUsuario());
 			usuario.setNombres(input.getDatos().getNombres());
@@ -521,7 +550,7 @@ public class UsuarioController {
 	
 	@Async
 	@PostMapping("/changePassword")
-	public AsyncResult<ResponseEntity<?>> cambiarContrasena(@RequestBody CambioContrasenaRequest request) {
+	public AsyncResult<ResponseEntity<CambioContrasenaResponse>> cambiarContrasena(@RequestBody CambioContrasenaRequest request) {
 		
 		LOG.info("METHOD: cambiarContrasena() --PARAMS: CambioContrasenaRequest: " + request);
 		CambioContrasenaResponse response = new CambioContrasenaResponse();
@@ -564,6 +593,76 @@ public class UsuarioController {
 			}
 		}
 		
+		return new AsyncResult<>(ResponseEntity.ok(response));
+	}
+
+	@Async
+	@PostMapping("/activateUser")
+	public AsyncResult<ResponseEntity<UsuarioResponse>> activarUsuario(@RequestBody UsuarioRequest input) {
+		LOG.info("METHOD: activarUsuario() --PARAMS: " + input);
+		UsuarioResponse response = new UsuarioResponse();
+		if (input.getDatos() == null || input.getDatos().getUsername() == null || input.getDatos().getUsername().isEmpty()) {
+			response.setCodigo(Response.USER_NOT_EMPTY.getCodigo());
+			response.setDescripcion(Response.USER_NOT_EMPTY.getMessage());
+			response.setIndicador(Response.USER_NOT_EMPTY.getIndicador());
+		} else {
+
+			Usuario usuario = this.usuarioService.findByUsername(input.getDatos().getUsername());
+			usuario.setEnabled(true);
+			usuario = this.usuarioService.save(usuario);
+
+			response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+			response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+			response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+			response.setUsuario(CUsuario.EntityToModel(usuario));
+		}
+		return new AsyncResult<>(ResponseEntity.ok(response));
+	}
+
+	@Async
+	@PostMapping("/sendActivationMail")
+	public AsyncResult<ResponseEntity<UsuarioResponse>> enviarCorreoActivacion(@RequestBody UsuarioRequest input) throws IOException {
+		LOG.info("METHOD: enviarCorreoActivacion() --PARAMS: " + input);
+		UsuarioResponse response = new UsuarioResponse();
+		if (input.getDatos() == null || input.getDatos().getUsername() == null || input.getDatos().getUsername().isEmpty()) {
+			response.setCodigo(Response.USER_NOT_EMPTY.getCodigo());
+			response.setDescripcion(Response.USER_NOT_EMPTY.getMessage());
+			response.setIndicador(Response.USER_NOT_EMPTY.getIndicador());
+		} else {
+
+			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
+
+			if (usuario == null) {
+				response.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				response.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				response.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+			} else {
+
+				Usuario usuarioNuevo = this.usuarioService.findByUsername(input.getDatos().getUsername());
+
+				if (usuarioNuevo == null) {
+					response.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+					response.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+					response.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+				} else {
+
+					if (usuario.getEmpresa().getIdEmpresa().compareTo(usuarioNuevo.getEmpresa().getIdEmpresa()) == 0) {
+						String jsonData = "{\"username\":\"" + input.getDatos().getUsername() + "\", \"date\":\"" + new Date() + "\"}";
+						String hash = Base64.getEncoder().encodeToString(jsonData.getBytes());
+						String textTemplate = this.fileStorageService.loadFileAsString(this.MAIL_TEMPLATE_CONFIRM).replace("{token}", hash);
+						mailService.sendMail(this.MAIL_FROM, usuarioNuevo.getUsername(), this.SUBJECT_MAIL, textTemplate);
+
+						response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+						response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+						response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+					} else {
+						response.setCodigo(Response.USERS_NOT_ARE_SAME_COMPANY.getCodigo());
+						response.setDescripcion(Response.USERS_NOT_ARE_SAME_COMPANY.getMessage());
+						response.setIndicador(Response.USERS_NOT_ARE_SAME_COMPANY.getIndicador());
+					}
+				}
+			}
+		}
 		return new AsyncResult<>(ResponseEntity.ok(response));
 	}
 }

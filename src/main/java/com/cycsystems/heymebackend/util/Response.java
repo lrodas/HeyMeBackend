@@ -90,7 +90,8 @@ public enum Response {
 	OPCION_NOT_EMPTY("0085", "Es necesario enviar los datos de la opcion", "ERROR"),
 	ROLE_NOT_EMPTY("0086", "Es necesario enviar los datos del role", "ERROR"),
 	PERMISSION_LIST_NOT_EMPTY("0087", "La lista de permisos no puede estar vacia", "ERROR"),
-	PERMISSION_TYPE_ACCESS("0088", "Debe especificar el tipo de acceso que tendra el rol sobre la opcion", "ERROR");
+	PERMISSION_TYPE_ACCESS("0088", "Debe especificar el tipo de acceso que tendra el rol sobre la opcion", "ERROR"),
+	USERS_NOT_ARE_SAME_COMPANY("0089", "El usuario al cual se ha solicitado la activacion no pertenece a tu empresa", "ERROR");
 
 	private String codigo;
 	private String message;

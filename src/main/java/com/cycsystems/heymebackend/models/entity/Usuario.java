@@ -36,7 +36,7 @@ public class Usuario implements Serializable {
 	@JoinColumn(name="idRole")
 	private Role role;
 
-	@Column(length = 30, unique = true)
+	@Column(length = 150, unique = true)
 	private String username;
 
 	@Column(length = 60)

@@ -10,12 +10,16 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +36,9 @@ public class FileStorageServiceImpl implements IFileStorageService {
 	private IParametroService parametroService;
 	@Autowired
 	private IUsuarioService usuarioService;
+
+	@Value("${mail.template.url}")
+	private String MAIL_TEMPLATE_URL;
 	
 	@Override
 	public String storeFile(MultipartFile file, Integer idUsuario) throws IOException {
@@ -113,6 +120,22 @@ public class FileStorageServiceImpl implements IFileStorageService {
 		
 		LOG.info("Recurso cargado, retornando imagen");
 		return loader;
+	}
+
+	@Override
+	public String loadFileAsString(String name) throws IOException {
+		LOG.info("loadFileAsString() --PARAMS: " + name);
+
+		File file = new File(this.MAIL_TEMPLATE_URL + name);
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		String completeText = "";
+		String line;
+		while((line = br.readLine()) != null) {
+			LOG.info(line);
+			completeText += line;
+		}
+
+		return completeText;
 	}
 
 }
