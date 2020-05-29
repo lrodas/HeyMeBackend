@@ -11,4 +11,5 @@ public class Canal {
 	private Integer idCanal;
 	private String nombre;
 	private Boolean estado;
+	private Boolean mostrarPlantilla;
 }

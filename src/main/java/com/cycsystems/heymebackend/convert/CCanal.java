@@ -10,6 +10,7 @@ public class CCanal {
             entity.setIdCanal(model.getIdCanal());
             entity.setNombre(model.getNombre());
             entity.setEstado(model.getEstado());
+            entity.setMostrarPlantilla(model.getMostrarPlantilla());
             return entity;
         } else {
             return null;
@@ -22,6 +23,7 @@ public class CCanal {
             model.setIdCanal(entity.getIdCanal());
             model.setNombre(entity.getNombre());
             model.setEstado(entity.getEstado());
+            model.setMostrarPlantilla(entity.getMostrarPlantilla());
             return model;
         } else {
             return null;

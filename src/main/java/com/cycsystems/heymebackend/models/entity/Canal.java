@@ -22,6 +22,9 @@ public class Canal implements Serializable {
 	@Column(name = "estado")
 	private Boolean estado;
 
+	@Column(name = "mostrarPlantilla", columnDefinition = "TINYINT DEFAULT 1")
+	private Boolean mostrarPlantilla;
+
 	private static final long serialVersionUID = 1L;
 
 }

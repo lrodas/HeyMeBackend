@@ -193,7 +193,7 @@ public class PlantillaNotificacionController {
 			plantilla.setTitulo(input.getPlantilla().getTitulo());
 			plantilla.setPlantilla(input.getPlantilla().getPlantilla());
 			plantilla.setEstado(input.getPlantilla().getEstado());
-			plantilla.setCanal(new com.cycsystems.heymebackend.models.entity.Canal(input.getPlantilla().getCanal().getIdCanal(), "", null));
+			plantilla.setCanal(new com.cycsystems.heymebackend.models.entity.Canal(input.getPlantilla().getCanal().getIdCanal(), "", null, null));
 			plantilla.setEmpresa(usuario.getEmpresa());
 			plantilla = this.service.save(plantilla);
 			
