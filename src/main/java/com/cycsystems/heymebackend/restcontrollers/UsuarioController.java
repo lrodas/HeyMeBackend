@@ -62,8 +62,8 @@ public class UsuarioController {
 
 	private final IFileStorageService fileStorageService;
 
-	@Value("${status.user.lock}")
-	private Integer STATUS_USER_LOCK;
+	@Value("${status.user.inactive}")
+	private Integer STATUS_USER_INACTIVE;
 
 	@Value("${status.user.active}")
 	private Integer STATUS_USER_ACTIVE;
@@ -483,7 +483,7 @@ public class UsuarioController {
 				else if (this.empresaService.existsByCode(input.getDatos().getEmpresa().getCodigo().trim())) {
 					Empresa empresa = this.empresaService.findByCode(input.getDatos().getEmpresa().getCodigo().trim());
 
-					usuario.setEstadoUsuario(new EstadoUsuario(this.STATUS_USER_LOCK));
+					usuario.setEstadoUsuario(new EstadoUsuario(this.STATUS_USER_INACTIVE));
 					usuario.setEmpresa(empresa);
 
 					Role role = this.roleService.findByNombre(usuario.getEmpresa().getIdEmpresa(), "ROLE_SIN_ROLE");
@@ -608,13 +608,20 @@ public class UsuarioController {
 		} else {
 
 			Usuario usuario = this.usuarioService.findByUsername(input.getDatos().getUsername());
-			usuario.setEnabled(true);
-			usuario = this.usuarioService.save(usuario);
+			if (usuario != null) {
+				usuario.setEnabled(true);
 
-			response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-			response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-			response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-			response.setUsuario(CUsuario.EntityToModel(usuario));
+				usuario = this.usuarioService.save(usuario);
+				response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+				response.setUsuario(CUsuario.EntityToModel(usuario));
+			} else {
+				response.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+				response.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+				response.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+			}
+
 		}
 		return new AsyncResult<>(ResponseEntity.ok(response));
 	}

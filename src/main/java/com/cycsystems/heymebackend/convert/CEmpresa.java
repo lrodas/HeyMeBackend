@@ -12,7 +12,7 @@ public class CEmpresa {
             empresa.setDireccion(modelo.getDireccion());
             empresa.setTelefono(modelo.getTelefono());
             empresa.setCodigo(modelo.getCodigo());
-
+            empresa.setLogo(modelo.getLogo());
             return empresa;
         } else {
             return null;
@@ -27,6 +27,7 @@ public class CEmpresa {
             modelo.setDireccion(entity.getDireccion());
             modelo.setTelefono(entity.getTelefono());
             modelo.setCodigo(entity.getCodigo());
+            modelo.setLogo(entity.getLogo());
             return modelo;
         } else {
             return null;

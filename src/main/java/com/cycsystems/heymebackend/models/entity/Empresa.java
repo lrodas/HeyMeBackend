@@ -20,6 +20,7 @@ public class Empresa implements Serializable {
     private String nombreEmpresa;
     private String direccion;
     private String telefono;
+    private String logo;
 
     @Column(nullable = false, unique = true)
     private String codigo;

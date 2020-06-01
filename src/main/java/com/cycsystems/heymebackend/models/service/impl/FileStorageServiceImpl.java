@@ -1,6 +1,8 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
+import com.cycsystems.heymebackend.models.entity.Empresa;
 import com.cycsystems.heymebackend.models.entity.Usuario;
+import com.cycsystems.heymebackend.models.service.IEmpresaService;
 import com.cycsystems.heymebackend.models.service.IFileStorageService;
 import com.cycsystems.heymebackend.models.service.IParametroService;
 import com.cycsystems.heymebackend.models.service.IUsuarioService;
@@ -36,31 +38,39 @@ public class FileStorageServiceImpl implements IFileStorageService {
 	private IParametroService parametroService;
 	@Autowired
 	private IUsuarioService usuarioService;
+	@Autowired
+	private IEmpresaService empresaService;
 
 	@Value("${mail.template.url}")
 	private String MAIL_TEMPLATE_URL;
 	
 	@Override
-	public String storeFile(MultipartFile file, Integer idUsuario) throws IOException {
+	public String storeFile(MultipartFile file, Integer id, String tipo) throws IOException {
 		
-		LOG.info("METHOD: storeFile()");
+		LOG.info("METHOD: storeFile() --PARAMS: id: " + id + ", tipo: " + tipo);
 		
-		Path directorioRecursos;
+		Path directorioRecursos = null;
 		String extension = "";
 		String imagen = "";
 		
 		extension = FilenameUtils.getExtension(file.getOriginalFilename());
 		LOG.info("Obtenemos la extension del archivo: " + extension);
 		
-		imagen = idUsuario + "-" + System.currentTimeMillis() % 1000 + "." + extension;
+		imagen = id + "-" + System.currentTimeMillis() % 1000 + "." + extension;
 		LOG.info("Creamos el nuevo nombre de la imagen: " + imagen);
-		
-		Usuario usuario = this.usuarioService.findById(idUsuario);
-		
-		directorioRecursos = Paths.get(this.parametroService.findParameterByEmpresaAndName(
-				usuario.getEmpresa().getIdEmpresa(),
-				Constants.IMAGES_URL).getValor());
-		
+
+		if (tipo.equalsIgnoreCase("empresa")) {
+			Empresa empresa = this.empresaService.findById(id);
+			directorioRecursos = Paths.get(this.parametroService.findParameterByEmpresaAndName(
+					empresa.getIdEmpresa(),
+					Constants.IMAGES_URL).getValor());
+		} else {
+			Usuario usuario = this.usuarioService.findById(id);
+			directorioRecursos = Paths.get(this.parametroService.findParameterByEmpresaAndName(
+					usuario.getEmpresa().getIdEmpresa(),
+					Constants.IMAGES_URL).getValor());
+		}
+
 		String rootPath = directorioRecursos.toFile().getAbsolutePath();
 		LOG.info("Posterior a crear la ruta obtener el path absoluto: " + rootPath);
 		
@@ -97,15 +107,23 @@ public class FileStorageServiceImpl implements IFileStorageService {
 	}
 
 	@Override
-	public Resource loadFileAsResource(String nombre, Integer idUsuario) {
+	public Resource loadFileAsResource(String nombre, Integer id, String tipo) {
 		
-		LOG.info("METHOD: loadFileAsResource() --PARAMS: nombre: " + nombre + ", idUsuario: " + idUsuario);
+		LOG.info("METHOD: loadFileAsResource() --PARAMS: nombre: " + nombre + ", id: " + id + ", tipo: " + tipo);
 
 		String path = "";
-		Usuario usuario = this.usuarioService.findById(idUsuario);
-		String rutaBasica = this.parametroService.findParameterByEmpresaAndName(
-				usuario.getEmpresa().getIdEmpresa(),
-				Constants.IMAGES_URL).getValor();
+		String rutaBasica = "";
+		if (tipo.equalsIgnoreCase("usuario")) {
+			Usuario usuario = this.usuarioService.findById(id);
+			rutaBasica = this.parametroService.findParameterByEmpresaAndName(
+					usuario.getEmpresa().getIdEmpresa(),
+					Constants.IMAGES_URL).getValor();
+		} else {
+			Empresa empresa = this.empresaService.findById(id);
+			rutaBasica = this.parametroService.findParameterByEmpresaAndName(
+					empresa.getIdEmpresa(),
+					Constants.IMAGES_URL).getValor();
+		}
 
 		path = Paths.get(rutaBasica, nombre).toString();
 
