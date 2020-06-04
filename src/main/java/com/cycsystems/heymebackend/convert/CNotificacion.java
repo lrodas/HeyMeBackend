@@ -2,6 +2,8 @@ package com.cycsystems.heymebackend.convert;
 
 import com.cycsystems.heymebackend.models.entity.Notificacion;
 
+import java.util.stream.Collectors;
+
 public class CNotificacion {
 
     public static Notificacion ModelToEntity(com.cycsystems.heymebackend.common.Notificacion model) {
@@ -18,6 +20,10 @@ public class CNotificacion {
             entity.setTitulo(model.getTitulo());
             entity.setUsuario(CUsuario.ModelToEntity(model.getUsuario()));
             entity.setFechaProgramacion(model.getFechaProgramacion());
+            entity.setDestinatarios(model.getDestinatarios()
+                .stream()
+                .map(CContacto::ModelToEntity)
+                .collect(Collectors.toList()));
             return entity;
         } else {
             return null;
@@ -38,6 +44,10 @@ public class CNotificacion {
             model.setTitulo(entity.getTitulo());
             model.setUsuario(CUsuario.EntityToModel(entity.getUsuario()));
             model.setFechaProgramacion(entity.getFechaProgramacion());
+            model.setDestinatarios(entity.getDestinatarios()
+                .stream()
+                .map(CContacto::EntityToModel)
+                .collect(Collectors.toList()));
             return model;
         } else {
             return null;

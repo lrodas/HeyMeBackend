@@ -16,7 +16,9 @@ public class Constants {
 	public static final Integer ESTADO_NOTIFICACION_PROGRAMADA = 1;
 	public static final Integer ESTADO_NOTIFICACION_ENVIADA = 2;
 	public static final Integer ESTADO_NOTIFICACION_CREADA = 3;
-	public static final Integer ESTADO_NOTIFICACION_CANCELADA = 4;
+	public static final Integer ESTADO_NOTIFICACION_ACEPTADA = 4;
+	public static final Integer ESTADO_NOTIFICACION_EN_COLA = 5;
+	public static final Integer ESTADO_NOTIFICACION_CANCELADA = 6;
 	
 	public static final Integer CANAL_SMS = 1;
 	public static final Integer CANAL_EMAIL = 2;
