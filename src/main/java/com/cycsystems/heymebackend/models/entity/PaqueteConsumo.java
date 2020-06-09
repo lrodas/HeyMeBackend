@@ -58,6 +58,12 @@ public class PaqueteConsumo implements Serializable {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idEstadoPaqueteConsumo", nullable = false)
 	private EstadoPaqueteConsumo estado;
+
+	@Column(nullable = false, name = "responsePasarela", columnDefinition = " TEXT")
+	private String responsePasarela;
+
+	@Column(name = "fechaCompra")
+	private Date fechaCompra;
 	
 	/**
 	 * 

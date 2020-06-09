@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -14,6 +16,10 @@ import lombok.ToString;
 public class Paquete {
 	private Integer idPaquete;
 	private String nombre;
-	private Double precio;
+	private Double precioGTQ;
+	private Double precioUSD;
+	private String descripcion;
 	private EstadoPaquete estadoPaquete;
+	private List<DetallePaquete> detalle;
+	private String icono;
 }

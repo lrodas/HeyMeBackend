@@ -10,7 +10,10 @@ public class CPaquete {
             entity.setIdPaquete(model.getIdPaquete());
             entity.setNombre(model.getNombre());
             entity.setEstado(CEstadoPaquete.ModelToEntity(model.getEstadoPaquete()));
-            entity.setPrecio(model.getPrecio());
+            entity.setPrecioGTQ(model.getPrecioGTQ());
+            entity.setPrecioUSD(model.getPrecioUSD());
+            entity.setDescripcion(model.getDescripcion());
+            entity.setIcono(model.getIcono());
             return entity;
         } else {
             return null;
@@ -23,7 +26,10 @@ public class CPaquete {
             model.setIdPaquete(entity.getIdPaquete());
             model.setNombre(entity.getNombre());
             model.setEstadoPaquete(CEstadoPaquete.EntityToModel(entity.getEstado()));
-            model.setPrecio(entity.getPrecio());
+            model.setPrecioGTQ(entity.getPrecioGTQ());
+            model.setPrecioUSD(entity.getPrecioUSD());
+            model.setDescripcion(entity.getDescripcion());
+            model.setIcono(entity.getIcono());
             return model;
         } else {
             return null;

@@ -92,7 +92,11 @@ public enum Response {
 	PERMISSION_LIST_NOT_EMPTY("0087", "La lista de permisos no puede estar vacia", "ERROR"),
 	PERMISSION_TYPE_ACCESS("0088", "Debe especificar el tipo de acceso que tendra el rol sobre la opcion", "ERROR"),
 	USERS_NOT_ARE_SAME_COMPANY("0089", "El usuario al cual se ha solicitado la activacion no pertenece a tu empresa", "ERROR"),
-	PARAMS_LENGTH_INVALID("0090", "El numero de parametros no es correcto, por favor verificar", "ERROR");
+	PARAMS_LENGTH_INVALID("0090", "El numero de parametros no es correcto, por favor verificar", "ERROR"),
+	JSON_RESPONSE_EMPTY("0091", "El json de respuesta de la pasarela de pagos no puede ser vacio", "ERROR"),
+	JSON_RESPONSE_NOT_VALID("0092", "El json de respues de la pasarela de pagos no es valido", "ERROR"),
+	COBRO_NO_REALIZADO_ERROR("0093", "Cobro no realizado", "ERROR"),
+	DATE_FORMAT_NOT_VALID("0094", "El formato de fecha no es valido, por favor contacte con soporte", "ERROR");
 
 	private String codigo;
 	private String message;

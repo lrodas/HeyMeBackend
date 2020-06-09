@@ -2,6 +2,7 @@ package com.cycsystems.heymebackend.models.entity;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -30,8 +31,13 @@ public class Paquete implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer idPaquete;
 	private String nombre;
-	private Double precio;
-	
+	private Double precioGTQ;
+	private Double precioUSD;
+	private String descripcion;
+
+	@Column(name = "icon")
+	private String icono;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idEstadoPaquete", nullable = false)
 	private EstadoPaquete estado;

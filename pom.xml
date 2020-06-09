@@ -169,5 +169,10 @@
 		    <version>1.18.0</version>
 		    <scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20200518</version>
+		</dependency>
 	</dependencies>
 </project>

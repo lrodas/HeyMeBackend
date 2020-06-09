@@ -1,14 +1,25 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
+import com.cycsystems.heymebackend.common.Notificacion;
 import com.cycsystems.heymebackend.models.service.IParametroService;
 import com.cycsystems.heymebackend.util.Constants;
+import com.google.common.collect.Range;
 import com.twilio.Twilio;
+import com.twilio.base.ResourceSet;
 import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.rest.api.v2010.account.usage.Record;
 import com.twilio.type.PhoneNumber;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class SMSServiceImpl {
@@ -55,6 +66,31 @@ public class SMSServiceImpl {
 
 		LOG.info("Mensaje: " + message.getStatus());
 		return message.getSid();
+	}
+
+	public List<Message> retrieveSMSByIdList(List<String> ssids, Integer idEmpresa) {
+
+		List<Message> messages = new ArrayList<>();
+		String accountSid = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.ACCOUNT_SID).getValor();
+		String authToken = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.AUTH_TOKEN).getValor();
+		Twilio.init(accountSid, authToken);
+
+		for (String ssid: ssids) {
+			messages.add(Message.fetcher(ssid).fetch());
+		}
+
+		return messages;
+	}
+
+	public ResourceSet<Message> retrieveSMSByRangeDate(Integer idEmpresa, Date fechaInicio, Date fechaFin) {
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		String accountSid = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.ACCOUNT_SID).getValor();
+		String authToken = this.parametroService.findParameterByEmpresaAndName(idEmpresa, Constants.AUTH_TOKEN).getValor();
+		Twilio.init(accountSid, authToken);
+		return Message.reader()
+				.setDateSent(Range.open(DateTime.parse(sdf.format(fechaInicio)), DateTime.parse(sdf.format(fechaFin))))
+				.read();
 	}
 
 	public static void main(String[] args) {

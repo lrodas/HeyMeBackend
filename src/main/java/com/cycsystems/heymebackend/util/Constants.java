@@ -38,5 +38,14 @@ public class Constants {
 	public static final String SERVICE_ID = "twilio.account.service.id";
 	public static final String NOTIFICATION_RATE = "notificacion.tarifa";
 	public static final String IMAGES_URL = "images.url";
+
+	public static final String[] DATE_FORMATS = {
+			"yyyy-MM-dd'T'HH:mm:ss'Z'",   "yyyy-MM-dd'T'HH:mm:ssZ",
+			"yyyy-MM-dd'T'HH:mm:ss",      "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+			"yyyy-MM-dd'T'HH:mm:ss.SSSZ", "yyyy-MM-dd HH:mm:ss",
+			"MM/dd/yyyy HH:mm:ss",        "MM/dd/yyyy'T'HH:mm:ss.SSS'Z'",
+			"MM/dd/yyyy'T'HH:mm:ss.SSSZ", "MM/dd/yyyy'T'HH:mm:ss.SSS",
+			"MM/dd/yyyy'T'HH:mm:ssZ",     "MM/dd/yyyy'T'HH:mm:ss",
+			"yyyy:MM:dd HH:mm:ss",        "yyyyMMdd", };
 	
 }

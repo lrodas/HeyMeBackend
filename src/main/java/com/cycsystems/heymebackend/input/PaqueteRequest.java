@@ -13,4 +13,5 @@ import lombok.ToString;
 public class PaqueteRequest extends BaseInput {
 	
 	private Paquete paquete;
+	private String jsonResponse;
 }

@@ -3,6 +3,7 @@
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -313,32 +314,42 @@ public class NotificationController {
 		} else {
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 
-			List<PaqueteConsumo> paqueteConsumos = this.paqueteConsumoService.findPackagesByCompanyAndStatus(usuario.getEmpresa().getIdEmpresa(), input.getTipo());
+			List<PaqueteConsumo> paquetesConsumo = this.paqueteConsumoService.findPackagesByCompanyAndStatus(usuario.getEmpresa().getIdEmpresa(), input.getTipo());
 			NotificacionesRestantes notificacionesRestantes = new NotificacionesRestantes();
 			notificacionesRestantes.setCantidadCorreo(0);
 			notificacionesRestantes.setCantidadMensajes(0);
 			notificacionesRestantes.setCantidadWhatsapp(0);
 
-			for(PaqueteConsumo paqueteConsumo: paqueteConsumos) {
+			if (paquetesConsumo != null && paquetesConsumo.size() > 0) {
+				paquetesConsumo.stream().sorted(new Comparator<PaqueteConsumo>() {
+					@Override
+					public int compare(PaqueteConsumo o1, PaqueteConsumo o2) {
+						return o1.getFechaCompra().compareTo(o2.getFechaCompra());
+					}
+				});
 
-				List<DetallePaquete> detalles = this.detallePaqueteService.findByPaquete(paqueteConsumo.getPaquete().getIdPaquete());
-				
-				for (DetallePaquete detalle: detalles) {
+				List<DetallePaquete> detalles = this.detallePaqueteService.findByPaquete(paquetesConsumo.get(0).getPaquete().getIdPaquete());
+
+				for (DetallePaquete detalle : detalles) {
 					if (detalle.getCanal().getIdCanal().compareTo(Constants.CANAL_SMS) == 0) {
-						notificacionesRestantes.setCantidadMensajes(detalle.getCuota() - paqueteConsumo.getConsumoSMS());
+						notificacionesRestantes.setCantidadMensajes(detalle.getCuota() - paquetesConsumo.get(0).getConsumoSMS());
 					} else if (detalle.getCanal().getIdCanal().compareTo(Constants.CANAL_EMAIL) == 0) {
 						notificacionesRestantes.setCantidadCorreo(-1);
 					} else if (detalle.getCanal().getIdCanal().compareTo(Constants.CANAL_WHATSAPP) == 0) {
-						notificacionesRestantes.setCantidadWhatsapp(detalle.getCuota() - paqueteConsumo.getConsumoWhatsapp());
+						notificacionesRestantes.setCantidadWhatsapp(detalle.getCuota() - paquetesConsumo.get(0).getConsumoWhatsapp());
 					}
 				}
+
+				output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+				output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+				output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+				output.setPaqueteActivo(notificacionesRestantes);
+			} else {
+				output.setCodigo(Response.PACKAGE_NOT_AVAILABE.getCodigo());
+				output.setDescripcion(Response.PACKAGE_NOT_AVAILABE.getMessage());
+				output.setIndicador(Response.PACKAGE_NOT_AVAILABE.getIndicador());
 			}
-			
-			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-			output.setPaqueteActivo(notificacionesRestantes);
-		}		
+		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 	
