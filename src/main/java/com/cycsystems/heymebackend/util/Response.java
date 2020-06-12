@@ -96,7 +96,10 @@ public enum Response {
 	JSON_RESPONSE_EMPTY("0091", "El json de respuesta de la pasarela de pagos no puede ser vacio", "ERROR"),
 	JSON_RESPONSE_NOT_VALID("0092", "El json de respues de la pasarela de pagos no es valido", "ERROR"),
 	COBRO_NO_REALIZADO_ERROR("0093", "Cobro no realizado", "ERROR"),
-	DATE_FORMAT_NOT_VALID("0094", "El formato de fecha no es valido, por favor contacte con soporte", "ERROR");
+	DATE_FORMAT_NOT_VALID("0094", "El formato de fecha no es valido, por favor contacte con soporte", "ERROR"),
+	NOTIFICATION_SENDER_NOT_EMPTY("0095", "El remitente de la notificacion no puede estar vacio", "ERROR"),
+	COMPANY_CODE_NOT_EMPTY("0096", "El codigo de la empresa es obligatorio", "ERROR"),
+	COMPANY_NOT_EXIST("0097", "La empresa no existe, por favor verificar", "ERROR");
 
 	private String codigo;
 	private String message;
