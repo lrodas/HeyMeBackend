@@ -47,7 +47,7 @@ public class TareasProgramadas {
 		this.detallePaqueteService = detallePaqueteService;
 	}
 
-	@Scheduled(fixedDelay = 60000)
+//	@Scheduled(fixedDelay = 60000)
 	// @Scheduled(fixedDelay = 60000)
 	public void taskSendMessage() {
 
@@ -98,7 +98,7 @@ public class TareasProgramadas {
 						} else if (notificacion.getCanal().getIdCanal().compareTo(Constants.CANAL_EMAIL) == 0) {
 							
 							if (mailRestantes.compareTo(0) > 0) {								
-								this.mailService.sendMail(mailFrom, contacto.getEmail(), notificacion.getTitulo(), notificacion.getNotificacion());
+//								this.mailService.sendMail(mailFrom, contacto.getEmail(), notificacion.getTitulo(), notificacion.getNotificacion());
 								notificacion.setEstado(new EstadoNotificacion(Constants.ESTADO_NOTIFICACION_ENVIADA, ""));
 							}
 						
@@ -122,7 +122,7 @@ public class TareasProgramadas {
 		}
 	}
 
-	@Scheduled(cron = "0 0 0/12 1/1 * ?")
+//	@Scheduled(cron = "0 0 0/12 1/1 * ?")
 	private void activateAndDeactivatePackage() {
 		List<PaqueteConsumo> paquetesInactivos = this.paqueteConsumoService.findPackagesByCompanyStartDateAndStatus(new Date(), Constants.ESTADO_PAQUETE_CONSUMO_INACTIVO);
 		for (PaqueteConsumo paquete: paquetesInactivos) {

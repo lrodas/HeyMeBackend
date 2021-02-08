@@ -227,10 +227,10 @@ public class NotificationController {
 								output.setIndicador(Response.NOTIFICATIONS_NOT_AVAILABLE.getIndicador());
 							} else {
 								for (Contacto contacto : notificacion.getDestinatarios()) {
-									this.mailService.sendMail(mailFrom,
-											contacto.getEmail(),
-											notificacion.getTitulo(),
-											notificacion.getNotificacion());
+//									this.mailService.sendMail(mailFrom,
+//											contacto.getEmail(),
+//											notificacion.getTitulo(),
+//											notificacion.getNotificacion());
 								}
 								notificacion.setCodigo(codigo);
 
