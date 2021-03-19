@@ -25,8 +25,14 @@ public class MvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/api/**")
-			.allowedOrigins("http://localhost:4200")
-				.allowedOrigins("https://cycsystemsgt.com/")
+			.allowedOrigins("http://localhost:4200",
+					"http://localhost:8081",
+					"http://localhost:8080",
+					"https://cycsystemsgt.com/",
+					"http://easystore.com.gt/",
+					"https://easystore.com.gt/",
+					"http://heyme.com.gt",
+					"https://heyme.com.gt")
 			.allowCredentials(true)
 			.allowedMethods("GET, PUT, POST, DELETE, OPTIONS")
 			.allowedHeaders("Host,Accept,Origin,X-Frame-Options,X-Requested-With,Authorization,content-type,x-auth-token");
