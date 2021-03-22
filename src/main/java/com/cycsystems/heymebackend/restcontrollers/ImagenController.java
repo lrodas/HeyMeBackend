@@ -1,5 +1,22 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
+import java.io.IOException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.cycsystems.heymebackend.models.entity.Empresa;
 import com.cycsystems.heymebackend.models.entity.Usuario;
 import com.cycsystems.heymebackend.models.service.IEmpresaService;
@@ -8,42 +25,30 @@ import com.cycsystems.heymebackend.models.service.IUsuarioService;
 import com.cycsystems.heymebackend.output.ImagenResponse;
 import com.cycsystems.heymebackend.util.Constants;
 import com.cycsystems.heymebackend.util.Response;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.AsyncResult;
-import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/image")
 public class ImagenController {
 
 	private Logger LOG = LogManager.getLogger(ImagenController.class);
-	
+
 	@Autowired
 	private IUsuarioService usuarioService;
-	
+
 	@Autowired
 	private IFileStorageService fileStorage;
 
 	@Autowired
 	private IEmpresaService empresaService;
-	
+
 	@PostMapping("/upload/{id}")
-	public ListenableFuture<ResponseEntity<?>> subirImagenes(
-			@RequestParam("imagen") MultipartFile imagen,
-			@PathVariable("id") String id) {
-		
+	public ListenableFuture<ResponseEntity<?>> subirImagenes(@RequestParam("imagen") MultipartFile imagen,
+			@PathVariable("id") String id) throws JSchException, SftpException {
+
 		LOG.info("METHOD: subirImagenes() --PARAMS: id: " + id);
-		
+
 		ImagenResponse output = new ImagenResponse();
 		String nombreArchivo = "";
 
@@ -103,16 +108,17 @@ public class ImagenController {
 				}
 
 			} else {
-					output.setCodigo(Response.PARAMS_LENGTH_INVALID.getCodigo());
-					output.setDescripcion(Response.PARAMS_LENGTH_INVALID.getMessage());
-					output.setIndicador(Response.PARAMS_LENGTH_INVALID.getIndicador());
-				}
+				output.setCodigo(Response.PARAMS_LENGTH_INVALID.getCodigo());
+				output.setDescripcion(Response.PARAMS_LENGTH_INVALID.getMessage());
+				output.setIndicador(Response.PARAMS_LENGTH_INVALID.getIndicador());
+			}
 		}
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 
 	@RequestMapping(value = "/view/{name}", method = RequestMethod.GET, produces = "image/jpg")
-	public ListenableFuture<ResponseEntity<Resource>> obtenerImagen(@PathVariable("name") String nombre) {
+	public ListenableFuture<ResponseEntity<byte[]>> obtenerImagen(@PathVariable("name") String nombre)
+			throws JSchException, SftpException {
 
 		LOG.info("METHOD: obtenerImagen() --PARAMS: nombre: " + nombre);
 
@@ -120,11 +126,12 @@ public class ImagenController {
 		Integer id = Integer.parseInt(nombre.split("-")[1]);
 		String nombreImg = nombre.split("-")[1] + "-" + nombre.split("-")[2];
 		LOG.info("parametros: tipo: " + tipo + ", id:" + id + ", nombreImg: " + nombreImg);
-		Resource loader = this.fileStorage.loadFileAsResource(nombreImg, id, tipo);
-		return new AsyncResult<>(new ResponseEntity<Resource>(loader, HttpStatus.OK));
+		byte[] loader = this.fileStorage.loadFileAsResource(nombreImg, id, tipo);
+		return new AsyncResult<>(new ResponseEntity<byte[]>(loader, HttpStatus.OK));
 	}
 
-	private String storeFile(MultipartFile imagen, ImagenResponse output, String nombreArchivo, Integer identificador, String tipo) {
+	private String storeFile(MultipartFile imagen, ImagenResponse output, String nombreArchivo, Integer identificador,
+			String tipo) throws JSchException, SftpException {
 		try {
 			nombreArchivo = this.fileStorage.storeFile(imagen, identificador, tipo);
 		} catch (IOException e) {

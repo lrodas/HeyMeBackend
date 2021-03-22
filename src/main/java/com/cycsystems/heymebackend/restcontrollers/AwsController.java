@@ -1,7 +1,6 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -22,22 +21,22 @@ import com.amazonaws.services.identitymanagement.model.ListUsersResult;
 import com.amazonaws.services.identitymanagement.model.UpdateUserRequest;
 import com.amazonaws.services.identitymanagement.model.UpdateUserResult;
 import com.amazonaws.services.identitymanagement.model.User;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.Bucket;
 import com.cycsystems.heymebackend.util.Constants;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/IAMUser")
 public class AwsController {
 
+	@Value("${aws.user}")
+	private String awsUser;
+	@Value("${aws.pass}")
+	private String awsPass;
+
 	@Async
 	@PostMapping("/obtainIAMUser")
 	public AsyncResult<ResponseEntity<Object>> activarUsuario() {
 
-		BasicAWSCredentials creds = new BasicAWSCredentials("AKIARMWTPMHWWXAYL3V6",
-				"C9OJ/PVBKOzycpAcvbEj+tFMgEfgrJJIpNlIoh+t");
+		BasicAWSCredentials creds = new BasicAWSCredentials(awsUser, awsPass);
 
 //		AmazonS3 amazonS3 = AmazonS3Client.builder().withRegion("us-east-2")
 //				.withCredentials(new AWSStaticCredentialsProvider(creds)).build();
@@ -86,8 +85,7 @@ public class AwsController {
 	@PostMapping("/createUsrIAM")
 	public AsyncResult<ResponseEntity<Object>> createUsrIAM() {
 
-		BasicAWSCredentials creds = new BasicAWSCredentials("AKIARMWTPMHWWXAYL3V6",
-				"C9OJ/PVBKOzycpAcvbEj+tFMgEfgrJJIpNlIoh+t");
+		BasicAWSCredentials creds = new BasicAWSCredentials(awsUser, awsPass);
 
 		AmazonIdentityManagement iam = AmazonIdentityManagementClientBuilder.standard().withRegion("us-east-2")
 				.withCredentials(new AWSStaticCredentialsProvider(creds)).build();
@@ -105,8 +103,7 @@ public class AwsController {
 	@PostMapping("updateUsrIAM")
 	public AsyncResult<ResponseEntity<Object>> updateUsrIAM() {
 
-		BasicAWSCredentials creds = new BasicAWSCredentials("AKIARMWTPMHWWXAYL3V6",
-				"C9OJ/PVBKOzycpAcvbEj+tFMgEfgrJJIpNlIoh+t");
+		BasicAWSCredentials creds = new BasicAWSCredentials(awsUser, awsPass);
 
 		AmazonIdentityManagement iam = AmazonIdentityManagementClientBuilder.standard().withRegion("us-east-2")
 				.withCredentials(new AWSStaticCredentialsProvider(creds)).build();
@@ -126,8 +123,7 @@ public class AwsController {
 
 		Object response = null;
 
-		BasicAWSCredentials creds = new BasicAWSCredentials("AKIARMWTPMHWWXAYL3V6",
-				"C9OJ/PVBKOzycpAcvbEj+tFMgEfgrJJIpNlIoh+t");
+		BasicAWSCredentials creds = new BasicAWSCredentials(awsUser, awsPass);
 
 		AmazonIdentityManagement iam = AmazonIdentityManagementClientBuilder.standard().withRegion("us-east-2")
 				.withCredentials(new AWSStaticCredentialsProvider(creds)).build();
