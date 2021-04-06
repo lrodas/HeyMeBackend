@@ -1,17 +1,15 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
-import com.cycsystems.heymebackend.convert.CUsuario;
-import com.cycsystems.heymebackend.input.CambioContrasenaRequest;
-import com.cycsystems.heymebackend.input.UsuarioRequest;
-import com.cycsystems.heymebackend.models.entity.*;
-import com.cycsystems.heymebackend.models.service.*;
-import com.cycsystems.heymebackend.models.service.impl.MailServiceImpl;
-import com.cycsystems.heymebackend.output.CambioContrasenaResponse;
-import com.cycsystems.heymebackend.output.UsuarioResponse;
-import com.cycsystems.heymebackend.util.Constants;
-import com.cycsystems.heymebackend.util.Response;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-import com.cycsystems.heymebackend.util.Util;
+import javax.mail.MessagingException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +25,31 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.cycsystems.heymebackend.awsServices.AWSIamUser;
+import com.cycsystems.heymebackend.convert.CUsuario;
+import com.cycsystems.heymebackend.input.CambioContrasenaRequest;
+import com.cycsystems.heymebackend.input.UsuarioRequest;
+import com.cycsystems.heymebackend.models.entity.Empresa;
+import com.cycsystems.heymebackend.models.entity.EstadoUsuario;
+import com.cycsystems.heymebackend.models.entity.Opcion;
+import com.cycsystems.heymebackend.models.entity.Parametro;
+import com.cycsystems.heymebackend.models.entity.Permiso;
+import com.cycsystems.heymebackend.models.entity.Role;
+import com.cycsystems.heymebackend.models.entity.Usuario;
+import com.cycsystems.heymebackend.models.service.ICaptchaService;
+import com.cycsystems.heymebackend.models.service.IEmpresaService;
+import com.cycsystems.heymebackend.models.service.IFileStorageService;
+import com.cycsystems.heymebackend.models.service.IOpcionService;
+import com.cycsystems.heymebackend.models.service.IParametroService;
+import com.cycsystems.heymebackend.models.service.IPermisoService;
+import com.cycsystems.heymebackend.models.service.IRoleService;
+import com.cycsystems.heymebackend.models.service.IUsuarioService;
+import com.cycsystems.heymebackend.models.service.impl.MailServiceImpl;
+import com.cycsystems.heymebackend.output.CambioContrasenaResponse;
+import com.cycsystems.heymebackend.output.UsuarioResponse;
+import com.cycsystems.heymebackend.util.Constants;
+import com.cycsystems.heymebackend.util.Response;
+import com.cycsystems.heymebackend.util.Util;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/user")
@@ -60,8 +80,6 @@ public class UsuarioController {
 
 	private final MailServiceImpl mailService;
 
-	private final IFileStorageService fileStorageService;
-
 	@Value("${status.user.inactive}")
 	private Integer STATUS_USER_INACTIVE;
 
@@ -74,14 +92,14 @@ public class UsuarioController {
 	@Value("${subject.mail.activate.user}")
 	private String SUBJECT_MAIL;
 
-	@Value("${mail.template.confirm}")
+	@Value("${template.welcome}")
 	private String MAIL_TEMPLATE_CONFIRM;
 
 	@Autowired
 	public UsuarioController(IUsuarioService usuarioService, IEmpresaService empresaService, IRoleService roleService,
 			IPermisoService permisoService, IOpcionService opcionService, IParametroService parametroService,
 			ICaptchaService captchaService, Environment env, BCryptPasswordEncoder passwordEncoder,
-			MailServiceImpl mailService, IFileStorageService fileStorageService) {
+			MailServiceImpl mailService, IFileStorageService fileStorageService, AWSIamUser iamUser) {
 		this.usuarioService = usuarioService;
 		this.empresaService = empresaService;
 		this.roleService = roleService;
@@ -92,7 +110,6 @@ public class UsuarioController {
 		this.env = env;
 		this.passwordEncoder = passwordEncoder;
 		this.mailService = mailService;
-		this.fileStorageService = fileStorageService;
 	}
 
 	@Async
@@ -409,7 +426,8 @@ public class UsuarioController {
 						Parametro mailParam = new Parametro();
 						mailParam.setEmpresa(empresa);
 						mailParam.setNombre("mail.from");
-						mailParam.setValor(env.getProperty("parametro.mail"));
+						mailParam.setValor(empresa.getNombreEmpresa().toLowerCase().replaceAll("[^a-zA-Z0-9]+", "")
+								+ empresa.getIdEmpresa() + "@heyme.com.gt");
 						parametros.add(mailParam);
 
 						// sid cuenta twillio
@@ -498,9 +516,18 @@ public class UsuarioController {
 				String jsonData = "{\"username\":\"" + response.getUsuario().getUsername() + "\", \"date\":\""
 						+ new Date() + "\"}";
 				String hash = Base64.getEncoder().encodeToString(jsonData.getBytes());
-				String textTemplate = this.fileStorageService.loadFileAsString(this.MAIL_TEMPLATE_CONFIRM)
-						.replace("{token}", hash);
-//				mailService.sendMail(this.MAIL_FROM, response.getUsuario().getUsername(), this.SUBJECT_MAIL, textTemplate);
+//				String textTemplate = this.fileStorageService.loadFileAsString(this.MAIL_TEMPLATE_CONFIRM)
+//						.replace("{token}", hash);
+				try {
+					mailService.sendEmail(this.MAIL_FROM, response.getUsuario().getUsername(), this.SUBJECT_MAIL, hash,
+							MAIL_TEMPLATE_CONFIRM);
+				} catch (MessagingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
 			}
 		}
@@ -605,13 +632,13 @@ public class UsuarioController {
 
 			Usuario usuario = this.usuarioService.findByUsername(input.getDatos().getUsername());
 			if (usuario != null) {
-				usuario.setEnabled(true);
 
 				usuario = this.usuarioService.save(usuario);
 				response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 				response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 				response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 				response.setUsuario(CUsuario.EntityToModel(usuario));
+
 			} else {
 				response.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
 				response.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
@@ -655,9 +682,20 @@ public class UsuarioController {
 						String jsonData = "{\"username\":\"" + input.getDatos().getUsername() + "\", \"date\":\""
 								+ new Date() + "\"}";
 						String hash = Base64.getEncoder().encodeToString(jsonData.getBytes());
-						String textTemplate = this.fileStorageService.loadFileAsString(this.MAIL_TEMPLATE_CONFIRM)
-								.replace("{token}", hash);
+
+//						String textTemplate = this.fileStorageService.loadFileAsString(this.MAIL_TEMPLATE_CONFIRM)
+//								.replace("{token}", hash);
+//						System.out.println("------------ textTemplate " + textTemplate);
+
 //						mailService.sendMail(this.MAIL_FROM, usuarioNuevo.getUsername(), this.SUBJECT_MAIL, textTemplate);
+						try {
+							this.mailService.sendEmail(this.MAIL_FROM, usuarioNuevo.getUsername(), this.SUBJECT_MAIL,
+									hash, MAIL_TEMPLATE_CONFIRM);
+						} catch (MessagingException | IOException e) {
+							e.printStackTrace();
+
+							LOG.info("error al enviar correo: " + e.getMessage());
+						}
 
 						response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 						response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());

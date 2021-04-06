@@ -164,13 +164,16 @@ public class FileStorageServiceImpl implements IFileStorageService {
 	public String loadFileAsString(String name) throws IOException {
 		LOG.info("loadFileAsString() --PARAMS: " + name);
 
+		System.out.println("***** : MAIL_TEMPLATE_URL" + MAIL_TEMPLATE_URL);
+		System.out.println("***** : name" + name);
+
 		File file = new File(this.MAIL_TEMPLATE_URL + name);
 		@SuppressWarnings("resource")
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String completeText = "";
 		String line;
 		while ((line = br.readLine()) != null) {
-			LOG.info(line);
+			LOG.info("*******line: " + line);
 			completeText += line;
 		}
 

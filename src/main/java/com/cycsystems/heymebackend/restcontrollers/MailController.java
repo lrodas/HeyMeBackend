@@ -78,16 +78,14 @@ public class MailController {
 				response.setDescripcion(Response.COMPANY_NOT_EXIST.getMessage());
 				response.setIndicador(Response.COMPANY_NOT_EXIST.getIndicador());
 			} else {
-//				this.mailService.sendMail(request.getRemitente(), request.getDestinatario(), request.getAsunto(),
-//						request.getMensaje());
 
 				try {
-					this.mailService.sendEmail(request.getRemitente(), request.getDestinatario(), request.getAsunto(),
-							"www.easystore.com.gt", templateWelcome);
+					this.mailService.sendEmailTxt(request.getRemitente(), request.getDestinatario(),
+							request.getAsunto(), request.getMensaje());
 				} catch (MessagingException | IOException e) {
 					e.printStackTrace();
 
-					System.out.println("error al enviar correo: " + e.getMessage());
+					LOG.info("error al enviar correo: " + e.getMessage());
 				}
 
 				response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());

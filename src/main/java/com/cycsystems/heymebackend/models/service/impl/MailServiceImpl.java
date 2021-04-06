@@ -66,4 +66,17 @@ public class MailServiceImpl {
 		helper.setFrom(from);
 		mailSender.send(message);
 	}
+
+	public void sendEmailTxt(String from, String to, String subject, String body)
+			throws MessagingException, IOException {
+		MimeMessage message = mailSender.createMimeMessage();
+		MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED,
+				StandardCharsets.UTF_8.name());
+
+		helper.setTo(to);
+		helper.setText(body, false);
+		helper.setSubject(subject);
+		helper.setFrom(from);
+		mailSender.send(message);
+	}
 }

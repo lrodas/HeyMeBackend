@@ -51,6 +51,10 @@ public class Usuario implements Serializable {
 	
 	private Date fechaAlta;
 
+	private String accessKeyId;
+	
+	private String secretAccessKey;
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idEmpresa")
 	private Empresa empresa;
