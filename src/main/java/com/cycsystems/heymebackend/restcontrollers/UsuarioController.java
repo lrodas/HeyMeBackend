@@ -86,7 +86,7 @@ public class UsuarioController {
 	@Value("${status.user.active}")
 	private Integer STATUS_USER_ACTIVE;
 
-	@Value("${spring.mail.username}")
+	@Value("${spring.mail.from.email}")
 	private String MAIL_FROM;
 
 	@Value("${subject.mail.activate.user}")
@@ -516,8 +516,6 @@ public class UsuarioController {
 				String jsonData = "{\"username\":\"" + response.getUsuario().getUsername() + "\", \"date\":\""
 						+ new Date() + "\"}";
 				String hash = Base64.getEncoder().encodeToString(jsonData.getBytes());
-//				String textTemplate = this.fileStorageService.loadFileAsString(this.MAIL_TEMPLATE_CONFIRM)
-//						.replace("{token}", hash);
 				try {
 					mailService.sendEmail(this.MAIL_FROM, response.getUsuario().getUsername(), this.SUBJECT_MAIL, hash,
 							MAIL_TEMPLATE_CONFIRM);
