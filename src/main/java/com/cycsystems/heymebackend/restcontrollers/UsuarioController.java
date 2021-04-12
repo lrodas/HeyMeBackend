@@ -518,7 +518,7 @@ public class UsuarioController {
 				String hash = Base64.getEncoder().encodeToString(jsonData.getBytes());
 				try {
 					mailService.sendEmail(this.MAIL_FROM, response.getUsuario().getUsername(), this.SUBJECT_MAIL,
-							"https://heyme.com.gt/#/login?" + hash, MAIL_TEMPLATE_CONFIRM);
+							"https://heyme.com.gt/#/login?id=" + hash, MAIL_TEMPLATE_CONFIRM);
 				} catch (MessagingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
