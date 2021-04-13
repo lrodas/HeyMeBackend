@@ -100,7 +100,8 @@ public enum Response {
 	NOTIFICATION_SENDER_NOT_EMPTY("0095", "El remitente de la notificacion no puede estar vacio", "ERROR"),
 	COMPANY_CODE_NOT_EMPTY("0096", "El codigo de la empresa es obligatorio", "ERROR"),
 	COMPANY_NOT_EXIST("0097", "La empresa no existe, por favor verificar", "ERROR"),
-	AWS_IAM_USER_NOT_CREATED("0098", "Ocurrio un error al crear el usuario en Amazon", "ERROR");
+	AWS_IAM_USER_NOT_CREATED("0098", "Ocurrio un error al crear el usuario en Amazon", "ERROR"),
+	INVALID_BASE64("0098", "Codigo Base64 no valido", "ERROR");
 
 	private String codigo;
 	private String message;

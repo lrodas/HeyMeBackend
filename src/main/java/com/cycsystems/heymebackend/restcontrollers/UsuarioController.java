@@ -515,7 +515,9 @@ public class UsuarioController {
 					&& response.getUsuario().getIdUsuario().compareTo(0) > 0) {
 				String jsonData = "{\"username\":\"" + response.getUsuario().getUsername() + "\", \"date\":\""
 						+ new Date() + "\"}";
+
 				String hash = Base64.getEncoder().encodeToString(jsonData.getBytes());
+
 				try {
 					mailService.sendEmail(this.MAIL_FROM, response.getUsuario().getUsername(), this.SUBJECT_MAIL,
 							"https://heyme.com.gt/#/login?id=" + hash, MAIL_TEMPLATE_CONFIRM);
@@ -628,19 +630,33 @@ public class UsuarioController {
 			response.setIndicador(Response.USER_NOT_EMPTY.getIndicador());
 		} else {
 
-			Usuario usuario = this.usuarioService.findByUsername(input.getDatos().getUsername());
-			if (usuario != null) {
+			boolean validBase64 = org.apache.commons.codec.binary.Base64.isBase64(input.getDatos().getUsername());
 
-				usuario = this.usuarioService.save(usuario);
-				response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
-				response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
-				response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-				response.setUsuario(CUsuario.EntityToModel(usuario));
+			if (validBase64) {
 
+				byte[] decodeByte = Base64.getDecoder().decode(input.getDatos().getUsername());
+				String decode = new String(decodeByte);
+
+				String[] splitString = decode.split("\"");
+
+				Usuario usuario = this.usuarioService.findByUsername(splitString[3].toString());
+				if (usuario != null) {
+
+					usuario = this.usuarioService.save(usuario);
+					response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
+					response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
+					response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
+					response.setUsuario(CUsuario.EntityToModel(usuario));
+
+				} else {
+					response.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
+					response.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
+					response.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+				}
 			} else {
-				response.setCodigo(Response.USER_NOT_EXIST_ERROR.getCodigo());
-				response.setDescripcion(Response.USER_NOT_EXIST_ERROR.getMessage());
-				response.setIndicador(Response.USER_NOT_EXIST_ERROR.getIndicador());
+				response.setCodigo(Response.INVALID_BASE64.getCodigo());
+				response.setDescripcion(Response.INVALID_BASE64.getMessage());
+				response.setIndicador(Response.INVALID_BASE64.getIndicador());
 			}
 
 		}
