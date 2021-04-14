@@ -641,7 +641,8 @@ public class UsuarioController {
 
 				Usuario usuario = this.usuarioService.findByUsername(splitString[3].toString());
 				if (usuario != null) {
-
+					usuario.setEnabled(true);
+					usuario.setEstadoUsuario(new EstadoUsuario(STATUS_USER_ACTIVE));
 					usuario = this.usuarioService.save(usuario);
 					response.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 					response.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
