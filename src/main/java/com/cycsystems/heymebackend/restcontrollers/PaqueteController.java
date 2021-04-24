@@ -26,8 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cycsystems.heymebackend.common.Consumo;
-import com.cycsystems.heymebackend.common.Empresa;
 import com.cycsystems.heymebackend.input.PaqueteRequest;
 import com.cycsystems.heymebackend.models.entity.EstadoPaqueteConsumo;
 import com.cycsystems.heymebackend.models.entity.Paquete;
@@ -43,16 +41,16 @@ import com.cycsystems.heymebackend.util.Constants;
 @RequestMapping("/api/" + Constants.VERSION + "/package")
 public class PaqueteController {
 
-	
 	private Logger LOG = LogManager.getLogger(PaqueteController.class);
-	
+
 	private final IPaqueteConsumoService consumoService;
 	private final IPaqueteService paqueteService;
 	private final IUsuarioService usuarioService;
 	private final IDetallePaqueteService detallePaqueteService;
 
 	@Autowired
-	public PaqueteController(IPaqueteConsumoService consumoService, IPaqueteService paqueteService, IUsuarioService usuarioService, IDetallePaqueteService detallePaqueteService) {
+	public PaqueteController(IPaqueteConsumoService consumoService, IPaqueteService paqueteService,
+			IUsuarioService usuarioService, IDetallePaqueteService detallePaqueteService) {
 		this.consumoService = consumoService;
 		this.paqueteService = paqueteService;
 		this.usuarioService = usuarioService;
@@ -61,17 +59,15 @@ public class PaqueteController {
 
 	@Async
 	@PostMapping("/saveConsumption")
-	public ListenableFuture<ResponseEntity<PaqueteResponse>> guardarPaquete(
-			@RequestBody PaqueteRequest input) {
+	public ListenableFuture<ResponseEntity<PaqueteResponse>> guardarPaquete(@RequestBody PaqueteRequest input) {
 		LOG.info("METHOD: guardarPaquete() --PARAMS: PaqueteResponse: " + input);
 		PaqueteResponse output = new PaqueteResponse();
-		
+
 		if (input.getPaquete() == null) {
 			output.setCodigo(Response.SUCCESS_RESPONSE.getCodigo());
 			output.setDescripcion(Response.SUCCESS_RESPONSE.getMessage());
 			output.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
-		} else if (input.getPaquete().getIdPaquete() == null ||
-				input.getPaquete().getIdPaquete() <= 0) {
+		} else if (input.getPaquete().getIdPaquete() == null || input.getPaquete().getIdPaquete() <= 0) {
 			output.setCodigo(Response.PACKAGE_NOT_AVAILABE.getCodigo());
 			output.setDescripcion(Response.PACKAGE_NOT_EMPTY.getMessage());
 			output.setIndicador(Response.PACKAGE_NOT_EMPTY.getIndicador());
@@ -84,7 +80,7 @@ public class PaqueteController {
 			output.setDescripcion(Response.JSON_RESPONSE_EMPTY.getMessage());
 			output.setIndicador(Response.JSON_RESPONSE_EMPTY.getIndicador());
 		} else {
-			
+
 			Usuario usuario = this.usuarioService.findById(input.getIdUsuario());
 
 			if (usuario == null) {
@@ -107,7 +103,8 @@ public class PaqueteController {
 						if (jsonObject.getString("status").equalsIgnoreCase("COMPLETED")) {
 
 							PaqueteConsumo entity = new PaqueteConsumo();
-							Date fechaCompra = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse(jsonObject.getString("create_time"));
+							Date fechaCompra = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+									.parse(jsonObject.getString("create_time"));
 
 							entity.setConsumoMAIL(0);
 							entity.setConsumoSMS(0);
@@ -146,13 +143,14 @@ public class PaqueteController {
 				}
 			}
 		}
-		
+
 		return new AsyncResult<>(ResponseEntity.ok(output));
 	}
 
 	@Async
 	@PostMapping("/retrieveAvaiblePackage")
-	public ListenableFuture<ResponseEntity<PaqueteResponse>> obtenerPaquetesDisponibles(@RequestBody PaqueteRequest request) {
+	public ListenableFuture<ResponseEntity<PaqueteResponse>> obtenerPaquetesDisponibles(
+			@RequestBody PaqueteRequest request) {
 		LOG.info("METHOD: obtenerPaquetesDisponibles() --PARAMS: " + request);
 		PaqueteResponse response = new PaqueteResponse();
 
@@ -163,18 +161,13 @@ public class PaqueteController {
 		response.setIndicador(Response.SUCCESS_RESPONSE.getIndicador());
 
 		if (paquetes != null && !paquetes.isEmpty()) {
-			response.setPaquetes(paquetes
-				.stream()
-				.map(paquete -> {
-					com.cycsystems.heymebackend.common.Paquete model = new com.cycsystems.heymebackend.common.Paquete();
-					model = CPaquete.EntityToModel(paquete);
-					model.setDetalle(this.detallePaqueteService.findByPaquete(paquete.getIdPaquete())
-						.stream()
-						.map(CDetallePaquete::EntityToModel)
-						.collect(Collectors.toList()));
-					return model;
-				})
-				.collect(Collectors.toList()));
+			response.setPaquetes(paquetes.stream().map(paquete -> {
+				com.cycsystems.heymebackend.common.Paquete model = new com.cycsystems.heymebackend.common.Paquete();
+				model = CPaquete.EntityToModel(paquete);
+				model.setDetalle(this.detallePaqueteService.findByPaquete(paquete.getIdPaquete()).stream()
+						.map(CDetallePaquete::EntityToModel).collect(Collectors.toList()));
+				return model;
+			}).collect(Collectors.toList()));
 		}
 
 		return new AsyncResult<>(ResponseEntity.ok(response));

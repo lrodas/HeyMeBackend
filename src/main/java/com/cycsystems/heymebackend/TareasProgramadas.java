@@ -1,23 +1,13 @@
 package com.cycsystems.heymebackend;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.rmi.RemoteException;
-import java.text.ParseException;
-
 import javax.mail.MessagingException;
 
-import com.cycsystems.heymebackend.common.TipoCambio;
-import com.cycsystems.heymebackend.convert.CTipoCambio;
-import com.cycsystems.heymebackend.models.dao.ITipoCambioDao;
 import com.cycsystems.heymebackend.models.entity.*;
 import com.twilio.rest.api.v2010.account.Message;
-
-import gt.gob.banguat.www.variables.ws.TipoCambioSoapProxy;
-import gt.gob.banguat.www.variables.ws.VarDolar;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,15 +36,13 @@ public class TareasProgramadas {
 	private final IParametroService parametroService;
 	private final IPaqueteConsumoService paqueteConsumoService;
 	private final IDetallePaqueteService detallePaqueteService;
-	private final ITipoCambioDao exchangeRepo;
 
 	private Logger LOG = LogManager.getLogger(TareasProgramadas.class);
 
 	@Autowired
 	public TareasProgramadas(INotificacionService notificationService, SMSServiceImpl smsService,
 			MailServiceImpl mailService, IEmpresaService empresaService, IParametroService parametroService,
-			IPaqueteConsumoService paqueteConsumoService, IDetallePaqueteService detallePaqueteService,
-			ITipoCambioDao exchangeRepo) {
+			IPaqueteConsumoService paqueteConsumoService, IDetallePaqueteService detallePaqueteService) {
 		this.notificationService = notificationService;
 		this.smsService = smsService;
 		this.mailService = mailService;
@@ -62,7 +50,6 @@ public class TareasProgramadas {
 		this.parametroService = parametroService;
 		this.paqueteConsumoService = paqueteConsumoService;
 		this.detallePaqueteService = detallePaqueteService;
-		this.exchangeRepo = exchangeRepo;
 	}
 
 	@Scheduled(fixedDelay = 60000)
@@ -169,26 +156,4 @@ public class TareasProgramadas {
 		}
 	}
 
-	@Scheduled(cron = "0 0 2 * * *")
-	public void taskObtainExchange() {
-
-		TipoCambioSoapProxy dsf = new TipoCambioSoapProxy();
-
-		try {
-			VarDolar[] info = dsf.getTipoCambioSoap().tipoCambioDia().getCambioDolar();
-
-			VarDolar d = info[0];
-
-			TipoCambio insert = new TipoCambio();
-			insert.setFecha(new SimpleDateFormat("dd/MM/yyyy").parse(d.getFecha()));
-			insert.setValor(Double.parseDouble(String.valueOf(d.getReferencia())));
-			insert.setEstado(true);
-			this.exchangeRepo.save(CTipoCambio.ModelToEntity(insert));
-
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-	}
 }

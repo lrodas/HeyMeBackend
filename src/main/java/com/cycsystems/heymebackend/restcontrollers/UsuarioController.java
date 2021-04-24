@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.cycsystems.heymebackend.awsServices.AWSIamUser;
 import com.cycsystems.heymebackend.convert.CUsuario;
 import com.cycsystems.heymebackend.input.CambioContrasenaRequest;
 import com.cycsystems.heymebackend.input.UsuarioRequest;
@@ -99,7 +98,7 @@ public class UsuarioController {
 	public UsuarioController(IUsuarioService usuarioService, IEmpresaService empresaService, IRoleService roleService,
 			IPermisoService permisoService, IOpcionService opcionService, IParametroService parametroService,
 			ICaptchaService captchaService, Environment env, BCryptPasswordEncoder passwordEncoder,
-			MailServiceImpl mailService, IFileStorageService fileStorageService, AWSIamUser iamUser) {
+			MailServiceImpl mailService, IFileStorageService fileStorageService) {
 		this.usuarioService = usuarioService;
 		this.empresaService = empresaService;
 		this.roleService = roleService;
@@ -698,11 +697,6 @@ public class UsuarioController {
 								+ new Date() + "\"}";
 						String hash = Base64.getEncoder().encodeToString(jsonData.getBytes());
 
-//						String textTemplate = this.fileStorageService.loadFileAsString(this.MAIL_TEMPLATE_CONFIRM)
-//								.replace("{token}", hash);
-//						System.out.println("------------ textTemplate " + textTemplate);
-
-//						mailService.sendMail(this.MAIL_FROM, usuarioNuevo.getUsername(), this.SUBJECT_MAIL, textTemplate);
 						try {
 							this.mailService.sendEmail(this.MAIL_FROM, usuarioNuevo.getUsername(), this.SUBJECT_MAIL,
 									hash, MAIL_TEMPLATE_CONFIRM);

@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "usuario",uniqueConstraints= {@UniqueConstraint(columnNames= {"username"})})
+@Table(name = "usuario", uniqueConstraints = { @UniqueConstraint(columnNames = { "username" }) })
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -23,17 +23,17 @@ public class Usuario implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer idUsuario;
-	
+
 	private String nombres;
-	
+
 	private String apellidos;
-	
+
 	private String direccion;
-	
+
 	private String telefono;
-	
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name="idRole")
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "idRole")
 	private Role role;
 
 	@Column(length = 150, unique = true)
@@ -41,20 +41,16 @@ public class Usuario implements Serializable {
 
 	@Column(length = 60)
 	private String password;
-	
+
 	private String img;
-	
-	@ManyToOne(fetch=FetchType.LAZY)
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Genero genero;
-	
+
 	private Boolean enabled;
-	
+
 	private Date fechaAlta;
 
-	private String accessKeyId;
-	
-	private String secretAccessKey;
-	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "idEmpresa")
 	private Empresa empresa;

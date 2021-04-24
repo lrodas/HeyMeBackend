@@ -1,41 +1,41 @@
 package com.cycsystems.heymebackend.models.service.impl;
 
-import com.cycsystems.heymebackend.models.dao.IPermisoDao;
-import com.cycsystems.heymebackend.models.dao.IRoleDao;
-import com.cycsystems.heymebackend.models.entity.Empresa;
-import com.cycsystems.heymebackend.models.entity.Permiso;
-import com.cycsystems.heymebackend.models.entity.Role;
-import com.cycsystems.heymebackend.models.service.IRoleService;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.cycsystems.heymebackend.models.dao.IPermisoDao;
+import com.cycsystems.heymebackend.models.dao.IRoleDao;
+import com.cycsystems.heymebackend.models.entity.Permiso;
+import com.cycsystems.heymebackend.models.entity.Role;
+import com.cycsystems.heymebackend.models.service.IRoleService;
 
 @Service
 public class RoleServiceImpl implements IRoleService {
 
 	@Autowired
 	private IRoleDao roleRepository;
-	
+
 	@Autowired
-	private IPermisoDao permisoRepository; 
-	
+	private IPermisoDao permisoRepository;
+
 	@Override
 	@Transactional
 	public Role save(Role entity) {
-		
+
 		Role role = this.roleRepository.save(entity);
 		List<Permiso> permisos = entity.getPermisos();
 		if (permisos != null && permisos.size() > 0) {
-			for (Permiso permiso: permisos) {
+			for (Permiso permiso : permisos) {
 				permiso.setPuesto(role);
 				this.permisoRepository.save(permiso);
 			}
 		}
-		
+
 		role = this.roleRepository.findById(role.getIdRole()).get();
-		
+
 		return role;
 	}
 
