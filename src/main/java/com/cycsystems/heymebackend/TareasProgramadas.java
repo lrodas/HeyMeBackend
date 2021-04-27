@@ -1,13 +1,10 @@
 package com.cycsystems.heymebackend;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import javax.mail.MessagingException;
 
-import com.cycsystems.heymebackend.models.entity.*;
-import com.twilio.rest.api.v2010.account.Message;
+import javax.mail.MessagingException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.cycsystems.heymebackend.models.entity.Contacto;
+import com.cycsystems.heymebackend.models.entity.DetallePaquete;
+import com.cycsystems.heymebackend.models.entity.Empresa;
+import com.cycsystems.heymebackend.models.entity.EstadoNotificacion;
+import com.cycsystems.heymebackend.models.entity.EstadoPaqueteConsumo;
+import com.cycsystems.heymebackend.models.entity.Notificacion;
+import com.cycsystems.heymebackend.models.entity.PaqueteConsumo;
 import com.cycsystems.heymebackend.models.service.IDetallePaqueteService;
 import com.cycsystems.heymebackend.models.service.IEmpresaService;
 import com.cycsystems.heymebackend.models.service.INotificacionService;
@@ -23,6 +27,7 @@ import com.cycsystems.heymebackend.models.service.IParametroService;
 import com.cycsystems.heymebackend.models.service.impl.MailServiceImpl;
 import com.cycsystems.heymebackend.models.service.impl.SMSServiceImpl;
 import com.cycsystems.heymebackend.util.Constants;
+import com.twilio.rest.api.v2010.account.Message;
 
 @Component
 public class TareasProgramadas {
@@ -110,7 +115,7 @@ public class TareasProgramadas {
 								try {
 									this.mailService.sendEmailTxt(mailFrom, contacto.getEmail(),
 											notificacion.getTitulo(), notificacion.getNotificacion());
-								} catch (MessagingException | IOException e) {
+								} catch (MessagingException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}

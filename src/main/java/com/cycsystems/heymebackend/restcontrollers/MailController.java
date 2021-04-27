@@ -1,15 +1,5 @@
 package com.cycsystems.heymebackend.restcontrollers;
 
-import com.cycsystems.heymebackend.input.MailRequest;
-import com.cycsystems.heymebackend.models.entity.Empresa;
-import com.cycsystems.heymebackend.models.service.IEmpresaService;
-import com.cycsystems.heymebackend.models.service.impl.MailServiceImpl;
-import com.cycsystems.heymebackend.output.MailResponse;
-import com.cycsystems.heymebackend.util.Constants;
-import com.cycsystems.heymebackend.util.Response;
-
-import java.io.IOException;
-
 import javax.mail.MessagingException;
 
 import org.apache.logging.log4j.LogManager;
@@ -24,6 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.cycsystems.heymebackend.input.MailRequest;
+import com.cycsystems.heymebackend.models.entity.Empresa;
+import com.cycsystems.heymebackend.models.service.IEmpresaService;
+import com.cycsystems.heymebackend.models.service.impl.MailServiceImpl;
+import com.cycsystems.heymebackend.output.MailResponse;
+import com.cycsystems.heymebackend.util.Constants;
+import com.cycsystems.heymebackend.util.Response;
 
 @RestController
 @RequestMapping("/api/" + Constants.VERSION + "/mail")
@@ -82,7 +80,7 @@ public class MailController {
 				try {
 					this.mailService.sendEmailTxt(request.getRemitente(), request.getDestinatario(),
 							request.getAsunto(), request.getMensaje());
-				} catch (MessagingException | IOException e) {
+				} catch (MessagingException e) {
 					e.printStackTrace();
 
 					LOG.info("error al enviar correo: " + e.getMessage());

@@ -523,9 +523,6 @@ public class UsuarioController {
 				} catch (MessagingException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 
 			}
@@ -700,7 +697,7 @@ public class UsuarioController {
 						try {
 							this.mailService.sendEmail(this.MAIL_FROM, usuarioNuevo.getUsername(), this.SUBJECT_MAIL,
 									hash, MAIL_TEMPLATE_CONFIRM);
-						} catch (MessagingException | IOException e) {
+						} catch (MessagingException e) {
 							e.printStackTrace();
 
 							LOG.info("error al enviar correo: " + e.getMessage());
